@@ -36,7 +36,7 @@ model Doctor{
   dob DateTime
   phoneNum String
   role Role @default(DOCTOR)
-  specialist String
+  specialist String?
   isActive Boolean
   created_at DateTime
   updated_at DateTime @default(now())
