@@ -2,7 +2,7 @@ import User from "./User";
 import {Role} from "@prisma/client";
 
 export default class Doctor extends User{
-    private specialist: string;
+    public specialist: string | null;
 
     constructor(id: number, isActive: boolean, created_at: Date, updated_at: Date, nik: string,
                 email: string, password: string, firstName: string, lastName: string, dob: Date,

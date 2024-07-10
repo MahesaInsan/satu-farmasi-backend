@@ -1,4 +1,3 @@
-import AdminService from "../service/AdminService";
 import BaseRouter from "./BaseRouter";
 import AdminController from "../controller/AdminController";
 

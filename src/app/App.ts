@@ -1,6 +1,8 @@
 import express, {Application} from "express";
 import cors from "cors";
 import adminRouter from "../router/AdminRouter";
+import doctorRouter from "../router/DoctorRouter";
+import pharmacistRouter from "../router/PharmacistRouter";
 import dotenv from "dotenv";
 
 export default class App{
@@ -22,6 +24,8 @@ export default class App{
 
     private initRouter() {
         this.app.use("/api/v1/admins", adminRouter);
+        this.app.use("/api/v1/doctors", doctorRouter);
+        this.app.use("/api/v1/pharmacists", pharmacistRouter);
     }
 
     public listen() {

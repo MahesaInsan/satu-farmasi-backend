@@ -1,0 +1,25 @@
+import {Request, Response} from "express";
+import ResponseHelper from "./ResponseHelper/ResponseHelper";
+import DoctorService from "../service/DoctorService";
+import AddDoctorRequest from "../model/request/AddDoctorRequest";
+import { Doctor } from "@prisma/client";
+
+export default class DoctorController{
+    private readonly doctorService: DoctorService
+    private readonly responseHelper: ResponseHelper;
+
+    constructor() {
+        this.doctorService = new DoctorService();
+        this.responseHelper = new ResponseHelper();
+    }
+
+    async addDoctor(req: Request, res: Response){
+        try{
+            const request: AddDoctorRequest = req.body;
+            const createdDoctor: Doctor = await this.doctorService.addDoctor(request)
+            res.status(200).send(this.responseHelper.constructAddDoctorResponse(createdDoctor));
+        } catch (error) {
+            res.status(400).send(this.responseHelper.construct400Response(error as string))
+        }
+    }
+}
