@@ -19,7 +19,7 @@ export default class DoctorController{
             const createdDoctor: Doctor = await this.doctorService.addDoctor(request)
             res.status(200).send(this.responseHelper.constructAddDoctorResponse(createdDoctor));
         } catch (error) {
-            res.status(400).send(this.responseHelper.construct400Response(error as string))
+            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
     }
 }

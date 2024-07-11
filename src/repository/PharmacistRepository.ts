@@ -25,4 +25,13 @@ export default class PharmacistRepository extends BaseREpository{
             throw new Error('Failed to add admin');
         }
     }
+
+    public async getPharmacistByEmail(email: string): Promise<Pharmacist | null>{
+        try {
+            return await this.Prisma.pharmacist.findUnique({where: {email: email}});
+        } catch (error) {
+            console.error('Error getting pharmacist by email:', error);
+            throw new Error('Failed to get pharmacist');
+        }
+    }
 }

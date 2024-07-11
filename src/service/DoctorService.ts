@@ -29,4 +29,5 @@ export default class DoctorService{
             throw error as string;
         }
     }
+
 }

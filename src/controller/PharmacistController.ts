@@ -19,7 +19,7 @@ export default class PharmacistController{
             const createdPharmacist: Pharmacist = await this.pharmacistService.addPharmacist(request)
             res.status(200).send(this.responseHelper.constructAddPharmacistResponse(createdPharmacist));
         } catch (error) {
-            res.status(400).send(this.responseHelper.construct400Response(error as string))
+            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
     }
 }

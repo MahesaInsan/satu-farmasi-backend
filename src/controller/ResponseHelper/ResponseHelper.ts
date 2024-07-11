@@ -1,15 +1,29 @@
+import BadRequest from "../../model/request/BadRequest";
+import LoginRequest from "../../model/request/LoginRequest";
 import AddAdminResponse from "../../model/response/AddAdminResponse";
 import AddDoctorResponse from "../../model/response/AddDoctorResponse";
 import AddPharmacistResponse from "../../model/response/AddPharmacistResponse";
 import {Admin, Doctor, Pharmacist} from "@prisma/client";
 import {Builder} from "builder-pattern";
+import LoginResponse from "../../model/response/LoginResponse";
 
 export default class ResponseHelper{
 
-    public construct400Response(message: string): object{
-        return {
-            message: message
-        }
+    public constructLoginResponse(user: Admin | Doctor | Pharmacist, token: string): LoginResponse{
+        return Builder<LoginResponse>()
+            .firstName(user.firstName)
+            .lastName(user.lastName)
+            .token(token)
+            .build()
+    }
+
+    public constructBadRequest(error: object): BadRequest{
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return Builder<BadRequest>()
+        .message("Data not found!")
+        .Code(400)
+        .error(errorMessage)
+        .build()
     }
 
     public constructAddPharmacistResponse(pharmacist: Pharmacist): AddPharmacistResponse{

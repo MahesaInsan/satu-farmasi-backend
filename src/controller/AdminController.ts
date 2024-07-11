@@ -19,7 +19,7 @@ export default class AdminController{
             const createdAdmin: Admin = await this.adminService.addAdmin(request)
             res.status(200).send(this.responseHelper.constructAddAdminResponse(createdAdmin));
         } catch (error) {
-            res.status(400).send(this.responseHelper.construct400Response(error as string))
+            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
     }
 

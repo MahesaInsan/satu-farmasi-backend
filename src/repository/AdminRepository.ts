@@ -26,6 +26,15 @@ export default class AdminRepository extends BaseREpository{
         }
     }
 
+    public async getAdminByEmail(email: string): Promise<Admin | null>{
+        try {
+            return await this.Prisma.admin.findUnique({where: {email: email}});
+        } catch (error) {
+            console.error('Error getting admin by email:', error);
+            throw new Error('Failed to get admin');
+        }
+    }
+
     public async getAllAdmins(): Promise<Admin []>{
         try {
             return await this.Prisma.admin.findMany();
