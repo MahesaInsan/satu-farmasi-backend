@@ -264,6 +264,12 @@ CREATE TABLE "MedicineReport" (
 CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Doctor_email_key" ON "Doctor"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Pharmacist_email_key" ON "Pharmacist"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Diagnose_prescriptionId_key" ON "Diagnose"("prescriptionId");
 
 -- CreateIndex

@@ -17,9 +17,10 @@ export default class UserController{
         try{
             const request: LoginRequest = req.body;
             const user: Admin | Doctor | Pharmacist | null = await this.userService.getUserByEmail(request.email)
-            if (user?.password === request.password) {
+            if (user && await this.userService.bcryptPassword(request.password, user.password)){ 
                 try{
                     const token: string = this.userService.generateToken(user.email)
+                    res.cookie("token", token, this.responseHelper.constructCookieRequest())
                     return res.status(200).send(this.responseHelper.constructLoginResponse(user, token));
                 } catch (error) {
                     return res.status(400).send(this.responseHelper.constructBadRequest(error as object))

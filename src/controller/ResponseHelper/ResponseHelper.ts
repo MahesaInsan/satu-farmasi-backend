@@ -6,8 +6,18 @@ import AddPharmacistResponse from "../../model/response/AddPharmacistResponse";
 import {Admin, Doctor, Pharmacist} from "@prisma/client";
 import {Builder} from "builder-pattern";
 import LoginResponse from "../../model/response/LoginResponse";
+import Unauthorized from "../../model/request/UnauthorizedRequest";
+import InternalServerRequest from "../../model/request/InteralServerRequest";
 
 export default class ResponseHelper{
+
+    public constructCookieRequest(): object{
+        return {
+            httpOnly: true,
+            secure: true,
+            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+        }
+    }
 
     public constructLoginResponse(user: Admin | Doctor | Pharmacist, token: string): LoginResponse{
         return Builder<LoginResponse>()
@@ -15,6 +25,24 @@ export default class ResponseHelper{
             .lastName(user.lastName)
             .token(token)
             .build()
+    }
+
+    public constructInternalServerError(error: object): InternalServerRequest{
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return Builder<InternalServerRequest>()
+        .message("Internal Server Error")
+        .Code(500)
+        .error(errorMessage)
+        .build()
+    }
+
+    public constructUnAuthorizedRequest(error: object): Unauthorized {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return Builder<Unauthorized>()
+        .message("You have no access to this page!")
+        .Code(401)
+        .error(errorMessage)
+        .build()
     }
 
     public constructBadRequest(error: object): BadRequest{

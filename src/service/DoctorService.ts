@@ -23,6 +23,7 @@ export default class DoctorService{
     public async addDoctor(request: AddDoctorRequest): Promise<Doctor>{
         try {
             await this.userService.emailIsExist(request.email);
+            request.password = await this.userService.encryptPassword(request.password);
             const doctor: Doctor = this.createUserHelper.createBaseUser(request);
             return await this.doctorRepository.addDoctor(Builder(doctor).role(Role.DOCTOR).specialist(request.specialist).build())
         } catch (error) {

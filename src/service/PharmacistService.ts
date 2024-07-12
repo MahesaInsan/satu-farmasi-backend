@@ -24,6 +24,7 @@ export default class PharmacistService{
         console.log(request.firstName)
         try {
             await this.userService.emailIsExist(request.email);
+            request.password = await this.userService.encryptPassword(request.password);
             const pharmacist: Pharmacist = this.createUserHelper.createBaseUser(request);
             return await this.pharmacistRepository.addPharmacist(Builder(pharmacist).role(Role.PHARMACIST).build())
         } catch (error) {

@@ -9,7 +9,7 @@ export default class AdminRepository extends BaseREpository{
     public async emailIsExist(email: string): Promise<Boolean>{
         try{
             const admin = await this.Prisma.admin.findUnique({where: {email: email}});
-            return admin !== null;
+            return  admin !== null;
         } catch (error) {
             console.error('Error checking email:', error);
             throw new Error('Failed to check email');
