@@ -2,6 +2,7 @@ import express, {Application} from "express";
 import cors from "cors";
 import adminRouter from "../router/AdminRouter";
 import dotenv from "dotenv";
+import medicineRouter from "../router/MedicineRouter";
 
 export default class App{
     private readonly app: Application;
@@ -22,6 +23,7 @@ export default class App{
 
     private initRouter() {
         this.app.use("/api/v1/admins", adminRouter);
+        this.app.use("/api/v1/medicines", medicineRouter);
     }
 
     public listen() {
