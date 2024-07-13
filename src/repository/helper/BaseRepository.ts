@@ -1,13 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import {PrismaClient} from "@prisma/client"
 
-export default class BaseRepository {
-    private prisma: PrismaClient;
+export default class BaseRepository{
+    private prisma: PrismaClient
 
     constructor() {
-        this.prisma = new PrismaClient();
+        this.prisma = new PrismaClient()
     }
 
     get Prisma(): PrismaClient {
-        return this.Prisma;
+        return this.prisma;
     }
+    
 }

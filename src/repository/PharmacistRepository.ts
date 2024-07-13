@@ -1,13 +1,40 @@
+import BaseREpository from "./helper/BaseRepository";
 import Pharmacist from "../entity/Pharmacist"
-import { PrismaClient } from "@prisma/client";
 
-export default class PharmacistRepository {
-    private readonly prisma: PrismaClient;
-
+export default class PharmacistRepository extends BaseREpository{
     constructor() {
-        this.prisma = new PrismaClient();
+        super();
     }
 
+    public async emailIsExist(email: string): Promise<Boolean>{
+        try{
+            const admin = await this.Prisma.pharmacist.findUnique({where: {email: email}});
+            return admin !== null;
+        } catch (error) {
+            console.error('Error checking email:', error);
+            throw new Error('Failed to check email');
+        }
+    }
+
+    public async addPharmacist(pharmacist: Pharmacist): Promise<Pharmacist>{
+        try {
+            console.log(pharmacist)
+            return await this.Prisma.pharmacist.create({data: pharmacist})
+        } catch (error) {
+            console.error('Error adding admin:', error);
+            throw new Error('Failed to add admin');
+        }
+    }
+
+    public async getPharmacistByEmail(email: string): Promise<Pharmacist | null>{
+        try {
+            return await this.Prisma.pharmacist.findUnique({where: {email: email}});
+        } catch (error) {
+            console.error('Error getting pharmacist by email:', error);
+            throw new Error('Failed to get pharmacist');
+        }
+    }
+    
     public async getAllPharmacists(): Promise<Pharmacist []> {
         try {
             return this.prisma.pharmacist.findMany();
@@ -16,7 +43,7 @@ export default class PharmacistRepository {
             throw new Error('Failed to get pharmacist');
         }
     }
-
+    
     public async getPharmacistById(id: number): Promise<Pharmacist | null> {
         try {
             return this.prisma.pharmacist.findUnique({ where: { id: id } });

@@ -3,6 +3,7 @@ import AdminRepository from "../repository/AdminRepository";
 import {Admin, Doctor, Pharmacist, Role} from "@prisma/client";
 import {Builder} from "builder-pattern";
 import CreateUserHelper from "./helper/CreateUserHelper";
+<<<<<<< HEAD
 import User from "../entity/User";
 import DoctorRepository from "../repository/DoctorRepository";
 import PharmacistRepository from "../repository/PharmacistRepository";
@@ -11,19 +12,38 @@ export default class AdminService{
     private readonly adminRepository: AdminRepository;
     private readonly doctorRepository: DoctorRepository;
     private readonly phamacistRepository: PharmacistRepository;
+=======
+import UserService from "./helper/UserService";
+export default class AdminService{
+    private readonly adminRepository: AdminRepository;
+    private readonly userService: UserService;
+>>>>>>> 830b19d520d0ae9c6231ccdaa261b7f14f4c4643
     private readonly createUserHelper: CreateUserHelper<AddAdminRequest, Admin>;
 
     constructor() {
         this.adminRepository = new AdminRepository();
+<<<<<<< HEAD
         this.doctorRepository = new DoctorRepository();
         this.phamacistRepository = new PharmacistRepository();
+=======
+        this.userService = new UserService();
+>>>>>>> 830b19d520d0ae9c6231ccdaa261b7f14f4c4643
         this.createUserHelper = new CreateUserHelper<AddAdminRequest, Admin>();
     }
 
+    public async emailIsExist(email: string): Promise<Boolean> {
+        return await this.adminRepository.emailIsExist(email)
+    }
+
     public async addAdmin(request: AddAdminRequest): Promise<Admin>{
-        console.log(request.firstName)
-        const admin: Admin = this.createUserHelper.createBaseUser(request);
-        return await this.adminRepository.addAdmin(Builder(admin).role(Role.ADMIN).build())
+        try {
+            await this.userService.emailIsExist(request.email);
+            request.password = await this.userService.encryptPassword(request.password);
+            const admin: Admin = this.createUserHelper.createBaseUser(request);
+            return await this.adminRepository.addAdmin(Builder(admin).role(Role.ADMIN).build())
+        } catch (error) {
+            throw error as string;
+        }
     }
 
     public async getAllAdmin(): Promise<Admin[]>{
