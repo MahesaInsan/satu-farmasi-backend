@@ -3,6 +3,8 @@ import cors from "cors";
 import adminRouter from "../router/AdminRouter";
 import dotenv from "dotenv";
 import medicineRouter from "../router/MedicineRouter";
+import patientRouter from "../router/PatientRouter";
+import diagnoseRouter from "../router/DiagnoseRouter";
 
 export default class App{
     private readonly app: Application;
@@ -24,6 +26,8 @@ export default class App{
     private initRouter() {
         this.app.use("/api/v1/admins", adminRouter);
         this.app.use("/api/v1/medicines", medicineRouter);
+        this.app.use("/api/v1/patients", patientRouter);
+        this.app.use("/api/v1/diagnose", diagnoseRouter);
     }
 
     public listen() {
