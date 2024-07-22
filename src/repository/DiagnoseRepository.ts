@@ -7,7 +7,7 @@ export default class DiagnoseRepository {
         this.prisma = new PrismaClient();
     }
 
-    async creatDiagnose(newDiagnose: Diagnose): Promise<Diagnose>{
+    async createDiagnose(newDiagnose: Diagnose): Promise<Diagnose>{
         try {
             return this.prisma.diagnose.create({
                 data: newDiagnose
