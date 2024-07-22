@@ -15,6 +15,8 @@ class AdminRouter extends BaseRouter{
         this.router.get('/', this.adminController.getAllStaff.bind(this.adminController))
         this.router.get('/staffs', this.adminController.getAllStaff.bind(this.adminController))
         this.router.get('/staff/:id', this.adminController.getStaffById.bind(this.adminController))
+        this.router.post('/staff/edit', this.adminController.editStaff.bind(this.adminController))
+        this.router.post('/staff/nik', this.adminController.getStaffByNik.bind(this.adminController))
     }
 }
 
