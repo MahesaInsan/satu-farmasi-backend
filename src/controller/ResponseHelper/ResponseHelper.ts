@@ -8,6 +8,8 @@ import {Builder} from "builder-pattern";
 import LoginResponse from "../../model/response/LoginResponse";
 import Unauthorized from "../../model/request/UnauthorizedRequest";
 import InternalServerRequest from "../../model/request/InteralServerRequest";
+import User from "../../entity/User";
+import SuccessRequest from "../../model/request/SuccessRequest";
 
 export default class ResponseHelper{
 
@@ -87,6 +89,22 @@ export default class ResponseHelper{
             .phoneNum(admin.phoneNum)
             .dob(admin.dob)
             .role(admin.role)
+            .build();
+    }
+
+    public constructGetStaffResponse(staff: User | User[] | null): SuccessRequest {
+        return Builder<SuccessRequest>()
+            .code(200)
+            .status("Success get staff data")
+            .data(staff)
+            .build();
+    }
+
+    public constructEditStaffResponse(staff: User | null): SuccessRequest {
+        return Builder<SuccessRequest>()
+            .code(200)
+            .status("Success edit staff data")
+            .data(staff)
             .build();
     }
 }
