@@ -17,9 +17,9 @@ export default class AdminController{
         try{
             const request: AddAdminRequest = req.body;
             const createdAdmin: Admin = await this.adminService.addAdmin(request)
-            res.status(200).send(this.responseHelper.constructAdminResponse(createdAdmin));
+            res.status(200).send(this.responseHelper.constructAddAdminResponse(createdAdmin));
         } catch (error) {
-            throw new Error(error as string)
+            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
     }
 
