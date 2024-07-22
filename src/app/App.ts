@@ -6,6 +6,8 @@ import pharmacistRouter from "../router/PharmacistRouter";
 import dotenv from "dotenv";
 import UserRouter from "../router/UserRouter";
 import medicineRouter from "../router/MedicineRouter";
+import patientRouter from "../router/PatientRouter";
+import diagnoseRouter from "../router/DiagnoseRouter";
 
 export default class App {
     private readonly app: Application;
@@ -37,6 +39,8 @@ export default class App {
         this.app.use("/api/v1/pharmacists", pharmacistRouter);
         this.app.use("/api/v1/users", UserRouter);
         this.app.use("/api/v1/medicines", medicineRouter);
+        this.app.use("/api/v1/patients", patientRouter);
+        this.app.use("/api/v1/diagnose", diagnoseRouter);
     }
 
     public listen() {

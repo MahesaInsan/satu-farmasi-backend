@@ -61,7 +61,7 @@ model Pharmacist{
 
 model Patient{
   id Int @id @default(autoincrement())
-  credentialNumber String
+  credentialNumber String @unique
   phoneNum String
   name String
   is_active Boolean
@@ -226,7 +226,7 @@ model OutputMedicine{
   medicine Medicine @relation(fields: [medicineId], references: [id])
   medicineId Int
   quantity Int
-  reasonOfDisponse ReasonOfDispose
+  reasonOfDispose ReasonOfDispose
   is_active Boolean
   created_at DateTime
   updated_at DateTime @default(now())
@@ -236,7 +236,7 @@ model OutputMedicine{
 
 model MedicineReport{
   id Int @id @default(autoincrement())
-  recieveMedicines ReceiveMedicine[]
+  receiveMedicines ReceiveMedicine[]
   transactions Transaction[]
   outputMedicines OutputMedicine[]
   isFinalized Boolean
@@ -252,8 +252,8 @@ enum Role{
 }
 
 enum UnitOfMeasure{
-  MILILITER
-  MILIGRAM
+  MILLILITER
+  MILLIGRAM
 }
 
 enum Status{
