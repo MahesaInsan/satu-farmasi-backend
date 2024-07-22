@@ -13,6 +13,8 @@ class UserRouter extends BaseRouter{
 
     private initRoutes(){
         this.router.post('/', this.userController.getUserByEmail.bind(this.userController))
+        this.router.post('/check-token', this.userController.checkToken.bind(this.userController))
+        this.router.delete('/', this.userController.deleteUser.bind(this.userController))
     }
 }
 
