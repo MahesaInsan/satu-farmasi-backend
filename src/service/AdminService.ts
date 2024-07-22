@@ -3,7 +3,7 @@ import AdminRepository from "../repository/AdminRepository";
 import {Admin, Role} from "@prisma/client";
 import {Builder} from "builder-pattern";
 import CreateUserHelper from "./helper/CreateUserHelper";
-import UserService from "./helper/UserService";
+import UserService from "./UserService";
 export default class AdminService{
     private readonly adminRepository: AdminRepository;
     private readonly userService: UserService;

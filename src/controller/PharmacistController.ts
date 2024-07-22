@@ -16,6 +16,8 @@ export default class PharmacistController{
     async addPharmacist(req: Request, res: Response){
         try{
             const request: AddPharmacistRequest = req.body;
+            console.log("request: ", request);
+            // TODO: change response to boolean
             const createdPharmacist: Pharmacist = await this.pharmacistService.addPharmacist(request)
             res.status(200).send(this.responseHelper.constructAddPharmacistResponse(createdPharmacist));
         } catch (error) {

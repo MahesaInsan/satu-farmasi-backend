@@ -3,6 +3,7 @@ import {Request, Response} from "express";
 import AddAdminRequest from "../model/request/AddAdminRequest";
 import {Admin} from "@prisma/client";
 import ResponseHelper from "./ResponseHelper/ResponseHelper";
+import BaseResponse from "../model/response/BaseResponse";
 
 export default class AdminController{
     private readonly adminService: AdminService
