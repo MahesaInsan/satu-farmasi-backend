@@ -52,4 +52,23 @@ export default class AdminRepository extends BaseREpository{
             throw new Error('Failed to get admin');
         }
     }
+
+    public async getAdminByNik(nik: string): Promise<Admin | null> {
+        try {
+            return await this.Prisma.admin.findUnique({ where: { nik: nik } });
+        } catch (error) {
+            console.error('Error getting admin by nik:', error);
+            throw new Error('Failed to get admin');
+        }
+    }
+
+    public async editAdmin(admin: Admin): Promise<Admin> {
+        try {
+            console.log("admin : ", admin);
+            return await this.Prisma.admin.update({ where: { nik: admin.nik }, data: admin });
+        } catch (error) {
+            console.error('Error editing admin:', error);
+            throw new Error('Failed to edit admin');
+        }
+    }
 }
