@@ -3,47 +3,41 @@ import AdminRepository from "../repository/AdminRepository";
 import {Admin, Doctor, Pharmacist, Role} from "@prisma/client";
 import {Builder} from "builder-pattern";
 import CreateUserHelper from "./helper/CreateUserHelper";
-<<<<<<< HEAD
 import User from "../entity/User";
-import DoctorRepository from "../repository/DoctorRepository";
-import PharmacistRepository from "../repository/PharmacistRepository";
+import AddPharmacistRequest from "../model/request/AddPharmacistRequest";
+import DoctorService from "./DoctorService";
+import PharmacistService from "./PharmacistService";
+import BaseEditUserRequest from "../model/request/BaseRequest/BaseEditUserRequest";
+import EditUserHelper from "./helper/EditUserHelper";
+import EditAdminRequest from "../model/request/EditAdminRequest";
+import EditDoctorRequest from "../model/request/EditDoctorRequest";
+import EditPharmacistRequest from "../model/request/EditPharmacistRequest";
 
 export default class AdminService{
     private readonly adminRepository: AdminRepository;
-    private readonly doctorRepository: DoctorRepository;
-    private readonly phamacistRepository: PharmacistRepository;
-=======
-import UserService from "./helper/UserService";
-export default class AdminService{
-    private readonly adminRepository: AdminRepository;
-    private readonly userService: UserService;
->>>>>>> 830b19d520d0ae9c6231ccdaa261b7f14f4c4643
+    private readonly doctorService: DoctorService;
+    private readonly pharmacistService: PharmacistService;
     private readonly createUserHelper: CreateUserHelper<AddAdminRequest, Admin>;
+    private readonly editUserHelper: EditUserHelper<BaseEditUserRequest, Admin>;
 
     constructor() {
         this.adminRepository = new AdminRepository();
-<<<<<<< HEAD
-        this.doctorRepository = new DoctorRepository();
-        this.phamacistRepository = new PharmacistRepository();
-=======
-        this.userService = new UserService();
->>>>>>> 830b19d520d0ae9c6231ccdaa261b7f14f4c4643
+        this.doctorService = new DoctorService();
+        this.pharmacistService = new PharmacistService();
         this.createUserHelper = new CreateUserHelper<AddAdminRequest, Admin>();
-    }
-
-    public async emailIsExist(email: string): Promise<Boolean> {
-        return await this.adminRepository.emailIsExist(email)
+        this.editUserHelper = new EditUserHelper<BaseEditUserRequest, Admin>();
     }
 
     public async addAdmin(request: AddAdminRequest): Promise<Admin>{
-        try {
-            await this.userService.emailIsExist(request.email);
-            request.password = await this.userService.encryptPassword(request.password);
-            const admin: Admin = this.createUserHelper.createBaseUser(request);
-            return await this.adminRepository.addAdmin(Builder(admin).role(Role.ADMIN).build())
-        } catch (error) {
-            throw error as string;
-        }
+        console.log(request.firstName);
+        const admin: Admin = this.createUserHelper.createBaseUser(request);
+        return await this.adminRepository.addAdmin(Builder(admin).role(Role.ADMIN).build())
+    }
+
+    public async editAdmin(request: EditAdminRequest): Promise<Admin>{
+        console.log("VO admin : ", request)
+        const admin: Admin = this.editUserHelper.editBaseUser(request);
+        return await this.adminRepository.editAdmin(Builder(admin).role(Role.ADMIN).build());
     }
 
     public async getAllAdmin(): Promise<Admin[]>{
@@ -52,8 +46,8 @@ export default class AdminService{
 
     public async getAllStaff(): Promise<User[]>{
         const admins: Admin[] = await this.adminRepository.getAllAdmins();
-        const doctors: Doctor[] = await this.doctorRepository.getAllDoctors();
-        const pharmacists: Pharmacist[] = await this.phamacistRepository.getAllPharmacists();
+        const doctors: Doctor[] = await this.doctorService.getAllDoctors();
+        const pharmacists: Pharmacist[] = await this.pharmacistService.getAllPharmacists();
 
         let users: User[] = [];
         admins.forEach(admin => {
@@ -76,14 +70,34 @@ export default class AdminService{
 
     public async getStaffById(id: number): Promise<User | null>{
         const admin: Admin | null = await this.adminRepository.getAdminById(id);
-        if (admin) return admin;
+        if (admin) return admin; 
 
-        const doctor: Doctor | null = await this.doctorRepository.getDoctorById(id);
+        const doctor: Doctor | null = await this.doctorService.getDoctorById(id);
         if (doctor) return doctor;
 
-        const pharmacist: Pharmacist | null = await this.phamacistRepository.getPharmacistById(id);
+        const pharmacist: Pharmacist | null = await this.pharmacistService.getPharmacistById(id);
         if (pharmacist) return pharmacist;
         
+        return null;
+    }
+
+    public async getStaffByNik(nik: string): Promise<User | null>{
+        const admin: Admin | null = await this.adminRepository.getAdminByNik(nik);
+        if (admin) return admin;
+
+        const doctor: Doctor | null = await this.doctorService.getDoctorByNik(nik);
+        if (doctor) return doctor;
+
+        const pharmacist: Pharmacist | null = await this.pharmacistService.getPharmacistByNik(nik);
+        if (pharmacist) return pharmacist;
+        
+        return null;
+    }
+
+    public async editStaff(user: EditDoctorRequest | EditAdminRequest | EditPharmacistRequest): Promise<User | null>{
+        if (user.role === Role.ADMIN) return await this.editAdmin(user);
+        if (user.role === Role.DOCTOR) return await this.doctorService.editDoctor(user);
+        if (user.role === Role.PHARMACIST) return await this.pharmacistService.editPharmacist(user);
         return null;
     }
 }
