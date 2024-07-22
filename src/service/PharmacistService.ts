@@ -1,7 +1,7 @@
 import {Pharmacist, Role} from "@prisma/client";
 import {Builder} from "builder-pattern";
 import CreateUserHelper from "./helper/CreateUserHelper";
-import UserService from "./helper/UserService";
+import UserService from "./UserService";
 import PharmacistRepository from "../repository/PharmacistRepository";
 import AddPharmacistRequest from "../model/request/AddPharmacistRequest";
 import EditPharmacistRequest from "../model/request/EditPharmacistRequest";
@@ -25,7 +25,6 @@ export default class PharmacistService{
     }
 
     public async addPharmacist(request: AddPharmacistRequest): Promise<Pharmacist>{
-        console.log(request.firstName)
         try {
             await this.userService.emailIsExist(request.email);
             request.password = await this.userService.encryptPassword(request.password);

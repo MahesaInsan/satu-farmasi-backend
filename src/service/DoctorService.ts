@@ -3,9 +3,9 @@ import {Builder} from "builder-pattern";
 import CreateUserHelper from "./helper/CreateUserHelper";
 import DoctorRepository from "../repository/DoctorRepository";
 import AddDoctorRequest from "../model/request/AddDoctorRequest";
-import UserService from "./helper/UserService";
 import EditDoctorRequest from "../model/request/EditDoctorRequest";
 import EditUserHelper from "./helper/EditUserHelper";
+import UserService from "./UserService";
 
 export default class DoctorService{
     private readonly doctorRepository: DoctorRepository;

@@ -8,7 +8,7 @@ export default class DoctorRepository extends BaseREpository{
 
     public async emailIsExist(email: string): Promise<Boolean>{
         try{
-            const doctor = await this.Prisma.doctor.findFirst({where: {email: email}});
+            const doctor = await this.Prisma.doctor.findUnique({where: {email: email}});
             return doctor !== null;
         } catch (error) {
             console.error('Error checking email:', error);
@@ -28,7 +28,7 @@ export default class DoctorRepository extends BaseREpository{
 
     public async getDoctorByEmail(email: string): Promise<Doctor | null>{
         try {
-            return await this.Prisma.doctor.findFirst({where: {email: email}});
+            return await this.Prisma.doctor.findUnique({where: {email: email}});
         } catch (error) {
             console.error('Error getting doctor by email:', error);
             throw new Error('Failed to get doctor');

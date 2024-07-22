@@ -1,8 +1,8 @@
-import DoctorService from "../DoctorService";
-import AdminRepository from "../../repository/AdminRepository";
-import DoctorRepository from "../../repository/DoctorRepository";
+import DoctorService from "./DoctorService";
+import AdminRepository from "../repository/AdminRepository";
+import DoctorRepository from "../repository/DoctorRepository";
 import jwt from 'jsonwebtoken';
-import PharmacistRepository from "../../repository/PharmacistRepository";
+import PharmacistRepository from "../repository/PharmacistRepository";
 import { Admin, Doctor, Pharmacist } from "@prisma/client";
 import bcrypt from 'bcrypt';
 
@@ -17,10 +17,10 @@ export default class UserService {
         this.pharmacistRepository = new PharmacistRepository();
     }
 
-    public generateToken(email: string): string {
-        const secretToken = process.env["SECREET_TOKEN"];
+    public generateToken(email: string, role: string): string {
+        const secretToken = process.env["SECRET_TOKEN"];
         if (!secretToken) throw new Error("SECRET_TOKEN environment variable is not set");
-        return jwt.sign({email}, secretToken, { expiresIn: '1800s' });
+        return jwt.sign({email, role}, secretToken, { expiresIn: '1800s' });
     }
 
     public async getUserByEmail(email: string): Promise<Admin | Doctor | Pharmacist | null> {

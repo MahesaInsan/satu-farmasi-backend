@@ -14,7 +14,7 @@ export default class AuthMiddleware extends BaseMiddleware{
         const token: string | undefined | null = authHeader && authHeader.split(' ')[1]
         if (!token) return this.responseHelper.constructUnAuthorizedRequest(new Error("You have no access to this page!"))
 
-        const secretToken = process.env["SECREET_TOKEN"];
+        const secretToken = process.env["SECRET_TOKEN"];
         if (!secretToken) return this.responseHelper.constructInternalServerError(new Error("Secret token not found!"))
 
         jwt.verify(token, secretToken as string, (err, user) => {

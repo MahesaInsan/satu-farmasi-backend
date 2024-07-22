@@ -1,7 +1,7 @@
 import AdminService from "../service/AdminService";
 import {Request, Response} from "express";
 import AddAdminRequest from "../model/request/AddAdminRequest";
-import {Admin, Doctor, Pharmacist} from "@prisma/client";
+import {Admin} from "@prisma/client";
 import ResponseHelper from "./ResponseHelper/ResponseHelper";
 import User from "../entity/User";
 import DoctorService from "../service/DoctorService";
@@ -13,12 +13,10 @@ import BaseResponse from "../model/response/BaseResponse";
 
 export default class AdminController{
     private readonly adminService: AdminService;
-    private readonly doctorService: DoctorService;
     private readonly responseHelper: ResponseHelper;
 
     constructor() {
         this.adminService = new AdminService();
-        this.doctorService = new DoctorService();
         this.responseHelper = new ResponseHelper();
     }
 
@@ -69,7 +67,6 @@ export default class AdminController{
         try{
             const body: NikVO = req.body;
             const staff: User | null = await this.adminService.getStaffByNik(body.nik);
-            // return res.status(200).send(this.responseHelper.constructGetStaffResponse(staff));
             return res.status(200).send(new BaseResponse().ok(staff));
         } catch (error) {
             return res.status(400).send(this.responseHelper.constructBadRequest(error as object));

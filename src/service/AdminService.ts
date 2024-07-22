@@ -4,7 +4,6 @@ import {Admin, Doctor, Pharmacist, Role} from "@prisma/client";
 import {Builder} from "builder-pattern";
 import CreateUserHelper from "./helper/CreateUserHelper";
 import User from "../entity/User";
-import AddPharmacistRequest from "../model/request/AddPharmacistRequest";
 import DoctorService from "./DoctorService";
 import PharmacistService from "./PharmacistService";
 import BaseEditUserRequest from "../model/request/BaseRequest/BaseEditUserRequest";
@@ -12,16 +11,19 @@ import EditUserHelper from "./helper/EditUserHelper";
 import EditAdminRequest from "../model/request/EditAdminRequest";
 import EditDoctorRequest from "../model/request/EditDoctorRequest";
 import EditPharmacistRequest from "../model/request/EditPharmacistRequest";
+import UserService from "./UserService";
 
 export default class AdminService{
     private readonly adminRepository: AdminRepository;
     private readonly doctorService: DoctorService;
+    private readonly userService: UserService;
     private readonly pharmacistService: PharmacistService;
     private readonly createUserHelper: CreateUserHelper<AddAdminRequest, Admin>;
     private readonly editUserHelper: EditUserHelper<BaseEditUserRequest, Admin>;
 
     constructor() {
         this.adminRepository = new AdminRepository();
+        this.userService = new UserService();
         this.doctorService = new DoctorService();
         this.pharmacistService = new PharmacistService();
         this.createUserHelper = new CreateUserHelper<AddAdminRequest, Admin>();
@@ -29,9 +31,14 @@ export default class AdminService{
     }
 
     public async addAdmin(request: AddAdminRequest): Promise<Admin>{
-        console.log(request.firstName);
-        const admin: Admin = this.createUserHelper.createBaseUser(request);
-        return await this.adminRepository.addAdmin(Builder(admin).role(Role.ADMIN).build())
+        try {
+            await this.userService.emailIsExist(request.email);
+            request.password = await this.userService.encryptPassword(request.password);
+            const admin: Admin = this.createUserHelper.createBaseUser(request);
+            return await this.adminRepository.addAdmin(Builder(admin).role(Role.ADMIN).build())
+        } catch (error) {
+            throw error as string;
+        }
     }
 
     public async editAdmin(request: EditAdminRequest): Promise<Admin>{
@@ -70,14 +77,14 @@ export default class AdminService{
 
     public async getStaffById(id: number): Promise<User | null>{
         const admin: Admin | null = await this.adminRepository.getAdminById(id);
-        if (admin) return admin; 
+        if (admin) return admin;
 
         const doctor: Doctor | null = await this.doctorService.getDoctorById(id);
         if (doctor) return doctor;
 
         const pharmacist: Pharmacist | null = await this.pharmacistService.getPharmacistById(id);
         if (pharmacist) return pharmacist;
-        
+
         return null;
     }
 
@@ -90,7 +97,7 @@ export default class AdminService{
 
         const pharmacist: Pharmacist | null = await this.pharmacistService.getPharmacistByNik(nik);
         if (pharmacist) return pharmacist;
-        
+
         return null;
     }
 
