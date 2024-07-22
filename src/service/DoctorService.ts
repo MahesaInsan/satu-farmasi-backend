@@ -3,17 +3,21 @@ import {Builder} from "builder-pattern";
 import CreateUserHelper from "./helper/CreateUserHelper";
 import DoctorRepository from "../repository/DoctorRepository";
 import AddDoctorRequest from "../model/request/AddDoctorRequest";
+import EditDoctorRequest from "../model/request/EditDoctorRequest";
+import EditUserHelper from "./helper/EditUserHelper";
 import UserService from "./UserService";
 
 export default class DoctorService{
     private readonly doctorRepository: DoctorRepository;
     private readonly userService: UserService;
     private readonly createUserHelper: CreateUserHelper<AddDoctorRequest, Doctor>;
+    private readonly editUserHelper: EditUserHelper<EditDoctorRequest, Doctor>;
 
     constructor() {
         this.doctorRepository = new DoctorRepository();
         this.userService = new UserService();
         this.createUserHelper = new CreateUserHelper<AddDoctorRequest, Doctor>();
+        this.editUserHelper = new EditUserHelper<EditDoctorRequest, Doctor>();
     }
 
     public async emailIsExist(email: string): Promise<Boolean> {
@@ -31,4 +35,49 @@ export default class DoctorService{
         }
     }
 
+    public async editDoctor(request: EditDoctorRequest): Promise<Doctor> {
+        try {
+            const doctor: Doctor = this.editUserHelper.editBaseUser(request);
+            return await this.doctorRepository.editDoctor(Builder(doctor).role(Role.DOCTOR).build())
+        } catch (error) {
+            console.error('Error editing doctor:', error);
+            throw new Error('Failed to edit doctor');
+        }
+    }
+
+    public async getDoctorByEmail(email: string): Promise<Doctor | null> {
+        try {
+            return await this.doctorRepository.getDoctorByEmail(email)
+        } catch (error) {
+            console.error('Error getting doctor by email:', error);
+            throw new Error('Failed to get doctor');
+        }
+    }
+
+    public async getAllDoctors(): Promise<Doctor[]> {
+        try {
+            return await this.doctorRepository.getAllDoctors()
+        } catch (error) {
+            console.error('Error getting all doctor:', error);
+            throw new Error('Failed to get doctor');
+        }
+    }
+
+    public async getDoctorById(id: number): Promise<Doctor | null> {
+        try {
+            return await this.doctorRepository.getDoctorById(id)
+        } catch (error) {
+            console.error('Error getting doctor by id:', error);
+            throw new Error('Failed to get doctor');
+        }
+    }
+
+    public async getDoctorByNik(nik: string): Promise<Doctor | null> {
+        try {
+            return await this.doctorRepository.getDoctorByNik(nik)
+        } catch (error) {
+            console.error('Error getting doctor by nik:', error);
+            throw new Error('Failed to get doctor');
+        }
+    }
 }

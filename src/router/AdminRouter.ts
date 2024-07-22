@@ -12,7 +12,11 @@ class AdminRouter extends BaseRouter{
 
     private initRoutes(){
         this.router.post('/', this.adminController.addAdmin.bind(this.adminController))
-        this.router.get('/', this.adminController.getAllAdmin.bind(this.adminController))
+        this.router.get('/', this.adminController.getAllStaff.bind(this.adminController))
+        this.router.get('/staffs', this.adminController.getAllStaff.bind(this.adminController))
+        this.router.get('/staff/:id', this.adminController.getStaffById.bind(this.adminController))
+        this.router.post('/staff/edit', this.adminController.editStaff.bind(this.adminController))
+        this.router.post('/staff/nik', this.adminController.getStaffByNik.bind(this.adminController))
     }
 }
 

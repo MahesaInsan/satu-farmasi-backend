@@ -1,7 +1,7 @@
 import Admin from "../entity/Admin";
 import BaseREpository from "./helper/BaseRepository";
 
-export default class AdminRepository extends BaseREpository {
+export default class AdminRepository extends BaseREpository{
     constructor() {
         super();
     }
@@ -14,8 +14,8 @@ export default class AdminRepository extends BaseREpository {
             });
             return admin !== null;
         } catch (error) {
-            console.error("Error checking email:", error);
-            throw new Error("Failed to check email");
+            console.error('Error checking email:', error);
+            throw new Error('Failed to check email');
         }
     }
 
@@ -44,6 +44,34 @@ export default class AdminRepository extends BaseREpository {
         } catch (error) {
             console.error("Error getting all admins:", error);
             throw new Error("Failed to add admin");
+        }
+    }
+
+    public async getAdminById(id: number): Promise<Admin | null> {
+        try {
+            return await this.Prisma.admin.findUnique({ where: { id: id } });
+        } catch (error) {
+            console.error('Error getting admin by id:', error);
+            throw new Error('Failed to get admin');
+        }
+    }
+
+    public async getAdminByNik(nik: string): Promise<Admin | null> {
+        try {
+            return await this.Prisma.admin.findUnique({ where: { nik: nik } });
+        } catch (error) {
+            console.error('Error getting admin by nik:', error);
+            throw new Error('Failed to get admin');
+        }
+    }
+
+    public async editAdmin(admin: Admin): Promise<Admin> {
+        try {
+            console.log("admin : ", admin);
+            return await this.Prisma.admin.update({ where: { nik: admin.nik }, data: admin });
+        } catch (error) {
+            console.error('Error editing admin:', error);
+            throw new Error('Failed to edit admin');
         }
     }
 }
