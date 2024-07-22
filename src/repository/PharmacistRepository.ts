@@ -1,7 +1,7 @@
-import BaseREpository from "./helper/BaseRepository";
+import BaseRepository from "./helper/BaseRepository";
 import Pharmacist from "../entity/Pharmacist"
 
-export default class PharmacistRepository extends BaseREpository{
+export default class PharmacistRepository extends BaseRepository{
     constructor() {
         super();
     }

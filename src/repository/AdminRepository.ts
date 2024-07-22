@@ -1,7 +1,7 @@
 import Admin from "../entity/Admin";
-import BaseREpository from "./helper/BaseRepository";
+import BaseRepository from "./helper/BaseRepository";
 
-export default class AdminRepository extends BaseREpository{
+export default class AdminRepository extends BaseRepository{
     constructor() {
         super();
     }

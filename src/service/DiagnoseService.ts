@@ -18,7 +18,7 @@ export default class DiagnoseService{
             return await this.prescriptionService.createNewPrescription(request.prescription)
                 .then(async (prescriptionId: number) => {
                     const newDiagnose: Diagnose = this.constructDiagnose(request, prescriptionId)
-                    return await this.diagnoseRepository.creatDiagnose(newDiagnose)
+                    return await this.diagnoseRepository.createDiagnose(newDiagnose)
                 }).then((): boolean => true)
         } catch (error) {
             throw error as string
