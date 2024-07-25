@@ -12,6 +12,7 @@ class MedicineRouter extends BaseRouter{
 
     private initRoutes(){
         this.router.get('/dropdownOptions', this.medicineController.getMedicineList.bind(this.medicineController))
+        this.router.post('/genericName', this.medicineController.addGenericName.bind(this.medicineController))
     }
 }
 

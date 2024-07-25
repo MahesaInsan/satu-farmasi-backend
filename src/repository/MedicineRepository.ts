@@ -1,5 +1,6 @@
 import {PrismaClient} from "@prisma/client"
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
+import GenericName from "../entity/GenericName";
 
 export default class MedicineRepository{
     private prisma: PrismaClient
@@ -51,6 +52,15 @@ export default class MedicineRepository{
         } catch (error) {
             console.error('Error getting medicineList:', error);
             throw new Error('Failed to get medicineList');
+        }
+    }
+
+    public async addGenericName(genericName: GenericName): Promise<GenericName>{
+        try {
+            return await this.prisma.genericName.create({ data: genericName })
+        } catch (error) {
+            console.error('Error adding generci name:', error);
+            throw new Error('Failed to add generic name');
         }
     }
 }
