@@ -16,8 +16,9 @@ class GenericNameRouter extends BaseRouter {
             (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
             (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
         )
-        this.router.post( "/genericName", this.genericNameController.addGenericName.bind(this.genericNameController)
-        );
+        this.router.post( "/", this.genericNameController.addGenericName.bind(this.genericNameController));
+        this.router.put( "/:id", this.genericNameController.editGenericName.bind(this.genericNameController));
+        this.router.delete( "/:id", this.genericNameController.deleteGenericName.bind(this.genericNameController));
     }
 }
 

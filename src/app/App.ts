@@ -42,7 +42,7 @@ export default class App {
         this.app.use("/api/v1/medicines", medicineRouter);
         this.app.use("/api/v1/patients", patientRouter);
         this.app.use("/api/v1/diagnose", diagnoseRouter);
-        this.app.use("api/v1/genericNames", GenericNameRoute)
+        this.app.use("/api/v1/genericName", GenericNameRoute)
     }
 
     public listen() {
