@@ -54,13 +54,4 @@ export default class MedicineRepository{
             throw new Error('Failed to get medicineList');
         }
     }
-
-    public async addGenericName(genericName: GenericName): Promise<GenericName>{
-        try {
-            return await this.prisma.genericName.create({ data: genericName })
-        } catch (error) {
-            console.error('Error adding generci name:', error);
-            throw new Error('Failed to add generic name');
-        }
-    }
 }
