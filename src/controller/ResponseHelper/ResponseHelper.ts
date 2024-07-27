@@ -58,7 +58,7 @@ export default class ResponseHelper {
             error instanceof Error ? error.message : "Unknown error";
         return Builder<BadRequest>()
             .error("Data not found!")
-            .Code(400)
+            .Code(404)
             .message(errorMessage)
             .build();
     }
