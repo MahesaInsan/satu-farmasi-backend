@@ -14,17 +14,27 @@ export default class GenericNameRepository extends BaseRepository {
         }
     }
 
-    public async editGenericName(genericName: GenericName): Promise<GenericName> {
+    public async editGenericName(genericName: GenericName): Promise<boolean> {
         try {
             genericName.id = Number(genericName.id);
-            return await this.Prisma.genericName.update({ where: { id: genericName.id }, data: genericName });
+            await this.Prisma.genericName.update({ where: { id: genericName.id }, data: genericName });
+            return true;
         } catch (error) {
             console.error('Error updating generic name:', error);
             throw new Error('Failed to edit generic name');
         }
     }
 
-    public async deleteGenericName(id: number): Promise<Boolean> {
+    public async getGenericNameById(id: number): Promise<GenericName | null> {
+        try {
+            return await this.Prisma.genericName.findUnique({ where: { id: id } });
+        } catch (error) {
+            console.error('Error getting generic name by id:', error);
+            throw new Error('Failed to get generic name by id');
+        }
+    }
+
+    public async deleteGenericName(id: number): Promise<boolean> {
         try {
             await this.Prisma.genericName.delete({ where: { id: id } });
             return true;

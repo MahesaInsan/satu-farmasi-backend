@@ -17,29 +17,37 @@ export default class GenericNameService {
         this.editGenericNameHelper = new EditGenericNameHelper<EditGenericNameRequest, GenericName>();
     }
 
+    public async getGenericNameById(id: number): Promise<GenericName | null>{
+        try {
+            return await this.genericNameRepository.getGenericNameById(id);
+        } catch (error) {
+            throw new Error(error as string);
+        }
+    }
+    
     public async addGenericName(request: AddGenericNameRequest): Promise<GenericName>{
     try {
             const genericName: GenericName = this.createMedicineHelper.createGenericName(request);
             return await this.genericNameRepository.addGenericName(Builder(genericName).label(request.label).value(request.value).build())
         } catch (error) {
-            throw error as string;
+            throw new Error(error as string);
         }
     }
 
-    public async editGenericName(request: EditGenericNameRequest): Promise<GenericName>{
+    public async editGenericName(request: EditGenericNameRequest): Promise<boolean>{
         try { 
             const genericName: GenericName = this.editGenericNameHelper.editGenericName(request);
             return await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).build())
         } catch (err) {
-            throw err as string;
+            throw new Error(err as string);
         }
     }
 
-    public async deleteGenericName(id: number): Promise<Boolean>{
+    public async deleteGenericName(id: number): Promise<boolean>{
         try {
             return await this.genericNameRepository.deleteGenericName(id);
         } catch (error) {
-            throw error as string;
+            throw new Error(error as string);
         }
     }
 }

@@ -4,7 +4,6 @@ import AddAdminRequest from "../model/request/AddAdminRequest";
 import {Admin} from "@prisma/client";
 import ResponseHelper from "./ResponseHelper/ResponseHelper";
 import User from "../entity/User";
-import DoctorService from "../service/DoctorService";
 import EditAdminRequest from "../model/request/EditAdminRequest";
 import EditDoctorRequest from "../model/request/EditDoctorRequest";
 import EditPharmacistRequest from "../model/request/EditPharmacistRequest";
