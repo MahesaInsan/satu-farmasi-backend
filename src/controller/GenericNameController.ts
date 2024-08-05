@@ -2,16 +2,38 @@ import { GenericName } from "@prisma/client";
 import AddGenericNameRequest from "../model/request/AddGenericName";
 import GenericNameService from "../service/GenericNameService";
 import {Request, Response} from "express";
-import ResponseHelper from "./ResponseHelper/ResponseHelper";
 import EditGenericNameRequest from "../model/request/editGenericNameRequest";
+import BaseController from "./BaseController";
+import PaginationRequest from "../model/request/PaginationRequest";
 
-export default class GenericNameController {
+export default class GenericNameController  extends BaseController {
     private readonly genericNameService: GenericNameService;
-    private readonly responseHelper: ResponseHelper;
 
     constructor() {
+        super();
         this.genericNameService = new GenericNameService();
-        this.responseHelper = new ResponseHelper();
+    }
+
+    async getTotalGenericName(req: Request, res: Response){
+        try {
+            const totalGenericName: number = await this.genericNameService.getTotalGenericName();
+            return totalGenericName;
+        } catch (error) {
+            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+        }
+    }
+
+    async getAllGenericName(req: Request, res: Response){
+        try {
+            const totalData: number = await this.getTotalGenericName(req, res) ?? 0;
+            const pagination: PaginationRequest  = this.getPagination(totalData, req);
+            const genericNames: GenericName[] = await this.genericNameService.getAllGenericName(pagination.limit, pagination.startIndex);
+            pagination.results = genericNames;
+            res.status(200).send(this.responseHelper.constructPaginationResponse(pagination)
+            );
+        } catch (error) {
+            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+        }
     }
 
     async addGenericName(req: Request, res: Response){

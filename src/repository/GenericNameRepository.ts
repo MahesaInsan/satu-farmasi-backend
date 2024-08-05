@@ -5,6 +5,27 @@ export default class GenericNameRepository extends BaseRepository {
     constructor() {
         super();
     }
+    public async getTotalGenericName(): Promise<number> {
+        try {
+            return await this.Prisma.genericName.count();
+        } catch (error) {
+            console.error('Error getting total generic name:', error);
+            throw new Error('Failed to get total generic name');
+        }
+    }
+
+    public async getAllGenericName(limit: number, startIndex: number): Promise<GenericName[]> {
+        try {
+            return await this.Prisma.genericName.findMany({
+                skip: startIndex,
+                take: limit
+            });
+        } catch (error) {
+            console.error('Error getting all generic name:', error);
+            throw new Error('Failed to get all generic name');
+        }
+    }
+
     public async addGenericName(genericName: GenericName): Promise<GenericName>{
         try {
             return await this.Prisma.genericName.create({ data: genericName })

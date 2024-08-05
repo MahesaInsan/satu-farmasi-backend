@@ -17,6 +17,22 @@ export default class GenericNameService {
         this.editGenericNameHelper = new EditGenericNameHelper<EditGenericNameRequest, GenericName>();
     }
 
+    public async getTotalGenericName(): Promise<number>{
+        try {
+            return await this.genericNameRepository.getTotalGenericName();
+        } catch (error) {
+            throw new Error(error as string);
+        }
+    }
+
+    public async getAllGenericName(limit: number, startIndex: number): Promise<GenericName[]>{
+        try {
+            return await this.genericNameRepository.getAllGenericName(limit, startIndex);
+        } catch (error) {
+            throw new Error(error as string);
+        }
+    }
+
     public async getGenericNameById(id: number): Promise<GenericName | null>{
         try {
             return await this.genericNameRepository.getGenericNameById(id);
