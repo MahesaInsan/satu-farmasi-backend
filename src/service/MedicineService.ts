@@ -11,4 +11,5 @@ export default class MedicineService{
     public async getAllMedicineList(): Promise<MedicineDropdownVO[]>{
         return await this.medicineRepository.fetchMedicineList()
     }
+
 }

@@ -2,7 +2,7 @@
 CREATE TYPE "Role" AS ENUM ('ADMIN', 'DOCTOR', 'PHARMACIST');
 
 -- CreateEnum
-CREATE TYPE "UnitOfMeasure" AS ENUM ('MILILITER', 'MILIGRAM');
+CREATE TYPE "UnitOfMeasure" AS ENUM ('MILLILITER', 'MILLIGRAM');
 
 -- CreateEnum
 CREATE TYPE "Status" AS ENUM ('UNPROCESSED', 'ON_PROGRESS', 'WAITING_FOR_PAYMENT', 'DONE');
@@ -24,7 +24,7 @@ CREATE TABLE "Admin" (
     "dob" TIMESTAMP(3) NOT NULL,
     "phoneNum" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'ADMIN',
-    "isActive" BOOLEAN NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -43,7 +43,7 @@ CREATE TABLE "Doctor" (
     "phoneNum" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'DOCTOR',
     "specialist" TEXT,
-    "isActive" BOOLEAN NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -61,7 +61,7 @@ CREATE TABLE "Pharmacist" (
     "dob" TIMESTAMP(3) NOT NULL,
     "phoneNum" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'PHARMACIST',
-    "isActive" BOOLEAN NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -240,7 +240,7 @@ CREATE TABLE "OutputMedicine" (
     "id" SERIAL NOT NULL,
     "medicineId" INTEGER NOT NULL,
     "quantity" INTEGER NOT NULL,
-    "reasonOfDisponse" "ReasonOfDispose" NOT NULL,
+    "reasonOfDispose" "ReasonOfDispose" NOT NULL,
     "is_active" BOOLEAN NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -261,13 +261,25 @@ CREATE TABLE "MedicineReport" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Admin_nik_key" ON "Admin"("nik");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Doctor_nik_key" ON "Doctor"("nik");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Doctor_email_key" ON "Doctor"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Pharmacist_nik_key" ON "Pharmacist"("nik");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Pharmacist_email_key" ON "Pharmacist"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Patient_credentialNumber_key" ON "Patient"("credentialNumber");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Diagnose_prescriptionId_key" ON "Diagnose"("prescriptionId");
