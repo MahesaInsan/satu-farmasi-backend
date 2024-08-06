@@ -10,6 +10,7 @@ import Unauthorized from "../../model/request/UnauthorizedRequest";
 import InternalServerRequest from "../../model/request/InteralServerRequest";
 import User from "../../entity/User";
 import SuccessRequest from "../../model/request/SuccessRequest";
+import PaginationRequest from "../../model/request/PaginationRequest";
 
 export default class ResponseHelper {
     public constructCookieRequest(maxAge: number): object {
@@ -114,6 +115,15 @@ export default class ResponseHelper {
             .code(200)
             .status("Success edit staff data")
             .data(staff)
+            .build();
+    }
+
+    public constructPaginationResponse(pagination: PaginationRequest): PaginationRequest {
+        return Builder<PaginationRequest>()
+            .next(pagination.next)
+            .previous(pagination.previous)
+            .results(pagination.results)
+            .total(pagination.total)
             .build();
     }
 }

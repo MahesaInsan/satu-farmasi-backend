@@ -21,9 +21,17 @@ export default class PackagingService {
         }
     }
 
-    public async getAllPackagings(): Promise<Packaging[]> {
+    public async getTotalPackagings(): Promise<number> {
         try {
-            return await this.packagingRepository.getAllPackagings();
+            return await this.packagingRepository.getTotalPackagings();
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async getAllPackagings(limit: number, startIndex: number): Promise<Packaging[]> {
+        try {
+            return await this.packagingRepository.getAllPackagings(limit, startIndex);
         } catch (error) {
             throw error as string;
         }
