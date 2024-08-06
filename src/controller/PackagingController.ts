@@ -15,25 +15,40 @@ export default class PackagingController {
         try {
             const request: AddPackagingRequest = req.body;
             const packaging: Packaging = await this.packagingService.createPackaging(request);
-            return res.status(200).send(new BaseResponse().ok(packaging))
+            return res.status(200).send(new BaseResponse().ok(packaging));
         } catch (error) {
-            console.log("[src][controller][PackagingController]: ", error);
-            return res.status(400).send(new BaseResponse().badRequest())
+            console.log("[src][controller][PackagingController] ", error);
+            return res.status(400).send(new BaseResponse().badRequest());
         }
     }
 
     async getPackaging(req: Request, res: Response) {
         try {
             const id: number = Number(req.query.id);
+            const label: string = req.query.label as string;
+            let packaging: Packaging | null;
             if (id) {
-                const packaging: Packaging | null = await this.packagingService.getPackagingById(id);
-                return res.status(200).send(new BaseResponse().ok(packaging))
+                packaging = await this.packagingService.getPackagingById(id);
+                return res.status(200).send(new BaseResponse().ok(packaging));
+            } else if (label) {
+                packaging = await this.packagingService.getPackagingByLabel(label);
+                return res.status(200).send(new BaseResponse().ok(packaging));
             }
             const packagings: Packaging[] = await this.packagingService.getAllPackagings();
             return res.status(200).send(new BaseResponse().ok(packagings))
         } catch (error) {
-            console.log("[src][controller][PackagingController]: ", error);
-            return res.status(400).send(new BaseResponse().badRequest())
+            console.log("[src][controller][PackagingController] ", error);
+            return res.status(400).send(new BaseResponse().badRequest());
+        }
+    }
+
+    async editPackaging(req: Request, res: Response) {
+        try {
+            const packaging: Packaging = await this.packagingService.editPackaging(req.body);
+            return res.status(200).send(new BaseResponse().ok(packaging));
+        } catch (error) {
+            console.log("[src][controller][PackagingController] ", error);
+            return res.status(400).send(new BaseResponse().badRequest());
         }
     }
 }

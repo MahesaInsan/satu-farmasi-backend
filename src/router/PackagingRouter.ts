@@ -13,6 +13,7 @@ class PackagingRouter extends BaseRouter {
     private initRoutes() {
         this.router.post('/', this.packagingController.createPackaging.bind(this.packagingController));
         this.router.get('/', this.packagingController.getPackaging.bind(this.packagingController));
+        this.router.post('/edit', this.packagingController.editPackaging.bind(this.packagingController));
     }
 }
 
