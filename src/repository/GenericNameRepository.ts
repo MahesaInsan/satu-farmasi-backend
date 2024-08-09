@@ -17,6 +17,7 @@ export default class GenericNameRepository extends BaseRepository {
     public async getAllGenericName(limit: number, startIndex: number): Promise<GenericName[]> {
         try {
             return await this.Prisma.genericName.findMany({
+                where: { is_active: true },
                 skip: startIndex,
                 take: limit
             });
@@ -52,6 +53,15 @@ export default class GenericNameRepository extends BaseRepository {
         } catch (error) {
             console.error('Error getting generic name by id:', error);
             throw new Error('Failed to get generic name by id');
+        }
+    }
+
+    public async getGenericNameByLabel(label: string): Promise<GenericName[]> {
+        try {
+            return await this.Prisma.genericName.findMany({ where: { label: label, is_active: true } });
+        } catch (error) {
+            console.error('Error getting generic name by label:', error);
+            throw new Error('Failed to get generic name by label');
         }
     }
 

@@ -123,6 +123,7 @@ export default class ResponseHelper {
             .next(pagination.next)
             .previous(pagination.previous)
             .results(pagination.results)
+            .total(pagination.total)
             .build();
     }
 }
