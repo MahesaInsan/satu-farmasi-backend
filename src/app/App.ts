@@ -9,6 +9,7 @@ import medicineRouter from "../router/MedicineRouter";
 import patientRouter from "../router/PatientRouter";
 import diagnoseRouter from "../router/DiagnoseRouter";
 import GenericNameRoute from "../router/GenericNameRoute";
+import cookieParser from "cookie-parser";
 
 export default class App {
     private readonly app: Application;
@@ -29,6 +30,7 @@ export default class App {
     }
 
     private initConfig() {
+        this.app.use(cookieParser());
         this.app.use(express.json());
         this.app.use(cors(this.corsOptions));
         this.app.options("*", cors(this.corsOptions)); // Preflight OPTIONS request

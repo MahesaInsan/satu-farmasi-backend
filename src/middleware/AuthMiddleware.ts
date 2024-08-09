@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
 import BaseRequest from "../model/request/BaseRequest/BaseRequest";
 import BaseMiddleware from "./BaseMiddleware/BaseMiddleware";
@@ -10,11 +10,22 @@ export default class AuthMiddleware extends BaseMiddleware {
     }
 
     public authenticateToken( req: BaseRequest, res: Response, next: NextFunction) {
-        const authHeader = req.headers["authorization"] as string | undefined;
-        const token: string | undefined = authHeader && authHeader.split(" ")[1]; if (!token)
+        let authHeader = req.headers["authorization"] as string | undefined;
+        let token: string | undefined = undefined;
+
+        if (authHeader === undefined) {
+            authHeader = req.cookies ? req.cookies["token"] : undefined;
+            token = authHeader; 
+        } else {
+            token = authHeader && authHeader.split(" ")[1]; 
+        }
+
+        if (!token) {
+            console.log("Token is not found!");
             return res .status(403) .send( this.responseHelper.constructUnAuthorizedRequest(
                     new Error("Token is not found!")
                 ));
+            }
 
         const secretToken = process.env["SECRET_TOKEN"];
         if (!secretToken)
