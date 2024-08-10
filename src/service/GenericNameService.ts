@@ -40,6 +40,14 @@ export default class GenericNameService {
             throw new Error(error as string);
         }
     }
+
+    public async getGenericNameByLabel(label: string): Promise<GenericName[]>{
+        try {
+            return await this.genericNameRepository.getGenericNameByLabel(label);
+        } catch (error) {
+            throw new Error(error as string);
+        }
+    }
     
     public async addGenericName(request: AddGenericNameRequest): Promise<GenericName>{
     try {

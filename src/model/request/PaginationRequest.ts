@@ -4,4 +4,5 @@ export default interface PaginationRequest {
     results?: object,
     startIndex: number;
     limit: number;
+    total?: number;
 }

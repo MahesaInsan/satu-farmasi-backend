@@ -5,6 +5,7 @@ import {Request, Response} from "express";
 import EditGenericNameRequest from "../model/request/editGenericNameRequest";
 import BaseController from "./BaseController";
 import PaginationRequest from "../model/request/PaginationRequest";
+import BaseResponse from "../model/response/BaseResponse";
 
 export default class GenericNameController  extends BaseController {
     private readonly genericNameService: GenericNameService;
@@ -27,10 +28,17 @@ export default class GenericNameController  extends BaseController {
         try {
             const totalData: number = await this.getTotalGenericName(req, res) ?? 0;
             const pagination: PaginationRequest  = this.getPagination(totalData, req);
-            const genericNames: GenericName[] = await this.genericNameService.getAllGenericName(pagination.limit, pagination.startIndex);
+            let genericNames: GenericName[];
+            if (req.query.label) {
+                genericNames = await this.genericNameService.getGenericNameByLabel(req.query.label as string);
+                pagination.results = genericNames
+                pagination.total = totalData;
+                return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
+            }
+            genericNames = await this.genericNameService.getAllGenericName(pagination.limit, pagination.startIndex);
             pagination.results = genericNames;
-            res.status(200).send(this.responseHelper.constructPaginationResponse(pagination)
-            );
+            pagination.total = totalData;
+            return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
@@ -40,7 +48,7 @@ export default class GenericNameController  extends BaseController {
         try{
             const request: AddGenericNameRequest = req.body;
             const createdGenericName: GenericName = await this.genericNameService.addGenericName(request)
-            res.status(200).send(createdGenericName);
+            res.status(200).send(new BaseResponse().ok(createdGenericName));
         } catch (error) {
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
@@ -50,7 +58,7 @@ export default class GenericNameController  extends BaseController {
         try {
             const id: number = Number(req.params.id);
             const genericName: GenericName | null = await this.genericNameService.getGenericNameById(id);
-            res.status(200).send(genericName);
+            res.status(200).send(new BaseResponse().ok(genericName));
         } catch (error) {
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
@@ -63,7 +71,7 @@ export default class GenericNameController  extends BaseController {
             data.id = id;
             const request: EditGenericNameRequest = data;
             const editedGenericName: boolean = await this.genericNameService.editGenericName(request);
-            res.status(200).send(editedGenericName);
+            res.status(200).send(new BaseResponse().ok(editedGenericName));
         } catch (error) {
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
@@ -73,7 +81,7 @@ export default class GenericNameController  extends BaseController {
         try {
             const id: number = Number(req.params.id);
             const isDeleted: boolean = await this.genericNameService.deleteGenericName(id);
-            res.status(200).send(isDeleted);
+            res.status(200).send(new BaseResponse().ok(isDeleted));
         } catch (error) {
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
