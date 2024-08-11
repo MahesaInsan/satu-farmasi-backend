@@ -1,5 +1,6 @@
 import {PrismaClient} from "@prisma/client"
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
+import GenericName from "../entity/GenericName";
 
 export default class MedicineRepository{
     private prisma: PrismaClient

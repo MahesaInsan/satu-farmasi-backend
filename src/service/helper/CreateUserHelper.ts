@@ -6,10 +6,10 @@ export default class CreateUserHelper<U extends BaseAddUserRequest, T extends Us
 
     public createBaseUser(request: U): T{
         return Builder<T>()
-            .isActive(true)
             .created_at(new Date())
             .updated_at(new Date())
             .nik(request.nik)
+            .is_active(true)
             .email(request.email)
             .password(request.password)
             .firstName(request.firstName)

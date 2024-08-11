@@ -1,6 +1,7 @@
 import BaseRouter from "./BaseRouter";
 import AdminController from "../controller/AdminController";
 import UserController from "../controller/UserController";
+import BaseRequest from "../model/request/BaseRequest/BaseRequest";
 
 class UserRouter extends BaseRouter{
     private readonly userController: UserController;
@@ -14,7 +15,10 @@ class UserRouter extends BaseRouter{
     private initRoutes(){
         this.router.post('/', this.userController.getUserByEmail.bind(this.userController))
         this.router.post('/check-token', this.userController.checkToken.bind(this.userController))
-        this.router.delete('/', this.userController.deleteUser.bind(this.userController))
+        this.router.delete('/', 
+            (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
+            this.userController.deleteUser.bind(this.userController)
+        )
     }
 }
 

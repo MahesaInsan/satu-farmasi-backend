@@ -6,7 +6,6 @@ export default class EditUserHelper<U extends BaseEditUserRequest, T extends Use
 
     public editBaseUser(request: U): T{
         return Builder<T>()
-            .isActive(request.isActive)
             .created_at(request.createdAt)
             .updated_at(new Date())
             .id(request.id)
