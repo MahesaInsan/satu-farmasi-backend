@@ -19,7 +19,7 @@ export default class PackagingRepository {
 
     public async getTotalPackagings(): Promise<number> {
         try {
-            return await this.prisma.packaging.count();
+            return await this.prisma.packaging.count({ where: { is_active: true } });
         } catch (error) {
             throw error as string;
         }
