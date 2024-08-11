@@ -8,6 +8,7 @@ import UserRouter from "../router/UserRouter";
 import medicineRouter from "../router/MedicineRouter";
 import patientRouter from "../router/PatientRouter";
 import diagnoseRouter from "../router/DiagnoseRouter";
+import packagingRouter from "../router/PackagingRouter";
 import GenericNameRoute from "../router/GenericNameRoute";
 import cookieParser from "cookie-parser";
 
@@ -44,6 +45,7 @@ export default class App {
         this.app.use("/api/v1/medicines", medicineRouter);
         this.app.use("/api/v1/patients", patientRouter);
         this.app.use("/api/v1/diagnose", diagnoseRouter);
+        this.app.use("/api/v1/packagings", packagingRouter);
         this.app.use("/api/v1/genericName", GenericNameRoute)
     }
 

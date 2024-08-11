@@ -1,5 +1,6 @@
+import { Doctor } from "@prisma/client";
 import BaseRepository from "./helper/BaseRepository";
-import Doctor from "../entity/Doctor";
+// import Doctor from "../entity/Doctor";
 
 export default class DoctorRepository extends BaseRepository{
     constructor() {
