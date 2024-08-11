@@ -19,7 +19,6 @@ export default class DoctorRepository extends BaseRepository{
 
     public async addDoctor(doctor: Doctor): Promise<Doctor>{
         try {
-            console.log(doctor)
             return await this.Prisma.doctor.create({data: doctor})
         } catch (error) {
             console.error('Error adding admin:', error);
