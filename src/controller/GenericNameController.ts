@@ -15,29 +15,21 @@ export default class GenericNameController  extends BaseController {
         this.genericNameService = new GenericNameService();
     }
 
-    async getTotalGenericName(req: Request, res: Response){
-        try {
-            const totalGenericName: number = await this.genericNameService.getTotalGenericName();
-            return totalGenericName;
-        } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
-        }
-    }
-
     async getAllGenericName(req: Request, res: Response){
         try {
-            const totalData: number = await this.getTotalGenericName(req, res) ?? 0;
-            const pagination: PaginationRequest  = this.getPagination(totalData, req);
-            let genericNames: GenericName[];
-            if (req.query.label) {
-                genericNames = await this.genericNameService.getGenericNameByLabel(req.query.label as string);
-                pagination.results = genericNames
-                pagination.total = totalData;
-                return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
-            }
-            genericNames = await this.genericNameService.getAllGenericName(pagination.limit, pagination.startIndex);
+            const label = req.query.label as string;
+            const totalData = label
+                ? await this.genericNameService.getTotalGenericNameByLabel(label)
+                : await this.genericNameService.getTotalGenericName() ?? 0;
+        
+            const pagination = this.getPagination(totalData, req);
+            const genericNames = label
+                ? await this.genericNameService.getGenericNameByLabel(pagination.limit, pagination.startIndex, label)
+                : await this.genericNameService.getAllGenericName(pagination.limit, pagination.startIndex);
+        
             pagination.results = genericNames;
             pagination.total = totalData;
+
             return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))

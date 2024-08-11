@@ -25,6 +25,14 @@ export default class GenericNameService {
         }
     }
 
+    public async getTotalGenericNameByLabel(label: string): Promise<number>{
+        try {
+            return await this.genericNameRepository.getTotalGenericNameByLabel(label);
+        } catch (error) {
+            throw new Error(error as string);
+        }
+    }
+
     public async getAllGenericName(limit: number, startIndex: number): Promise<GenericName[]>{
         try {
             return await this.genericNameRepository.getAllGenericName(limit, startIndex);
@@ -41,9 +49,9 @@ export default class GenericNameService {
         }
     }
 
-    public async getGenericNameByLabel(label: string): Promise<GenericName[]>{
+    public async getGenericNameByLabel(limit: number, startIndex: number, label: string): Promise<GenericName[]>{
         try {
-            return await this.genericNameRepository.getGenericNameByLabel(label);
+            return await this.genericNameRepository.getGenericNameByLabel(limit, startIndex,label);
         } catch (error) {
             throw new Error(error as string);
         }

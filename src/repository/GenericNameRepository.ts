@@ -7,61 +7,137 @@ export default class GenericNameRepository extends BaseRepository {
     }
     public async getTotalGenericName(): Promise<number> {
         try {
-            return await this.Prisma.genericName.count();
+            return await this.Prisma.genericName.count({
+                where: {
+                    is_active: true,
+                }
+            });
         } catch (error) {
-            console.error('Error getting total generic name:', error);
-            throw new Error('Failed to get total generic name');
+            console.error("Error getting total generic name:", error);
+            throw new Error("Failed to get total generic name");
         }
     }
 
-    public async getAllGenericName(limit: number, startIndex: number): Promise<GenericName[]> {
+    public async getTotalGenericNameByLabel(label: string): Promise<number> {
+        try {
+            return await this.Prisma.genericName.count({
+                where: {
+                    AND: [
+                        {
+                            OR: [
+                                {
+                                    label: {
+                                        contains: label,
+                                    },
+                                },
+                                {
+                                    label: {
+                                        startsWith: label,
+                                    },
+                                },
+                                {
+                                    label: {
+                                        endsWith: label,
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            is_active: true,
+                        },
+                    ],
+                },
+            });
+        } catch (error) {
+            console.error("Error getting total generic name by label:", error);
+            throw new Error("Failed to get total generic name by label");
+        }
+    }
+
+    public async getAllGenericName( limit: number, startIndex: number): Promise<GenericName[]> {
         try {
             return await this.Prisma.genericName.findMany({
                 where: { is_active: true },
                 skip: startIndex,
-                take: limit
+                take: limit,
             });
         } catch (error) {
-            console.error('Error getting all generic name:', error);
-            throw new Error('Failed to get all generic name');
+            console.error("Error getting all generic name:", error);
+            throw new Error("Failed to get all generic name");
         }
     }
 
-    public async addGenericName(genericName: GenericName): Promise<GenericName>{
+    public async addGenericName(
+        genericName: GenericName
+    ): Promise<GenericName> {
         try {
-            return await this.Prisma.genericName.create({ data: genericName })
+            return await this.Prisma.genericName.create({ data: genericName });
         } catch (error) {
-            console.error('Error adding generci name:', error);
-            throw new Error('Failed to add generic name');
+            console.error("Error adding generci name:", error);
+            throw new Error("Failed to add generic name");
         }
     }
 
     public async editGenericName(genericName: GenericName): Promise<boolean> {
         try {
             genericName.id = Number(genericName.id);
-            await this.Prisma.genericName.update({ where: { id: genericName.id }, data: genericName });
+            await this.Prisma.genericName.update({
+                where: { id: genericName.id },
+                data: genericName,
+            });
             return true;
         } catch (error) {
-            console.error('Error updating generic name:', error);
-            throw new Error('Failed to edit generic name');
+            console.error("Error updating generic name:", error);
+            throw new Error("Failed to edit generic name");
         }
     }
 
     public async getGenericNameById(id: number): Promise<GenericName | null> {
         try {
-            return await this.Prisma.genericName.findUnique({ where: { id: id } });
+            return await this.Prisma.genericName.findUnique({
+                where: { id: id },
+            });
         } catch (error) {
-            console.error('Error getting generic name by id:', error);
-            throw new Error('Failed to get generic name by id');
+            console.error("Error getting generic name by id:", error);
+            throw new Error("Failed to get generic name by id");
         }
     }
 
-    public async getGenericNameByLabel(label: string): Promise<GenericName[]> {
+    public async getGenericNameByLabel(limit: number, startIndex: number, label: string): Promise<GenericName[]> {
         try {
-            return await this.Prisma.genericName.findMany({ where: { label: label, is_active: true } });
+            return await this.Prisma.genericName.findMany({
+                where: {
+                    AND: [
+                        {
+                            OR: [
+                                {
+                                    label: {
+                                        contains: label,
+                                    },
+                                },
+                                {
+                                    label: {
+                                        startsWith: label,
+                                    },
+                                },
+                                {
+                                    label: {
+                                        endsWith: label,
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            is_active: true,
+                        },
+                    ],
+                },
+                skip: startIndex,
+                take: limit,
+            });
         } catch (error) {
-            console.error('Error getting generic name by label:', error);
-            throw new Error('Failed to get generic name by label');
+            console.error("Error getting generic name by label:", error);
+            throw new Error("Failed to get generic name by label");
         }
     }
 
@@ -70,8 +146,8 @@ export default class GenericNameRepository extends BaseRepository {
             await this.Prisma.genericName.delete({ where: { id: id } });
             return true;
         } catch (error) {
-            console.error('Error deleting generic name:', error);
-            throw new Error('Failed to delete generic name');
+            console.error("Error deleting generic name:", error);
+            throw new Error("Failed to delete generic name");
         }
     }
 }
