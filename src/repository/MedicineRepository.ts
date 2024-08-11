@@ -26,6 +26,7 @@ export default class MedicineRepository{
                     name: true,
                     merk: true,
                     currStock: true,
+                    minStock: true,
                     price: true,
                     classifications: {
                         select: {
@@ -51,6 +52,37 @@ export default class MedicineRepository{
         } catch (error) {
             console.error('Error getting medicineList:', error);
             throw new Error('Failed to get medicineList');
+        }
+    }
+
+    public async decreaseStock(medicineId: number, quantity: number){
+        try {
+            await this.prisma.medicine.update({
+                where: {
+                    id: medicineId
+                },
+                data: {
+                    currStock: {
+                        decrement: quantity
+                    }
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async getMedicineIdIn(medicineId: number[]) {
+        try {
+            return this.prisma.medicine.findMany({
+                where: {
+                    id: {
+                        in: medicineId
+                    }
+                }
+            })
+        } catch (error) {
+            throw error as string
         }
     }
 }

@@ -12,7 +12,7 @@ export default class DiagnoseController {
     async diagnosePatient(req: Request, res: Response){
         try {
             const request: AddDiagnoseRequest = req.body.data
-            console.log(request)
+            console.log("#diagnosePatient with request: ", request)
             return res.status(200).send(await this.diagnoseService.createDiagnose(request))
         } catch (error) {
             console.log(error)
