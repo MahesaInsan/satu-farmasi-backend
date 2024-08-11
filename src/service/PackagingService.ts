@@ -29,6 +29,14 @@ export default class PackagingService {
         }
     }
 
+    public async getTotalPackagingsByLabel(label: string): Promise<number> {
+        try {
+            return await this.packagingRepository.getTotalPackagingsByLabel(label);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
     public async getAllPackagings(limit: number, startIndex: number): Promise<Packaging[]> {
         try {
             return await this.packagingRepository.getAllPackagings(limit, startIndex);
@@ -46,10 +54,9 @@ export default class PackagingService {
         }
     }
 
-    public async getPackagingByLabel(label: string): Promise<Packaging | null> {
+    public async getPackagingByLabel(limit: number, startIndex: number, label: string): Promise<Packaging[]> {
         try {
-            const packaging: Packaging | null = await this.packagingRepository.getPackagingByLabel(label);
-            return packaging;
+            return await this.packagingRepository.getPackagingByLabel(limit, startIndex, label);
         } catch (error) {
             throw error as string;
         }
@@ -63,6 +70,15 @@ export default class PackagingService {
     public async editPackaging(request: EditPackagingRequest): Promise<Packaging> {
         try {
             await this.isPackagingExist(request.label);
+            const packaging: Packaging = this.constructEditPackaging(request);
+            return await this.packagingRepository.editPackaging(packaging);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async deletePackaging(request: EditPackagingRequest): Promise<Packaging> {
+        try {
             const packaging: Packaging = this.constructEditPackaging(request);
             return await this.packagingRepository.editPackaging(packaging);
         } catch (error) {

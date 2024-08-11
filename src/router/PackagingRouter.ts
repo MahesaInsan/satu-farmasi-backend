@@ -14,6 +14,7 @@ class PackagingRouter extends BaseRouter {
         this.router.post('/', this.packagingController.createPackaging.bind(this.packagingController));
         this.router.get('/', this.packagingController.getPackaging.bind(this.packagingController));
         this.router.post('/edit', this.packagingController.editPackaging.bind(this.packagingController));
+        this.router.post('/delete', this.packagingController.deletePackaging.bind(this.packagingController));
     }
 }
 

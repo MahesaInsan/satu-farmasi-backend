@@ -20,33 +20,28 @@ export default class PackagingController extends BaseController {
             const packaging: Packaging = await this.packagingService.createPackaging(request);
             return res.status(200).send(new BaseResponse().ok(packaging));
         } catch (error) {
-            console.log("[src][controller][PackagingController] ", error);
+            console.log("[src][controller][PackagingController][createPackaging] ", error);
             return res.status(400).send(new BaseResponse().badRequest());
         }
     }
 
     public async getPackaging(req: Request, res: Response) {
         try {
-            const totalPackaging: number = await this.packagingService.getTotalPackagings();
-            const pagination: PaginationRequest = this.getPagination(totalPackaging, req);
-            const id: number = Number(req.query.id);
             const label: string = req.query.label as string;
+            const totalPackaging: number = label
+                ? await this.packagingService.getTotalPackagingsByLabel(label)
+                : await this.packagingService.getTotalPackagings();
 
-            let packaging: Packaging | null;
-            if (id) {
-                packaging = await this.packagingService.getPackagingById(id);
-                return res.status(200).send(new BaseResponse().ok(packaging));
-            } else if (label) {
-                packaging = await this.packagingService.getPackagingByLabel(label);
-                return res.status(200).send(new BaseResponse().ok(packaging));
-            }
+            const pagination: PaginationRequest = this.getPagination(totalPackaging, req);
+            const packagings: Packaging[] = label
+                ? await this.packagingService.getPackagingByLabel(pagination.limit, pagination.startIndex, label)
+                : await this.packagingService.getAllPackagings(pagination.limit, pagination.startIndex);
 
-            const packagings: Packaging[] = await this.packagingService.getAllPackagings(pagination.limit, pagination.startIndex);
             pagination.results = packagings;
             pagination.total = totalPackaging;
             return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
-            console.log("[src][controller][PackagingController] ", error);
+            console.log("[src][controller][PackagingController][getPackaging] ", error);
             return res.status(400).send(new BaseResponse().badRequest());
         }
     }
@@ -56,7 +51,17 @@ export default class PackagingController extends BaseController {
             const packaging: Packaging = await this.packagingService.editPackaging(req.body);
             return res.status(200).send(new BaseResponse().ok(packaging));
         } catch (error) {
-            console.log("[src][controller][PackagingController] ", error);
+            console.log("[src][controller][PackagingController][editPackaging] ", error);
+            return res.status(400).send(new BaseResponse().badRequest());
+        }
+    }
+
+    public async deletePackaging(req: Request, res: Response) {
+        try {
+            const packaging: Packaging = await this.packagingService.deletePackaging(req.body);
+            return res.status(200).send(new BaseResponse().ok(packaging));
+        } catch (error) {
+            console.log("[src][controller][PackagingController][deletePackaging] ", error);
             return res.status(400).send(new BaseResponse().badRequest());
         }
     }

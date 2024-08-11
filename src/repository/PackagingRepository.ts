@@ -25,9 +25,29 @@ export default class PackagingRepository {
         }
     }
 
+    public async getTotalPackagingsByLabel(label: string): Promise<number> {
+        try {
+            return await this.prisma.packaging.count({
+                where: { 
+                    label: label, 
+                    is_active: true,
+                    AND: [{ 
+                        OR: [
+                            { label: { contains: label }},
+                            { label: { startsWith: label }},
+                            { label: { endsWith: label }}
+                        ]
+                    }]
+                } 
+            })
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
     public async getAllPackagings(limit: number, startIndex: number): Promise<Packaging[]> {
         try {
-            return this.prisma.packaging.findMany({ 
+            return await this.prisma.packaging.findMany({ 
                 where: { is_active: true },
                 skip: startIndex,
                 take: limit
@@ -39,23 +59,43 @@ export default class PackagingRepository {
 
     public async getPackagingById(id: number): Promise<Packaging | null> {
         try {
-            return this.prisma.packaging.findUnique({ where: { id: id, is_active: true } })
+            return await this.prisma.packaging.findUnique({ where: { id: id, is_active: true } })
         } catch (error) {
             throw error as string;
         }
     }
 
-    public async getPackagingByLabel(label: string): Promise<Packaging | null> {
+    public async getPackagingByLabel(limit: number, startIndex: number, label: string): Promise<Packaging[]> {
         try {
-            return this.prisma.packaging.findFirst({ where: { label: label, is_active: true } })
+            return await this.prisma.packaging.findMany({ 
+                skip: startIndex,
+                take: limit,
+                where: { 
+                    AND: [
+                        { 
+                            OR: [
+                                { label: { contains: label }},
+                                { label: { startsWith: label }},
+                                { label: { endsWith: label }}
+                            ]
+                        },
+                        { is_active: true }
+                    ] 
+                } 
+            })
         } catch (error) {
             throw error as string;
         }
     }
 
-    public async isPackagingExist(label: string): Promise<Boolean> {
+    public async isPackagingExist(label: string): Promise<boolean> {
         try {
-            const packaging: Packaging | null = await this.getPackagingByLabel(label);
+            const packaging: Packaging | null = await this.prisma.packaging.findFirst({
+                where: { 
+                    label: label, 
+                    is_active: true
+                }
+            });
             return packaging !== null;
         } catch (error) {
             throw error as string;
@@ -64,7 +104,7 @@ export default class PackagingRepository {
 
     public async editPackaging(dataPackaging: Packaging): Promise<Packaging> {
         try {
-            return this.prisma.packaging.update({ where: { id: dataPackaging.id }, data: dataPackaging });
+            return await this.prisma.packaging.update({ where: { id: dataPackaging.id }, data: dataPackaging });
         } catch (error) {
             throw error as string;
         }
