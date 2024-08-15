@@ -14,4 +14,8 @@ export default class BaseResponse<T> {
     public ok(data: T): BaseResponse<T>{
         return new BaseResponse<T>(200, "OK", data)
     }
+
+    public badRequest(): BaseResponse<T>{
+        return new BaseResponse<T>(400, "Bad Request", undefined)
+    }
 }

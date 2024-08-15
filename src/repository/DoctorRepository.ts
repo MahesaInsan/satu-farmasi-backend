@@ -1,5 +1,6 @@
+import { Doctor } from "@prisma/client";
 import BaseRepository from "./helper/BaseRepository";
-import Doctor from "../entity/Doctor";
+// import Doctor from "../entity/Doctor";
 
 export default class DoctorRepository extends BaseRepository{
     constructor() {
@@ -18,7 +19,6 @@ export default class DoctorRepository extends BaseRepository{
 
     public async addDoctor(doctor: Doctor): Promise<Doctor>{
         try {
-            console.log(doctor)
             return await this.Prisma.doctor.create({data: doctor})
         } catch (error) {
             console.error('Error adding admin:', error);

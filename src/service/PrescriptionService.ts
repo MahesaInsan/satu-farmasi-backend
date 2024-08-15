@@ -6,6 +6,8 @@ import IdVO from "../model/VOs/IdVO";
 import AddPrescribedMedicineRequest from "../model/request/AddPrescribedMedicineRequest";
 import PrescriptionHasMedicineRepository from "../repository/PrescriptionHasMedicineRepository";
 import MedicineService from "./MedicineService";
+import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
+import PrescriptionSummaryResponse from "../model/response/PrescriptionSummaryResponse";
 
 export default class PrescriptionService{
     private readonly prescriptionRepository: PrescriptionRepository
@@ -58,5 +60,38 @@ export default class PrescriptionService{
             .instruction(prescribeMedicineRequest.instruction)
             .totalPrice(new Prisma.Decimal(Number(prescribeMedicineRequest.price) * prescribeMedicineRequest.quantity))
             .build();
+    }
+
+    public async getAllPrescriptionList(username?: string){
+        try {
+            if (username) {
+                return await this.prescriptionRepository.getAllPrescription().then(
+                    prescriptions => {
+                        return prescriptions.map(prescription => {
+                            return this.constructPrescriptionSummaryVO(prescription)
+                        })
+                    }
+                )
+            } else {
+                return await this.prescriptionRepository.getAllPrescription().then(
+                    prescriptions => {
+                        return prescriptions.map(prescription => {
+                            return this.constructPrescriptionSummaryVO(prescription)
+                        })
+                    }
+                )
+            }
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    private constructPrescriptionSummaryVO(prescription: PrescriptionSummaryVO): PrescriptionSummaryResponse{
+        return Builder<PrescriptionSummaryResponse>()
+            .prescriptionId(prescription.id)
+            .timestamps(prescription.created_at)
+            .patientName(prescription.patient.name)
+            .status(prescription.status)
+            .build()
     }
 }
