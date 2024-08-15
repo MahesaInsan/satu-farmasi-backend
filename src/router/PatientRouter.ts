@@ -12,7 +12,7 @@ class PatientRouter extends BaseRouter{
 
     private initRoutes(){
         this.router.get('/dropdownOptions', this.patientController.getPatientDropdownOptions.bind(this.patientController))
-        this.router.post('/', this.patientController.createNewPatient.bind(this.patientController))
+        // this.router.post('/', this.patientController.createNewPatient.bind(this.patientController))
     }
 }
 

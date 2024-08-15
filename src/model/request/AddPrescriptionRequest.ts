@@ -1,21 +1,22 @@
 import {Prisma} from "@prisma/client"
 import AddPrescribedMedicineRequest from "./AddPrescribedMedicineRequest";
+import PatientRequestDTO from "./PatientRequestDTO";
 
 export default class AddPrescriptionRequest{
-    private _patientId: number
+    private _patient: PatientRequestDTO;
     private _medicineList: AddPrescribedMedicineRequest[]
 
-    constructor(patientId: number, medicineList: AddPrescribedMedicineRequest[]) {
-        this._patientId = patientId;
+    constructor(patient: PatientRequestDTO, medicineList: AddPrescribedMedicineRequest[]) {
+        this._patient = patient;
         this._medicineList = medicineList;
     }
 
-    get patientId(): number {
-        return this._patientId;
+    get patient(): PatientRequestDTO {
+        return this._patient;
     }
 
-    set patientId(value: number) {
-        this._patientId = value;
+    set patient(value: PatientRequestDTO) {
+        this._patient = value;
     }
 
     get medicineList(): AddPrescribedMedicineRequest[] {
