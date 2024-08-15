@@ -17,6 +17,7 @@ export default class MedicineController{
             const medicineDropdownOption: MedicineDropdownVO[] = await this.medicineService.getAllMedicineList()
             res.status(200).send(medicineDropdownOption);
         } catch (error) {
+            res.status(400).send("error")
             throw new Error(error as string)
         }
     }
