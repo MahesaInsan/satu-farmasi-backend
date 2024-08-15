@@ -3,7 +3,7 @@ import AuthMiddleware from "../middleware/AuthMiddleware";
 
 export default abstract class BaseRouter {
     public readonly router: Router;
-    private readonly authMiddleware: AuthMiddleware;
+    public readonly authMiddleware: AuthMiddleware;
 
     constructor() {
         this.router = Router();

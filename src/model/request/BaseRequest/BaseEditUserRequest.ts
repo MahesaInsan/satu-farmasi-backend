@@ -10,12 +10,12 @@ export default abstract class BaseEditUserRequest {
     private _dob: Date;
     private _phoneNum: string;
     private _role: Role;
-    private _isActive: boolean;
+    private _is_active: boolean;
     private _createdAt: Date;
     private _updatedAt: Date;
 
     constructor(id: number, nik: string, email: string, password: string, firstName: string, lastName: string,
-                dob: Date, phoneNum: string, role: Role, isActive: boolean, createdAt: Date, updatedAt: Date) {
+                dob: Date, phoneNum: string, role: Role, is_active: boolean, createdAt: Date, updatedAt: Date) {
         this._id = id;
         this._nik = nik;
         this._email = email;
@@ -25,7 +25,7 @@ export default abstract class BaseEditUserRequest {
         this._dob = dob;
         this._phoneNum = phoneNum;
         this._role = role;
-        this._isActive = isActive;
+        this._is_active = is_active;;
         this._createdAt = createdAt;
         this._updatedAt = updatedAt;
     }
@@ -98,12 +98,12 @@ export default abstract class BaseEditUserRequest {
         this.role = value;
     }
 
-    get isActive(): boolean {
-        return this._isActive;
+    get is_active(): boolean {
+        return this._is_active;
     }
 
-    set isActive(value: boolean) {
-        this._isActive = value;
+    set is_active(value: boolean) {
+        this._is_active = value;
     }
 
     get createdAt(): Date {
