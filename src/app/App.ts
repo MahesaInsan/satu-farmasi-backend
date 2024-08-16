@@ -12,6 +12,7 @@ import prescriptionRouter from "../router/PrescriptionRouter";
 import packagingRouter from "../router/PackagingRouter";
 import GenericNameRoute from "../router/GenericNameRoute";
 import cookieParser from "cookie-parser";
+import VendorRouter from "../router/VendorRouter";
 
 export default class App {
     private readonly app: Application;
@@ -49,6 +50,7 @@ export default class App {
         this.app.use("/api/v1/packagings", packagingRouter);
         this.app.use("/api/v1/genericName", GenericNameRoute)
         this.app.use("/api/v1/prescriptions", prescriptionRouter)
+        this.app.use("/api/v1/vendors", VendorRouter)
     }
 
     public listen() {
