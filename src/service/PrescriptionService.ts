@@ -1,5 +1,5 @@
 import PrescriptionRepository from "../repository/PrescriptionRepository";
-import {Prescription, Status, PrescriptionHasMedicine, Prisma} from "@prisma/client";
+import {Prescription, Status, PrescriptionHasMedicine, Prisma, Diagnose} from "@prisma/client";
 import AddPrescriptionRequest from "../model/request/AddPrescriptionRequest";
 import {Builder} from "builder-pattern";
 import IdVO from "../model/VOs/IdVO";
@@ -8,34 +8,50 @@ import PrescriptionHasMedicineRepository from "../repository/PrescriptionHasMedi
 import MedicineService from "./MedicineService";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
 import PrescriptionSummaryResponse from "../model/response/PrescriptionSummaryResponse";
+import PatientService from "./PatientService";
 
 export default class PrescriptionService{
     private readonly prescriptionRepository: PrescriptionRepository
     private readonly prescriptionHasMedicineRepository: PrescriptionHasMedicineRepository
     private readonly medicineService: MedicineService
+    private readonly patientService: PatientService
+
     constructor() {
-        this.prescriptionRepository = new PrescriptionRepository()
-        this.prescriptionHasMedicineRepository = new PrescriptionHasMedicineRepository()
+        this.prescriptionRepository = new PrescriptionRepository();
+        this.prescriptionHasMedicineRepository = new PrescriptionHasMedicineRepository();
         this.medicineService = new MedicineService();
+        this.patientService = new PatientService();
     }
 
-    public async createNewPrescription (request: AddPrescriptionRequest): Promise<number> {
+    public async addNewPrescription (request: AddPrescriptionRequest): Promise<number> {
         try {
-            const newPrescription: Prescription = Builder<Prescription>()
-                .patientId(request.patient.patientId)
-                .status(Status.UNPROCESSED)
-                .is_active(true)
-                .created_at(new Date())
-                .updated_at(new Date())
-                .build();
-            return await this.prescriptionRepository.createNewPrescription(newPrescription)
-                .then(async (result: IdVO): Promise<number> => {
-                    await this.createNewPrescriptionHasMedicine(request.medicineList, result.id)
-                    return result.id
-                })
+            if (request.patient.patientId === -1) {
+                return await this.patientService.addNewPatient(request.patient)
+                    .then(async (idVO) => {
+                        request.patient.patientId = idVO.id
+                        return await this.createNewPrescription(request)
+                    })
+            } else {
+                return await this.createNewPrescription(request)
+            }
         } catch (error) {
             throw error as string
         }
+    }
+
+    public async createNewPrescription (request: AddPrescriptionRequest): Promise<number> {
+        const newPrescription: Prescription = Builder<Prescription>()
+            .patientId(request.patient.patientId)
+            .status(Status.UNPROCESSED)
+            .is_active(true)
+            .created_at(new Date())
+            .updated_at(new Date())
+            .build();
+        return await this.prescriptionRepository.createNewPrescription(newPrescription)
+            .then(async (result: IdVO): Promise<number> => {
+                await this.createNewPrescriptionHasMedicine(request.medicineList, result.id)
+                return result.id
+            })
     }
 
     private async createNewPrescriptionHasMedicine(medicineList: AddPrescribedMedicineRequest[], prescriptionId: number){

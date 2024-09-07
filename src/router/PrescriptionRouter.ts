@@ -12,6 +12,7 @@ class PrescriptionRouter extends BaseRouter{
 
     private initRoutes(){
         this.router.get('/', this.prescriptionController.getAllPrescription.bind(this.prescriptionController))
+        this.router.post('/', this.prescriptionController.addNewPrescription.bind(this.prescriptionController))
     }
 }
 
