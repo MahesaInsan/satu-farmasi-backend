@@ -73,6 +73,23 @@ export default class MedicineRepository{
         }
     }
 
+    public async increaseStock(medicineId: number, quantity: number){
+        try {
+            await this.prisma.medicine.update({
+                where: {
+                    id: medicineId
+                },
+                data: {
+                    currStock: {
+                        increment: quantity
+                    }
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
     public async getMedicineIdIn(medicineId: number[]) {
         try {
             return this.prisma.medicine.findMany({

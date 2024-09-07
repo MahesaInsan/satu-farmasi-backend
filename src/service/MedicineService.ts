@@ -17,6 +17,10 @@ export default class MedicineService{
         await this.medicineRepository.decreaseStock(medicineId, quantity)
     }
 
+    public async increaseMedicineStock(medicineId: number, quantity: number){
+        await this.medicineRepository.increaseStock(medicineId, quantity)
+    }
+
     public async getMedicineValidationList(medicineIdList: number[]) {
         return await this.medicineRepository.getMedicineIdIn(medicineIdList)
     }

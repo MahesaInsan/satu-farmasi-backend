@@ -16,4 +16,44 @@ export default class PrescriptionHasMedicineRepository{
             throw error as string
         }
     }
+
+    public async getPrescriptionHasMedicine(prescriptionId: number) {
+        try {
+            return await this.prisma.prescriptionHasMedicine.findMany({
+                where: {
+                    prescriptionId: prescriptionId
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async deleteWherePrescriptionIdAndInId(prescriptionId: number, idList: number[]) {
+        try {
+            return await this.prisma.prescriptionHasMedicine.deleteMany({
+                where: {
+                    prescriptionId: prescriptionId,
+                    id: {
+                        in: idList
+                    }
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async updateWhereId(prescriptionHasMedicine: PrescriptionHasMedicine, id: number) {
+        try {
+            await this.prisma.prescriptionHasMedicine.update({
+                where: {
+                    id: id
+                },
+                data: prescriptionHasMedicine
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
 }
