@@ -14,6 +14,7 @@ class PrescriptionRouter extends BaseRouter{
         this.router.get('/', this.prescriptionController.getAllPrescription.bind(this.prescriptionController))
         this.router.post('/', this.prescriptionController.addNewPrescription.bind(this.prescriptionController))
         this.router.put('/', this.prescriptionController.editPrescription.bind(this.prescriptionController))
+        this.router.get('/:id', this.prescriptionController.getPrescription.bind(this.prescriptionController))
     }
 }
 

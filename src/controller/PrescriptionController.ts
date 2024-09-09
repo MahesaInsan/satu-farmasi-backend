@@ -22,6 +22,15 @@ export default class PrescriptionController {
         }
     }
 
+    public async getPrescription(req: Request, res: Response) {
+        try {
+            console.log("#getPrescriptionDetail with request:", req.params.id)
+            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.getPrescription(parseInt(req.params.id))))
+        } catch (error) {
+            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+        }
+    }
+
     public async addNewPrescription(req: Request, res: Response){
         try {
             const request: AddPrescriptionRequest = req.body;

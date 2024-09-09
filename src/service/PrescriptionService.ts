@@ -43,6 +43,17 @@ export default class PrescriptionService{
         }
     }
 
+    public async getPrescription (prescriptionId: number) {
+        try {
+            const result = this.prescriptionRepository.getPrescriptionByPrescriptionId(prescriptionId)
+            if (result === null) {
+                new Error("Not Found")
+            } else return result;
+        } catch (error) {
+            throw error as string
+        }
+    }
+
     public async createNewPrescription (request: AddPrescriptionRequest): Promise<number> {
         try {
             const newPrescription: Prescription = Builder<Prescription>()
