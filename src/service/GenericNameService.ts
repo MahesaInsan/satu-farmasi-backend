@@ -5,6 +5,7 @@ import GenericNameRepository from "../repository/GenericNameRepository";
 import { Builder } from "builder-pattern";
 import EditGenericNameHelper from "./helper/EditGenericNameHelper";
 import EditGenericNameRequest from "../model/request/editGenericNameRequest";
+import GenericDropdownVO from "../model/VOs/GenericDropdownVO";
 
 export default class GenericNameService {
     private readonly genericNameRepository: GenericNameRepository;
@@ -36,6 +37,14 @@ export default class GenericNameService {
     public async getAllGenericName(limit: number, startIndex: number): Promise<GenericName[]>{
         try {
             return await this.genericNameRepository.getAllGenericName(limit, startIndex);
+        } catch (error) {
+            throw new Error(error as string);
+        }
+    }
+
+    public async getGenericNameDropdown(): Promise<GenericDropdownVO[]>{
+        try {
+            return await this.genericNameRepository.getGenericNameDropdown();
         } catch (error) {
             throw new Error(error as string);
         }

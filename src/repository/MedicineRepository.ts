@@ -104,12 +104,48 @@ export default class MedicineRepository{
     }
 
 
-    public async getMedicines(startIndex: number, limit: number): Promise<Medicine[]> {
+    public async getMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
         try {
             return this.prisma.medicine.findMany({
                 where: { is_active: true },
                 skip: startIndex,
-                take: limit
+                take: limit,
+                select: {
+                    id: true,
+                    code: true,
+                    name: true,
+                    merk: true,
+                    description: true,
+                    unitOfMeasure: true,
+                    price: true,
+                    expiredDate: true,
+                    currStock: true,
+                    minStock: true,
+                    maxStock: true,
+                    sideEffect: true,
+                    is_active: true,
+                    created_at: true,
+                    updated_at: true,
+                    genericName: {
+                        select: {
+                            label: true
+                        }
+                    },
+                    packaging: {
+                        select: {
+                            label: true
+                        }
+                    },
+                    classifications: {
+                        select: {
+                            classification: {
+                                select: {
+                                    label: true
+                                }
+                            }
+                        }
+                    },
+                },
             });
         } catch (error) {
             console.error('Error getting medicineList:', error);
@@ -126,16 +162,57 @@ export default class MedicineRepository{
         }
     }
 
-    public async getMedicineByCode(code: string): Promise<Medicine | null> {
+    public async getMedicineByCode(code: string): Promise<MedicineDisplayVO | null> {
         try {
-            return this.prisma.medicine.findFirst({ where: { code: code } });
+            return this.prisma.medicine.findFirst({ 
+                where: { 
+                    code: code,
+                    is_active: true
+                }, 
+                select: {
+                    id: true,
+                    code: true,
+                    name: true,
+                    merk: true,
+                    description: true,
+                    unitOfMeasure: true,
+                    price: true,
+                    expiredDate: true,
+                    currStock: true,
+                    minStock: true,
+                    maxStock: true,
+                    sideEffect: true,
+                    is_active: true,
+                    created_at: true,
+                    updated_at: true,
+                    genericName: {
+                        select: {
+                            label: true
+                        }
+                    },
+                    packaging: {
+                        select: {
+                            label: true
+                        }
+                    },
+                    classifications: {
+                        select: {
+                            classification: {
+                                select: {
+                                    label: true
+                                }
+                            }
+                        }
+                    },
+                },
+            });
         } catch (error) {
             console.error('Error getting medicine by code:', error);
             throw new Error('Failed to get medicine by code');
         }
     }
 
-    public async searchMedicines(startIndex: number, limit: number, parameter: GetMedicineRequest): Promise<Medicine[]> {
+    public async searchMedicines(startIndex: number, limit: number, parameter: GetMedicineRequest): Promise<MedicineDisplayVO[]> {
         try {
             return this.prisma.medicine.findMany({
                 where: {
@@ -151,7 +228,43 @@ export default class MedicineRepository{
                             is_active: true
                         }
                     ],
-                } 
+                },
+                select: {
+                    id: true,
+                    code: true,
+                    name: true,
+                    merk: true,
+                    description: true,
+                    unitOfMeasure: true,
+                    price: true,
+                    expiredDate: true,
+                    currStock: true,
+                    minStock: true,
+                    maxStock: true,
+                    sideEffect: true,
+                    is_active: true,
+                    created_at: true,
+                    updated_at: true,
+                    genericName: {
+                        select: {
+                            label: true
+                        }
+                    },
+                    packaging: {
+                        select: {
+                            label: true
+                        }
+                    },
+                    classifications: {
+                        select: {
+                            classification: {
+                                select: {
+                                    label: true
+                                }
+                            }
+                        }
+                    },
+                },
             });
         } catch (error) {
             console.error('Error getting medicineList:', error);
@@ -201,12 +314,7 @@ export default class MedicineRepository{
                 }
             });
 
-            return {
-                ...newMedicine,
-                isActive: newMedicine.is_active,
-                createdAt: newMedicine.created_at,
-                updatedAt: newMedicine.updated_at
-            };
+            return newMedicine;
         } catch (error) {
             console.error('Error creating medicine: ', error);
             throw new Error('Failed to create medicine');

@@ -43,9 +43,9 @@ export default class MedicineController extends BaseController {
 
             console.log("total medicine: ", totalMedicine);
             const pagination: PaginationRequest = this.getPagination(totalMedicine, req);
-            const medicines: Medicine[] = parameter
+            const medicines: MedicineDisplayVO[] = parameter.code || parameter.name || parameter.merk
                 ? await this.medicineService.searchMedicines(pagination.limit, pagination.startIndex, parameter)
-                : await this.medicineService.getAllMedicines(pagination.limit, pagination.startIndex);
+                : await this.medicineService.getAllMedicines(pagination.startIndex, pagination.limit);
 
             pagination.results = medicines;
             pagination.total = totalMedicine;
@@ -85,7 +85,7 @@ export default class MedicineController extends BaseController {
     public async addStock(req: Request, res: Response) {
         try {
             const request: EditMedicineRequest = req.body;
-            await this.medicineService.addStock(request.code, request.currStock);
+            await this.medicineService.addStock(request.id, request.currStock);
             return res.status(200).send(new BaseResponse().ok("Succeed add stock"));
         } catch (error) {
             console.log("[src][controller][MedicineController][addStock] ", error);
@@ -97,7 +97,7 @@ export default class MedicineController extends BaseController {
     public async checkStock(req: Request, res: Response) {
         try {
             const request: EditMedicineRequest = req.body;
-            const result: MedicineCheckStockVO = await this.medicineService.checkStock(request.code);
+            const result: MedicineCheckStockVO = await this.medicineService.checkStock(request.id);
             return result.flag == 1 
                 ? res.status(200).send(new BaseResponse().ok("Stock is ok"))
                 : res.status(200).send(new BaseResponse().ok("Medicine should be restocked"));

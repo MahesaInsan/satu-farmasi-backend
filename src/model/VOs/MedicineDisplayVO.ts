@@ -13,9 +13,9 @@ export default interface MedicineDisplayVO {
     minStock: number;
     maxStock: number;
     sideEffect: string;
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+    is_active: boolean;
+    created_at: Date;
+    updated_at: Date;
     genericName: {
         label: string;
     };

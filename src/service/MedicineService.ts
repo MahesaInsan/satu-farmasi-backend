@@ -54,7 +54,7 @@ export default class MedicineService{
         }
     }
     
-    public async getAllMedicines(startIndex: number, limit: number): Promise<Medicine[]> {
+    public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
         try {
             return await this.medicineRepository.getMedicines(startIndex, limit);
         } catch (error) {
@@ -70,7 +70,7 @@ export default class MedicineService{
         }
     }
 
-    public async getMedicineByCode(code: string): Promise<Medicine | null> {
+    public async getMedicineByCode(code: string): Promise<MedicineDisplayVO | null> {
         try {
             return await this.medicineRepository.getMedicineByCode(code);
         } catch (error) {
@@ -78,7 +78,7 @@ export default class MedicineService{
         }
     }
 
-    public async searchMedicines(startIndex: number, limit: number, parameter: GetMedicineRequest): Promise<Medicine[]> {
+    public async searchMedicines(startIndex: number, limit: number, parameter: GetMedicineRequest): Promise<MedicineDisplayVO[]> {
         try {
             return await this.medicineRepository.searchMedicines(startIndex, limit, parameter);
         } catch (error) {
@@ -128,9 +128,9 @@ export default class MedicineService{
         }
     }
 
-    public async addStock(code: string, currStock: number): Promise<boolean> {
+    public async addStock(id: number, currStock: number): Promise<boolean> {
         try {
-            const medicine: Medicine | null = await this.getMedicineByCode(code);
+            const medicine: Medicine | null = await this.getMedicineById(id);
             if (!medicine) throw new Error("Medicine not found");
             medicine.currStock += currStock;
             if (medicine.currStock > medicine.maxStock) throw new Error("Max stock reached");
@@ -140,9 +140,9 @@ export default class MedicineService{
         }
     }
 
-    public async checkStock(code: string): Promise<MedicineCheckStockVO> {
+    public async checkStock(id: number): Promise<MedicineCheckStockVO> {
         try {
-            const medicine: Medicine | null = await this.getMedicineByCode(code);
+            const medicine: Medicine | null = await this.getMedicineById(id);
             if (!medicine) throw new Error("Medicine not found");
 
             const vo: MedicineCheckStockVO = { isReady: true, flag: -1 };

@@ -1,4 +1,5 @@
 import { Packaging, PrismaClient } from "@prisma/client";
+import PackagingDropdownVO from "../model/VOs/PackagingDropdownVO";
 
 export default class PackagingRepository {
     private readonly prisma: PrismaClient;
@@ -52,6 +53,21 @@ export default class PackagingRepository {
                 skip: startIndex,
                 take: limit
             });
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async getPackagingsDropdown(): Promise<PackagingDropdownVO[]> {
+        try {
+            return await this.prisma.packaging.findMany({
+                where: { is_active: true },
+                select: {
+                    id: true,
+                    label: true,
+                    value: true
+                }
+            })
         } catch (error) {
             throw error as string;
         }
