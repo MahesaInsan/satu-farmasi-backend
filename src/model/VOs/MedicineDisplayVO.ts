@@ -17,14 +17,20 @@ export default interface MedicineDisplayVO {
     created_at: Date;
     updated_at: Date;
     genericName: {
+        id: number;
         label: string;
+        value: string;
     };
     packaging: {
+        id: number;
         label: string;
+        value: string;
     };
     classifications: {
         classification: {
+            id: number;
             label: string;
+            value: string;
         }
     }[];
 }

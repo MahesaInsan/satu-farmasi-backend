@@ -128,19 +128,25 @@ export default class MedicineRepository{
                     updated_at: true,
                     genericName: {
                         select: {
-                            label: true
+                            id: true,
+                            label: true,
+                            value: true
                         }
                     },
                     packaging: {
                         select: {
-                            label: true
+                            id: true,
+                            label: true,
+                            value: true
                         }
                     },
                     classifications: {
                         select: {
                             classification: {
                                 select: {
-                                    label: true
+                                    id: true,
+                                    label: true,
+                                    value: true
                                 }
                             }
                         }
@@ -187,19 +193,25 @@ export default class MedicineRepository{
                     updated_at: true,
                     genericName: {
                         select: {
-                            label: true
+                            id: true,
+                            label: true,
+                            value: true
                         }
                     },
                     packaging: {
                         select: {
-                            label: true
+                            id: true,
+                            label: true,
+                            value: true
                         }
                     },
                     classifications: {
                         select: {
                             classification: {
                                 select: {
-                                    label: true
+                                    id: true,
+                                    label: true,
+                                    value: true
                                 }
                             }
                         }
@@ -247,19 +259,25 @@ export default class MedicineRepository{
                     updated_at: true,
                     genericName: {
                         select: {
-                            label: true
+                            id: true,
+                            label: true,
+                            value: true
                         }
                     },
                     packaging: {
                         select: {
-                            label: true
+                            id: true,
+                            label: true,
+                            value: true
                         }
                     },
                     classifications: {
                         select: {
                             classification: {
                                 select: {
-                                    label: true
+                                    id: true,
+                                    label: true,
+                                    value: true
                                 }
                             }
                         }
@@ -296,19 +314,25 @@ export default class MedicineRepository{
                         select: {
                             classification: {
                                 select: {
-                                    label: true
+                                    id: true,
+                                    label: true,
+                                    value: true
                                 }
                             }
                         }
                     },
                     packaging: {
                         select: {
-                            label: true
+                            id: true,
+                            label: true,
+                            value: true
                         }
                     },
                     genericName: {
                         select: {
-                            label: true
+                            id: true,
+                            label: true,
+                            value: true
                         }
                     }
                 }

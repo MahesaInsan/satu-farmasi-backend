@@ -254,6 +254,12 @@ enum Role{
 enum UnitOfMeasure{
   MILLILITER
   MILLIGRAM
+  GRAM
+  LITER
+  GROS
+  KODI
+  RIM
+  PCS
 }
 
 enum Status{
