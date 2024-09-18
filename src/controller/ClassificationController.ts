@@ -4,6 +4,7 @@ import AddClassificationRequest from "../model/request/AddClassificationRequest"
 import ClassificationService from "../service/ClassificationService";
 import { Request, Response } from "express";
 import BaseResponse from "../model/response/BaseResponse";
+import { clear } from "console";
 
 export default class ClassificationController extends BaseController {
     private readonly classificationService: ClassificationService;

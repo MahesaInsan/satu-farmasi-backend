@@ -18,7 +18,7 @@ export default class ClassificationHelper {
             .id(request.id)
             .label(request.label)
             .value(request.value)
-            .is_active(request.isActive)
+            .is_active(request.is_active)
             .created_at(new Date())
             .build();
     }

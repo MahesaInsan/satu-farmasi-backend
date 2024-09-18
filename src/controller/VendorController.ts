@@ -43,6 +43,20 @@ export default class VendorController extends BaseController {
         }
     }
 
+    async getVendorByName(req: Request, res: Response) {
+        try {
+            const name: string = req.query.label as string;
+            const totalData = await this.vendorService.getTotalVendorByName(name);
+            const pagination = this.getPagination(totalData, req);
+            const vendors = await this.vendorService.getVendorByName(pagination.limit, pagination.startIndex, name);
+            pagination.results = vendors;
+            pagination.total = totalData;
+            return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
+        } catch (error) {
+            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+        }
+    }
+
     async getVendorById(req: Request, res: Response) {
         try {
             const id: number = Number(req.params.id);

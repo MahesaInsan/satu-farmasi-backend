@@ -12,13 +12,9 @@ export default class ClassificationRepository extends BaseRepository {
         where: {
           label: label,
           is_active: true,
-          AND: [{
-            OR: [
-              { label: { contains: label } },
-              { label: { startsWith: label } },
-              { label: { endsWith: label } }
-            ]
-          }]
+          AND: [{ 
+            label: { contains: label } 
+          }],
         },
         skip: startIndex,
         take: limit
@@ -106,6 +102,7 @@ export default class ClassificationRepository extends BaseRepository {
         data: {
           value: classification.value,
           label: classification.label,
+          is_active: classification.is_active,
           updated_at: new Date(),
         }
       })

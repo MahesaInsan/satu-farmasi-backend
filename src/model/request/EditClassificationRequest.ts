@@ -31,11 +31,11 @@ export default class EditClassificationRequest {
         this._value = value;
     }
 
-    public get isActive(): boolean {
+    public get is_active(): boolean {
         return this._isActive;
     }
     
-    public set isActive(v: boolean) {
+    public set is_active(v: boolean) {
         this._isActive = v;
     }
 }

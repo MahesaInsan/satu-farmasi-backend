@@ -10,4 +10,42 @@ export default class Doctor extends User{
         super(id, is_active, created_at, updated_at, nik, email, password, firstName, lastName, dob, phoneNum, role);
         this.specialist = specialist;
     }
+
+    public static createSchema() {
+        return {
+            nik: { isString: true, isLength: { min: 16, max: 16 } },
+            email: { isEmail: true },
+            firstName: { isString: true },
+            lastName: { isString: true },
+            password: { isString: true, isLength: { min: 8 } },
+            role: { isString: true, equals: 'doctor' },
+            specialist: { isString: true }
+        };
+    }
+
+    public static updateSchema() {
+        return {
+            nik: { isString: true, isLength: { min: 16, max: 16 } },
+            email: { isEmail: true },
+            firstName: { isString: true },
+            lastName: { isString: true },
+            password: { isString: true, isLength: { min: 8 } },
+            role: { isString: true, equals: 'doctor' },
+            specialist: { isString: true }
+        };
+    }
+
+
+    // TODO: Change with id
+    public static deleteSchema() {
+        return {
+            nik: { isString: true, isLength: { min: 16, max: 16 } },
+            email: { isEmail: true },
+            firstName: { isString: true },
+            lastName: { isString: true },
+            password: { isString: true, isLength: { min: 8 } },
+            role: { isString: true, equals: 'doctor' },
+            specialist: { isString: true }
+        };
+    }
 }

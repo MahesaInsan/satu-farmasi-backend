@@ -17,7 +17,7 @@ export default class PackagingController extends BaseController {
     public async createPackaging(req: Request, res: Response) {
         try {
             const request: AddPackagingRequest = req.body;
-            const packaging: Packaging = await this.packagingService.createPackaging(request);
+            const packaging: Packaging = await this.packagingService.createPackaging( request );
             return res.status(200).send(new BaseResponse().ok(packaging));
         } catch (error) {
             console.log("[src][controller][PackagingController][createPackaging] ", error);
