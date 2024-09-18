@@ -5,6 +5,7 @@ import AddPackagingRequest from "../model/request/AddPackagingRequest";
 import { Packaging } from "@prisma/client";
 import PaginationRequest from "../model/request/PaginationRequest";
 import BaseController from "./BaseController";
+import PackagingDropdownVO from "../model/VOs/PackagingDropdownVO";
 
 export default class PackagingController extends BaseController {
     private readonly packagingService: PackagingService;
@@ -21,7 +22,8 @@ export default class PackagingController extends BaseController {
             return res.status(200).send(new BaseResponse().ok(packaging));
         } catch (error) {
             console.log("[src][controller][PackagingController][createPackaging] ", error);
-            return res.status(400).send(new BaseResponse().badRequest());
+            const errorMessage: string = error instanceof Error ? error.message : String(error);
+            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
         }
     }
 
@@ -42,7 +44,19 @@ export default class PackagingController extends BaseController {
             return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
             console.log("[src][controller][PackagingController][getPackaging] ", error);
-            return res.status(400).send(new BaseResponse().badRequest());
+            const errorMessage: string = error instanceof Error ? error.message : String(error);
+            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
+        }
+    }
+
+    public async getPackagingsDropdown(req: Request, res: Response) {
+        try {
+            const packagings: PackagingDropdownVO[] = await this.packagingService.getPackagingsDropdown();
+            return res.status(200).send(new BaseResponse().ok(packagings));
+        } catch (error) {
+            console.log("[src][controller][PackagingController][getPackagingsDropdown] ", error);
+            const errorMessage: string = error instanceof Error ? error.message : String(error);
+            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
         }
     }
 
@@ -52,7 +66,8 @@ export default class PackagingController extends BaseController {
             return res.status(200).send(new BaseResponse().ok(packaging));
         } catch (error) {
             console.log("[src][controller][PackagingController][editPackaging] ", error);
-            return res.status(400).send(new BaseResponse().badRequest());
+            const errorMessage: string = error instanceof Error ? error.message : String(error);
+            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
         }
     }
 
@@ -62,7 +77,8 @@ export default class PackagingController extends BaseController {
             return res.status(200).send(new BaseResponse().ok(packaging));
         } catch (error) {
             console.log("[src][controller][PackagingController][deletePackaging] ", error);
-            return res.status(400).send(new BaseResponse().badRequest());
+            const errorMessage: string = error instanceof Error ? error.message : String(error);
+            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
         }
     }
 }

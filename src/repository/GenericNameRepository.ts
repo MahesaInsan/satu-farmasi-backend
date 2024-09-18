@@ -1,4 +1,5 @@
 import GenericName from "../entity/GenericName";
+import GenericDropdownVO from "../model/VOs/GenericDropdownVO";
 import BaseRepository from "./helper/BaseRepository";
 
 export default class GenericNameRepository extends BaseRepository {
@@ -64,6 +65,22 @@ export default class GenericNameRepository extends BaseRepository {
         } catch (error) {
             console.error("Error getting all generic name:", error);
             throw new Error("Failed to get all generic name");
+        }
+    }
+
+    public async getGenericNameDropdown(): Promise<GenericDropdownVO[]> {
+        try {
+            return await this.Prisma.genericName.findMany({
+                where: { is_active: true },
+                select: {
+                    id: true,
+                    label: true,
+                    value: true
+                }
+            })
+        } catch (error) {
+            console.error("Error getting generic name dropdown:", error);
+            throw new Error("Failed to get generic name dropdown");
         }
     }
 

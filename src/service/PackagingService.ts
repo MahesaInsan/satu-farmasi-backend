@@ -3,6 +3,7 @@ import { Packaging } from "@prisma/client";
 import PackagingRepository from "../repository/PackagingRepository";
 import AddPackagingRequest from "../model/request/AddPackagingRequest";
 import EditPackagingRequest from "../model/request/EditPackagingRequest";
+import PackagingDropdownVO from "../model/VOs/PackagingDropdownVO";
 
 export default class PackagingService {
     private readonly packagingRepository: PackagingRepository;
@@ -40,6 +41,14 @@ export default class PackagingService {
     public async getAllPackagings(limit: number, startIndex: number): Promise<Packaging[]> {
         try {
             return await this.packagingRepository.getAllPackagings(limit, startIndex);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async getPackagingsDropdown(): Promise<PackagingDropdownVO[]> {
+        try {
+            return await this.packagingRepository.getPackagingsDropdown();
         } catch (error) {
             throw error as string;
         }
