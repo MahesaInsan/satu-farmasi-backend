@@ -243,4 +243,11 @@ export default class MedicineService{
             .classificationId(classificationId)
             .build();
     }
+    public async decreaseMedicineStock(medicineId: number, quantity: number){
+        await this.medicineRepository.decreaseStock(medicineId, quantity)
+    }
+
+    public async getMedicineValidationList(medicineIdList: number[]) {
+        return await this.medicineRepository.getMedicineIdIn(medicineIdList)
+    }
 }

@@ -10,16 +10,6 @@ export default class PatientController{
         this.patientService = new PatientService();
     }
 
-    async createNewPatient(req: Request, res: Response){
-        try {
-            const request: AddPatientRequest = req.body
-            return res.status(200).send(await this.patientService.addNewPatient(request))
-        } catch (error) {
-            console.log(error)
-            return res.status(400).send(error)
-        }
-    }
-
     async getPatientDropdownOptions(req: Request, res: Response){
         try{
             const patientList: Patient[] = await this.patientService.fetchPatient()

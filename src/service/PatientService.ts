@@ -3,6 +3,7 @@ import {Patient} from "@prisma/client";
 import {Builder} from "builder-pattern";
 import AddPatientRequest from "../model/request/AddPatientRequest";
 import IdVO from "../model/VOs/IdVO";
+import PatientRequestDTO from "../model/request/PatientRequestDTO";
 
 export default class PatientService{
     private patientRepository: PatientRepository;
@@ -11,17 +12,17 @@ export default class PatientService{
         this.patientRepository = new PatientRepository();
     }
 
-    public async addNewPatient(request: AddPatientRequest): Promise<IdVO>{
+    public async addNewPatient(newPatientRequest: PatientRequestDTO): Promise<IdVO>{
         try {
-            return await this.patientRepository.findIfExist(request.credentialNumber)
+            return await this.patientRepository.findIfExist(newPatientRequest.credentialNum)
                 .then(async (exist) => {
                     if (exist?.id) {
                         throw new Error("Patient already exist")
                     } else {
                         const newPatient: Patient = Builder<Patient>()
-                            .name(request.name)
-                            .credentialNumber(request.credentialNumber)
-                            .phoneNum(request.phoneNum)
+                            .name(newPatientRequest.patientName)
+                            .credentialNumber(newPatientRequest.credentialNum)
+                            .phoneNum(newPatientRequest.phoneNum)
                             .is_active(true)
                             .created_at(new Date())
                             .updated_at(new Date())
