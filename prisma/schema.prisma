@@ -21,7 +21,7 @@ model Admin{
   dob DateTime
   phoneNum String
   role Role @default(ADMIN)
-  isActive Boolean
+  is_active Boolean
   created_at DateTime
   updated_at DateTime @default(now())
 }
@@ -37,7 +37,7 @@ model Doctor{
   phoneNum String
   role Role @default(DOCTOR)
   specialist String?
-  isActive Boolean
+  is_active Boolean
   created_at DateTime
   updated_at DateTime @default(now())
   diagnose Diagnose[]
@@ -53,7 +53,7 @@ model Pharmacist{
   dob DateTime
   phoneNum String
   role Role @default(PHARMACIST)
-  isActive Boolean
+  is_active Boolean
   created_at DateTime
   updated_at DateTime @default(now())
   transaction Transaction[]

@@ -1,4 +1,5 @@
-import Admin from "../entity/Admin";
+// import Admin from "../entity/Admin";
+import { Admin } from "@prisma/client";
 import BaseRepository from "./helper/BaseRepository";
 
 export default class AdminRepository extends BaseRepository{

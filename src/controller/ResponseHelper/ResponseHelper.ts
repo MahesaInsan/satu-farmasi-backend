@@ -10,6 +10,7 @@ import Unauthorized from "../../model/request/UnauthorizedRequest";
 import InternalServerRequest from "../../model/request/InteralServerRequest";
 import User from "../../entity/User";
 import SuccessRequest from "../../model/request/SuccessRequest";
+import PaginationRequest from "../../model/request/PaginationRequest";
 
 export default class ResponseHelper {
     public constructCookieRequest(maxAge: number): object {
@@ -53,13 +54,18 @@ export default class ResponseHelper {
             .build();
     }
 
-    public constructBadRequest(error: object): BadRequest {
+    public constructBadRequest(error: object | Array<Object>): BadRequest {
         const errorMessage =
-            error instanceof Error ? error.message : "Unknown error";
+            error instanceof Error ? error.message : "Validation Failed!";
+        let errors: Array<Object> = [];
+        error instanceof Object 
+            ? errors.push(error)
+            : errors = error;
         return Builder<BadRequest>()
             .error("Data not found!")
-            .Code(400)
+            .Code(404)
             .message(errorMessage)
+            .errors(errors)
             .build();
     }
 
@@ -114,6 +120,15 @@ export default class ResponseHelper {
             .code(200)
             .status("Success edit staff data")
             .data(staff)
+            .build();
+    }
+
+    public constructPaginationResponse(pagination: PaginationRequest): PaginationRequest {
+        return Builder<PaginationRequest>()
+            .next(pagination.next)
+            .previous(pagination.previous)
+            .results(pagination.results)
+            .total(pagination.total)
             .build();
     }
 }

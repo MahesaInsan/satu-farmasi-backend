@@ -11,10 +11,10 @@ export default abstract class User extends BaseEntity{
     public phoneNum: string;
     public role: Role;
 
-    constructor(id: number, isActive: boolean, created_at: Date, updated_at: Date, nik: string,
+    constructor(id: number, is_active: boolean, created_at: Date, updated_at: Date, nik: string,
                 email: string, password: string, firstName: string, lastName: string,
                 dob: Date, phoneNum: string, role: Role) {
-        super(id, isActive, created_at, updated_at);
+        super(id, is_active, created_at, updated_at);
         this.nik = nik;
         this.email = email;
         this.password = password;

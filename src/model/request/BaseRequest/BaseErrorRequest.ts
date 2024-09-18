@@ -2,11 +2,13 @@ export default class BaseErrorRequest{
     private _message: string;
     private _error: string;
     private _code: number;
+    private _errors: Array<Object> | null;
     
-    constructor(err: string, code: number, message: string) {
+    constructor(err: string, code: number, message: string, errors: Array<Object>) {
         this._message = message;
         this._error = err;
         this._code = code;
+        this._errors = errors;
     }
 
     get message(): string {
@@ -27,6 +29,14 @@ export default class BaseErrorRequest{
 
     set Code(value: number) {
         this._code = value;
+    }
+
+    get errors(): Array<Object> | null{
+        return this._errors;
+    }
+
+    set errors(value: Array<Object>) {
+        this._errors = value;
     }
     
 }
