@@ -54,13 +54,18 @@ export default class ResponseHelper {
             .build();
     }
 
-    public constructBadRequest(error: object): BadRequest {
+    public constructBadRequest(error: object | Array<Object>): BadRequest {
         const errorMessage =
-            error instanceof Error ? error.message : "Unknown error";
+            error instanceof Error ? error.message : "Validation Failed!";
+        let errors: Array<Object> = [];
+        error instanceof Object 
+            ? errors.push(error)
+            : errors = error;
         return Builder<BadRequest>()
             .error("Data not found!")
             .Code(404)
             .message(errorMessage)
+            .errors(errors)
             .build();
     }
 
