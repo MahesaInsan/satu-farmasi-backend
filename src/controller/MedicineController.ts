@@ -30,26 +30,18 @@ export default class MedicineController extends BaseController {
     
     public async getMedicines(req: Request, res: Response) {
         try {
-            const parameter: GetMedicineRequest = new GetMedicineRequest(
-                req.query.code as string,
-                req.query.name as string,
-                req.query.merk as string
-            )
-            console.log("parameter: ", parameter);
-
+            const parameter: string = req.query.parameter as string;
             const totalMedicine: number = parameter
                 ? await this.medicineService.getTotalSearchMedicines(parameter)
                 : await this.medicineService.getTotalMedicines();
 
-            console.log("total medicine: ", totalMedicine);
             const pagination: PaginationRequest = this.getPagination(totalMedicine, req);
-            const medicines: MedicineDisplayVO[] = parameter.code || parameter.name || parameter.merk
-                ? await this.medicineService.searchMedicines(pagination.limit, pagination.startIndex, parameter)
+            const medicines: MedicineDisplayVO[] = parameter
+                ? await this.medicineService.searchMedicines(pagination.startIndex, pagination.limit, parameter)
                 : await this.medicineService.getAllMedicines(pagination.startIndex, pagination.limit);
 
             pagination.results = medicines;
             pagination.total = totalMedicine;
-            console.log("medicines: ", medicines);
             return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination), "Succeed fetch medicines"));
         } catch (error) {
             console.log("[src][controller][MedicineController][getMedicines] ", error);
@@ -62,7 +54,7 @@ export default class MedicineController extends BaseController {
         try {
             const request: AddMedicineRequest = req.body;
             const medicine: MedicineDisplayVO = await this.medicineService.createMedicine(request);
-            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed create medicine"));
+            return res.status(200).send(new BaseResponse().ok("Succeed create medicine"));
         } catch (error) {
             console.log("[src][controller][MedicineController][createMedicine] ", error);
             const errorMessage: string = error instanceof Error ? error.message : String(error);
@@ -73,7 +65,7 @@ export default class MedicineController extends BaseController {
     public async editMedicine(req: Request, res: Response) {
         try {
             const request: EditMedicineRequest = req.body;
-            const medicine: Medicine = await this.medicineService.editMedicine(request);
+            const medicine: MedicineDisplayVO = await this.medicineService.editMedicine(request);
             return res.status(200).send(new BaseResponse().ok(medicine, "Succeed edit medicine"));
         } catch (error) {
             console.log("[src][controller][MedicineController][editMedicine] ", error);
@@ -111,7 +103,7 @@ export default class MedicineController extends BaseController {
     public async deleteMedicine(req: Request, res: Response) {
         try {
             const request: EditMedicineRequest = req.body;
-            const medicine: Medicine = await this.medicineService.deleteMedicine(request.id);
+            const medicine: MedicineDisplayVO = await this.medicineService.deleteMedicine(request.id);
             return res.status(200).send(new BaseResponse().ok(medicine, "Succeed delete medicine"));
         } catch (error) {
             console.log("[src][controller][MedicineController][deleteMedicine] ", error);

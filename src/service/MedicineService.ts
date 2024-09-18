@@ -34,13 +34,9 @@ export default class MedicineService{
         }
     }
 
-    public async getTotalSearchMedicines(medicine: GetMedicineRequest): Promise<number> {
+    public async getTotalSearchMedicines(parameter: string): Promise<number> {
         try {
-            return await this.medicineRepository.getTotalSearchMedicines(
-                medicine.code,
-                medicine.name,
-                medicine.merk
-            );
+            return await this.medicineRepository.getTotalSearchMedicines(parameter);
         } catch (error) {
             throw error as string;
         }
@@ -78,7 +74,7 @@ export default class MedicineService{
         }
     }
 
-    public async searchMedicines(startIndex: number, limit: number, parameter: GetMedicineRequest): Promise<MedicineDisplayVO[]> {
+    public async searchMedicines(startIndex: number, limit: number, parameter: string): Promise<MedicineDisplayVO[]> {
         try {
             return await this.medicineRepository.searchMedicines(startIndex, limit, parameter);
         } catch (error) {
@@ -106,13 +102,14 @@ export default class MedicineService{
                 .map((classification: AddMedicineClassificationRequest) => {
                     return this.constructMedicineHasClassification(classification.classificationId, medicineId);
                 })
+                console.log("newMedicineClassification: ", newMedicineHasClassification);
             return await this.medicineHasClassificationRepository.createMedicineHasClassification(newMedicineHasClassification);
         } catch (error) {
             throw error as string;
         }
     }
 
-    public async editMedicine(request: EditMedicineRequest): Promise<Medicine> {
+    public async editMedicine(request: EditMedicineRequest): Promise<MedicineDisplayVO> {
         try {
             const oldMedicine: Medicine | null = await this.getMedicineById(request.id);    
             if (!oldMedicine) throw new Error("Medicine not found");
@@ -122,7 +119,12 @@ export default class MedicineService{
                 : await this.generateMedicineCode(request.genericNameId);
 
             const medicine: Medicine = this.constructEditMedicine(request);
-            return await this.medicineRepository.editMedicine(medicine);
+            return await this.medicineRepository.editMedicine(medicine)
+            .then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
+                    await this.medicineHasClassificationRepository.deleteMedicineHasClassification(request.id);
+                    await this.createNewMedicineHasClassification(request.classificationList, request.id);
+                    return newMedicine;
+                })
         } catch (error) {
             throw error as string;
         }
@@ -155,7 +157,7 @@ export default class MedicineService{
         }
     }
 
-    public async deleteMedicine(id: number): Promise<Medicine> {
+    public async deleteMedicine(id: number): Promise<MedicineDisplayVO> {
         try {
             const medicine: Medicine | null = await this.getMedicineById(id);
             if (!medicine) throw new Error("Medicine not found");
@@ -175,13 +177,16 @@ export default class MedicineService{
         }
     }
 
-    private async generateMedicineCode(generateNameId: number): Promise<string> {
+    // ganti jadi count all (jangan spesifik per generic name)
+    private async generateMedicineCode(genericNameId: number): Promise<string> {
         try {
-            const genericName: GenericName | null = await this.genericNameService.getGenericNameById(generateNameId);
+            const genericName: GenericName | null = await this.genericNameService.getGenericNameById(genericNameId);
             if (!genericName) throw new Error("Generic name not found");
 
-            const totalGenericName: number = await this.getTotalMedicineByCode(genericName.value);
-            const formatNumber: string = (totalGenericName + 1).toString().padStart(6, "0");
+            console.log(genericName.value);
+            const totalMedicine: number = await this.getTotalMedicineByCode(genericName.value);
+            const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
+            console.log("medicine code: ", formatNumber);
 
             return `${genericName.value}-${formatNumber}`
         } catch (error) {
@@ -221,6 +226,7 @@ export default class MedicineService{
             .price(request.price)
             .expiredDate(request.expiredDate)
             .packagingId(request.packagingId)
+            .genericNameId(request.genericNameId)
             .currStock(request.currStock)
             .minStock(request.minStock)
             .maxStock(request.maxStock)

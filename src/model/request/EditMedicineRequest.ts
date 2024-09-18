@@ -1,5 +1,6 @@
 import { UnitOfMeasure } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
+import AddMedicineClassificationRequest from "./AddMedicineClassificationRequest";
 
 export default class EditMedicineRequest {
     private _id: number;
@@ -16,9 +17,11 @@ export default class EditMedicineRequest {
     private _minStock: number;
     private _maxStock: number;
     private _sideEffect: string;
+    private _classificationList: AddMedicineClassificationRequest[];
     private _isActive: boolean;
     private _createdAt: Date;
     private _updatedAt: Date;
+
     
     constructor(
         id: number,
@@ -35,6 +38,7 @@ export default class EditMedicineRequest {
         minStock: number,
         maxStock: number,
         sideEffect: string,
+        classificationList: AddMedicineClassificationRequest[],
         isActive: boolean,
         createdAt: Date,
         updatedAt: Date
@@ -53,6 +57,7 @@ export default class EditMedicineRequest {
         this._minStock = minStock;
         this._maxStock = maxStock;
         this._sideEffect = sideEffect;
+        this._classificationList = classificationList;
         this._isActive = isActive;
         this._createdAt = createdAt;
         this._updatedAt = updatedAt;
@@ -112,6 +117,10 @@ export default class EditMedicineRequest {
 
     get sideEffect(): string {
         return this._sideEffect;
+    }
+
+    get classificationList(): AddMedicineClassificationRequest[] {
+        return this._classificationList;
     }
 
     get isActive(): boolean {
@@ -192,5 +201,9 @@ export default class EditMedicineRequest {
 
     set updatedAt(updatedAt: Date) {
         this._updatedAt = updatedAt;
+    }
+
+    set classificationList(classificationList: AddMedicineClassificationRequest[]) {
+        this._classificationList = classificationList;
     }
 }

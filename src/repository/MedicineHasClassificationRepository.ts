@@ -15,4 +15,17 @@ export default class MedicineHasClassificationRepository {
             throw new Error('Failed to create medicine has classification');
         }
     }
+
+    public async deleteMedicineHasClassification(medicineId: number) {
+        try {
+            return await this.prisma.medicineHasClassification.deleteMany({
+                where: {
+                    medicineId: medicineId
+                }
+            })
+        } catch (error) {
+            console.error('Error deleting medicine has classification: ', error);
+            throw new Error('Failed to delete medicine has classification');
+        }
+    }
 }

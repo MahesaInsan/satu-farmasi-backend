@@ -66,16 +66,16 @@ export default class MedicineRepository{
         }
     }
 
-    public async getTotalSearchMedicines(name: string, code: string, merk: string): Promise<number> {
+    public async getTotalSearchMedicines(parameter: string): Promise<number> {
         try {
             return this.prisma.medicine.count({
                 where: {
                     AND: [
                         {
                             OR: [
-                                { name: { contains: name } },
-                                { code: { startsWith: code } },
-                                { merk: { contains: merk } }
+                                { name: { contains: parameter } },
+                                { code: { startsWith: parameter } },
+                                { merk: { contains: parameter } }
                             ]
                         },
                         {
@@ -94,7 +94,7 @@ export default class MedicineRepository{
         try {
             return this.prisma.medicine.count({
                 where: {
-                    code: { startsWith: code }
+                    code: { contains: code }
                 }
             })
         } catch (error) {
@@ -224,16 +224,18 @@ export default class MedicineRepository{
         }
     }
 
-    public async searchMedicines(startIndex: number, limit: number, parameter: GetMedicineRequest): Promise<MedicineDisplayVO[]> {
+    public async searchMedicines(startIndex: number, limit: number, parameter: string): Promise<MedicineDisplayVO[]> {
         try {
             return this.prisma.medicine.findMany({
                 where: {
                     AND: [
                         {
                             OR: [
-                                { name: { contains: parameter.name } },
-                                { code: { startsWith: parameter.code } },
-                                { merk: { contains: parameter.merk } }
+                                { name: { contains: parameter } },
+                                { code: { startsWith: parameter } },
+                                { merk: { contains: parameter } },
+                                { description: { contains: parameter } },
+                                { sideEffect: { contains: parameter } }
                             ]
                         },
                         {
@@ -241,6 +243,8 @@ export default class MedicineRepository{
                         }
                     ],
                 },
+                skip: startIndex,
+                take: limit,
                 select: {
                     id: true,
                     code: true,
@@ -345,9 +349,55 @@ export default class MedicineRepository{
         }
     }
 
-    public async editMedicine(dataMedicine: Medicine): Promise<Medicine> {
+    public async editMedicine(dataMedicine: Medicine): Promise<MedicineDisplayVO> {
         try {
-            return this.prisma.medicine.update({ where: { id: dataMedicine.id }, data: dataMedicine });
+            const newMedicine = await this.prisma.medicine.update({ 
+                where: { id: dataMedicine.id }, 
+                data: dataMedicine,
+                select: {
+                    id: true,
+                    code: true,
+                    name: true,
+                    merk: true,
+                    description: true,
+                    unitOfMeasure: true,
+                    price: true,
+                    expiredDate: true,
+                    currStock: true,
+                    minStock: true,
+                    maxStock: true,
+                    sideEffect: true,
+                    is_active: true,
+                    created_at: true,
+                    updated_at: true,
+                    classifications: {
+                        select: {
+                            classification: {
+                                select: {
+                                    id: true,
+                                    label: true,
+                                    value: true
+                                }
+                            }
+                        }
+                    },
+                    packaging: {
+                        select: {
+                            id: true,
+                            label: true,
+                            value: true
+                        }
+                    },
+                    genericName: {
+                        select: {
+                            id: true,
+                            label: true,
+                            value: true
+                        }
+                    }
+                }
+            });
+            return newMedicine;
         } catch (error) {
             console.error('Error editing medicine: ', error);
             throw new Error('Failed to edit medicine');
