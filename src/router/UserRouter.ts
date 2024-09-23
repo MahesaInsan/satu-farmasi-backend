@@ -1,5 +1,4 @@
 import BaseRouter from "./BaseRouter";
-import AdminController from "../controller/AdminController";
 import UserController from "../controller/UserController";
 import BaseRequest from "../model/request/BaseRequest/BaseRequest";
 

@@ -33,6 +33,7 @@ export default class AdminService{
     public async addAdmin(request: AddAdminRequest): Promise<Admin>{
         try {
             await this.userService.emailIsExist(request.email);
+            await this.userService.nikIsExist(request.nik);
             request.password = await this.userService.encryptPassword(request.password);
             const admin: Admin = this.createUserHelper.createBaseUser(request);
             return await this.adminRepository.addAdmin(Builder(admin).role(Role.ADMIN).build())
