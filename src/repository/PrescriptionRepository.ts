@@ -1,4 +1,4 @@
-import {Prescription, PrismaClient} from "@prisma/client";
+import {Prescription, Prisma, PrismaClient} from "@prisma/client";
 import IdVO from "../model/VOs/IdVO";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
 import PrescriptionDetailVO from "../model/VOs/PrescriptionDetailVO";
@@ -34,12 +34,17 @@ export default class PrescriptionRepository{
                     id: true,
                     patient: {
                         select: {
+                            id: true,
                             name: true,
-                            credentialNumber: true
+                            credentialNumber: true,
+                            phoneNum: true
                         }
                     },
                     medicineList: {
                         select: {
+                            quantity: true,
+                            instruction: true,
+                            totalPrice: true,
                             medicine: {
                                 select: {
                                     id: true,

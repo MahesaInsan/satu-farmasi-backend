@@ -12,10 +12,10 @@ class MedicineRouter extends BaseRouter {
     }
 
     private initRoutes() {
-        this.router.use(
-            (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
-        )
+        // this.router.use(
+        //     (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
+        //     (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
+        // )
         this.router.get( "/dropdownOptions", this.medicineController.getMedicineList.bind( this.medicineController));
     }
 }

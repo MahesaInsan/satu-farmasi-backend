@@ -12,8 +12,9 @@ export default class PatientController{
 
     async getPatientDropdownOptions(req: Request, res: Response){
         try{
-            const patientList: Patient[] = await this.patientService.fetchPatient()
-            res.status(200).send(patientList);
+            console.log("#getPatientDropdownOptions");
+            const patientByPatientId = await this.patientService.fetchPatient()
+            res.status(200).send(Object.fromEntries(patientByPatientId));
         } catch (error) {
             res.status(400).send(error)
         }

@@ -33,7 +33,8 @@ export default class PrescriptionController {
 
     public async addNewPrescription(req: Request, res: Response){
         try {
-            const request: AddPrescriptionRequest = req.body;
+            console.log("#addNewPrescription with request:", req.body.data)
+            const request: AddPrescriptionRequest = req.body.data;
             res.status(200).send(new BaseResponse().ok(await this.prescriptionService.addNewPrescription(request)))
         } catch (error) {
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
@@ -42,8 +43,8 @@ export default class PrescriptionController {
 
     public async editPrescription(req: Request, res: Response){
         try {
-            console.log("#editPrescription with request:", req.body);
-            const request: EditPrescriptionRequest = req.body;
+            const request: EditPrescriptionRequest = req.body.data;
+            console.log("#editPrescription with request:", request);
             res.status(200).send(new BaseResponse().ok(await this.prescriptionService.editPrescription(request)))
         } catch (error) {
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))

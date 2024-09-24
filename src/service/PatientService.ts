@@ -35,12 +35,18 @@ export default class PatientService{
         }
     }
 
-    public async fetchPatient(): Promise<Patient[]>{
+    public async fetchPatient() {
         try {
-            return this.patientRepository.findPatientDropdownOptions()
+            return await this.mapPatientById(await this.patientRepository.findPatientDropdownOptions())
         } catch(error) {
             throw error as string
         }
+    }
 
+    private async mapPatientById(patientList: Patient[]) {
+        return patientList.reduce((patientByPatientId, patient) => {
+            patientByPatientId.set(patient.id, patient);
+            return patientByPatientId;
+        }, new Map<number, Patient>)
     }
 }
