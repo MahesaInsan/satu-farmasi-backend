@@ -3,6 +3,7 @@ import DoctorService from "../DoctorService";
 import AddPrescriptionRequest from "../../model/request/AddPrescriptionRequest";
 import MedicineService from "../MedicineService";
 import {Medicine} from "@prisma/client";
+import EditPrescriptionRequest from "../../model/request/EditPrescriptionRequest";
 
 export default class ValidationHelper {
     private readonly doctorService: DoctorService;
@@ -26,7 +27,7 @@ export default class ValidationHelper {
         await this.validatePrescriptionRequest(request.prescription)
     }
 
-    public async validatePrescriptionRequest(request: AddPrescriptionRequest) {
+    public async validatePrescriptionRequest(request: AddPrescriptionRequest | EditPrescriptionRequest) {
         const medicineListValidation: Medicine[] = await this.medicineService.getMedicineValidationList(request.medicineList
             .map((medicine) => medicine.medicineId))
         let indexByMedicineId: Map<number, number> = new Map<number, number>();
@@ -41,7 +42,6 @@ export default class ValidationHelper {
                 throw new Error("Quantity must be greater than 0")
             }
             const medicineValidation: Medicine = medicineListValidation[indexByMedicineId.get(medicineRequest.medicineId)!]
-            console.log(medicineValidation.currStock - medicineRequest.quantity)
             if (medicineValidation.currStock - medicineRequest.quantity < medicineValidation.minStock) {
                 throw new Error("Insufficient medicine stock")
             }

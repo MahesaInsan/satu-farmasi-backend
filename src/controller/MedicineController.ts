@@ -21,8 +21,9 @@ export default class MedicineController extends BaseController {
 
     async getMedicineList(req: Request, res: Response){
         try{
-            const medicineDropdownOption: MedicineDropdownVO[] = await this.medicineService.getAllMedicineList()
-            res.status(200).send(medicineDropdownOption);
+            console.log("#getMedicineDropdownOption")
+            const medicineDropdownOption: Map<number, MedicineDropdownVO> = await this.medicineService.getAllMedicineList()
+            res.status(200).send(Object.fromEntries(medicineDropdownOption));
         } catch (error) {
             res.status(400).send("error")
             throw new Error(error as string)
