@@ -1,18 +1,18 @@
 import { createSeedClient, SeedClient } from "@snaplet/seed";
 import { faker } from '@faker-js/faker';
 import UserService from "../../src/service/UserService";
-import { Classification, GenericName, Packaging, PrismaClient} from "@prisma/client"
 
-let userService: UserService = new UserService();
-let prisma: PrismaClient = new PrismaClient();
+const userService: UserService = new UserService();
+const getDefaultPassword = async () => await userService.encryptPassword("password123");
 
 const main = async () => {
     const seed: SeedClient = await createSeedClient();
     console.log("Resetting database ...")
     await seed.$resetDatabase();
-    console.log("Start seeding database ...")
 
+    console.log("Start seeding database ...")
     const MAX_DATA: number = 50;
+
     await seedAdmin(seed);
     await seedingDoctor(seed, MAX_DATA);
     await seedPharmacist(seed, MAX_DATA);
@@ -34,15 +34,14 @@ const main = async () => {
     await seedOutputMedicine(seed, MAX_DATA);
 
     await seedTransaction(seed, MAX_DATA);
-
     console.log("Database seeded successfully!");
+
     process.exit();
 };
 
-// TODO: create hash password
 const seedAdmin = async (seed: SeedClient, amount: number = 1) => {
-    const hashedPassword = await userService.encryptPassword("admin");
     console.log("Seeding admin ...")
+    const hashedPassword = await getDefaultPassword();
     await seed.admin((createMany) =>
         createMany(amount, () => ({
             nik: generateRandomNIK(),
@@ -52,43 +51,46 @@ const seedAdmin = async (seed: SeedClient, amount: number = 1) => {
             lastName: "Admin",
             dob: faker.date.past(),
             phoneNum: generateRandomPhoneNum(),
+            role: "ADMIN",
             is_active: true,
         }))
     );
     console.log("Admin seeded successfully!")
 }
 
-// TODO: create hash password
 const seedingDoctor = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding doctor ...")
+    const hashedPassword = await getDefaultPassword();
     await seed.doctor((createMany) =>
         createMany(amount, (data) => ({
             nik: generateRandomNIK(),
             email: `doctor${data.index + 1}@gmail.com`,
-            password: `doctor${data.index + 1}`,
-            firstName: "Doctor",
-            lastName: "Doctor",
+            password: hashedPassword,
+            firstName: faker.person.firstName(),
+            lastName: faker.person.lastName(),
             dob: faker.date.past(),
             phoneNum: generateRandomPhoneNum(),
             specialist: "Dokter Umum",
+            role: "DOCTOR",
             is_active: true,
         }))
     );
     console.log("Doctor seeded successfully!")
 }
 
-// TODO: create hash password
 const seedPharmacist = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding pharmacist ...")
+    const hashedPassword = await getDefaultPassword();
     await seed.pharmacist((createMany) =>
         createMany(amount, (data) => ({
             nik: generateRandomNIK(),
             email: `pharmacist${data.index + 1}@gmail.com`,
-            password: `pharmacist${data.index + 1}`,
-            firstName: "Pharmacist",
-            lastName: "Pharmacist",
+            password: hashedPassword,
+            firstName: faker.person.firstName(),
+            lastName: faker.person.lastName(),
             dob: faker.date.past(),
             phoneNum: generateRandomPhoneNum(),
+            role: "PHARMACIST",
             is_active: true,
         }))
     );
@@ -109,10 +111,10 @@ const seedPrescription = async (seed: SeedClient, amount: number = 1) => {
 const seedPatient = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding patient ...")
     await seed.patient((createMany) =>
-        createMany(amount, (data) => ({
+        createMany(amount, () => ({
             credentialNumber: generateRandomNIK(),
             phoneNum: generateRandomPhoneNum(),
-            name: `Patient ${data.index + 1}`,
+            name: faker.person.fullName(),
             is_active: true,
         }))
     );
@@ -189,24 +191,14 @@ const seedClassification = async (seed: SeedClient, amount: number = 1) => {
 const seedMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding medicine ...")
 
-    const genericName: GenericName[] = await prisma.genericName.findMany({
-        where: { is_active: true },
-    });
-
-    const packaging: Packaging[] = await prisma.packaging.findMany({
-        where: { is_active: true },
-    });
-
     await seed.medicine((createMany) =>
         createMany(amount, (data) => ({
             code: `MED${data.index + 1}`,
             name: `Medicine ${data.index + 1}`,
-            genericNameId: genericName[Math.floor(Math.random() * genericName.length)].id,
             merk: `Merk ${data.index + 1}`,
             description: `Description ${data.index + 1}`,
             price: Math.floor(Math.random() * 500000) + 150000,
             expiredDate: faker.date.future(),
-            packagingId: packaging[Math.floor(Math.random() * packaging.length)].id,
             currStock: Math.floor(Math.random() * 100) + 1,
             minStock: Math.floor(Math.random() * 10) + 1,
             maxStock: Math.floor(Math.random() * 100) + 1,
@@ -219,15 +211,9 @@ const seedMedicine = async (seed: SeedClient, amount: number = 1) => {
 
 const seedMedicineHasClassification = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding medicine has classification ...")
-
-    const classification: Classification[] = await prisma.classification.findMany({
-        where: { is_active: true },
-    });
-
     await seed.medicineHasClassification((createMany) =>
         createMany(amount, (data) => ({
             medicineId: data.index + 1,
-            classificationId: classification[Math.floor(Math.random() * classification.length)].id,
         }))
     );
     console.log("Medicine has classification seeded successfully!")
@@ -235,13 +221,12 @@ const seedMedicineHasClassification = async (seed: SeedClient, amount: number = 
 
 const seedPrescriptionHasMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding prescription has medicine ...")
-
     // TODO: Create a total price logic
     await seed.prescriptionHasMedicine((createMany) =>
         createMany(amount, (data) => ({
             prescriptionId: data.index + 1,
             quantity: Math.floor(Math.random() * 10) + 1,
-            instruction: "Suspendisse, nunc eros orci enim vel, dapibus aenean sit efficitur. Eget etiam sed, vestibulum vulputate, ac mus imperdiet nulla non. Velit nascetur congue, quis, rhoncus varius imperdiet aenean eu enim. Dignissim hac, vestibulum enim facilisis lectus porta dapibus convallis et. Nam volutpat, massa consequat felis etiam, nullam duis luctus montes.",
+            instruction: faker.lorem.words({ min: 1, max: 3 }),
             totalPrice: Math.floor(Math.random() * 500000) + 150000,
         }))
     );
@@ -250,12 +235,11 @@ const seedPrescriptionHasMedicine = async (seed: SeedClient, amount: number = 1)
 
 const seedDiagnose = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding diagnose ...")
-
     await seed.diagnose((createMany) =>
         createMany(amount, (data) => ({
             doctorId: data.index + 1,
             title: `Diagnose ${data.index + 1}`,
-            description: "Tristique ut nulla eget neque, aliquam sed pharetra, dui montes. Duis ante, quam sit eget dui turpis eget diam, suspendisse. Adipiscing consequat ut, dictumst interdum, lectus placerat porttitor dui eu. Dui amet libero sed eu at ut urna adipiscing lectus. Tempor nunc vestibulum rutrum dignissim velit consectetur praesent, lectus, aenean.",
+            description: faker.lorem.words({ min: 1, max: 3 }),
             is_active: true,
         }))
     );
@@ -264,7 +248,6 @@ const seedDiagnose = async (seed: SeedClient, amount: number = 1) => {
 
 const seedMedicineReport = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding medicine report ...")
-
     await seed.medicineReport((createMany) =>
         createMany(amount, () => ({
             is_active: true,

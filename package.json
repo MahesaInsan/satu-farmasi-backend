@@ -8,7 +8,7 @@
     "start": "node src/index.ts",
     "dev": "nodemon src/index.ts",
     "migrate": "prisma migrate dev",
-    "postmigrate": "npx @snaplet/seed sync"
+    "seed": "npx prisma db seed"
   },
   "keywords": [],
   "author": "",
