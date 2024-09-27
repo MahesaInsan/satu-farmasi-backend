@@ -35,11 +35,13 @@ export default class VendorController extends BaseController {
 
     async addVendor(req: Request, res: Response) {
         try {
+            this.validateData(req);
             const request: AddVendorRequest = req.body;
             const createdVendor: Vendor = await this.vendorService.addVendor(request)
             res.status(200).send(new BaseResponse().ok(createdVendor));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -69,6 +71,7 @@ export default class VendorController extends BaseController {
 
     async editVendor(req: Request, res: Response) {
         try {
+            this.validateData(req);
             const id: number = Number(req.params.id);
             const data = req.body;
             data.id = id;
@@ -76,12 +79,14 @@ export default class VendorController extends BaseController {
             const editVendor: Vendor = await this.vendorService.editVendor(request);
             res.status(200).send(new BaseResponse().ok(editVendor));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     async deleteVendor(req: Request, res: Response) {
         try {
+            this.validateData(req);
             const id: number = Number(req.params.id);
             const data = req.body;
             data.id = id;
@@ -89,7 +94,8 @@ export default class VendorController extends BaseController {
             const vendor: Vendor = await this.vendorService.deleteVendor(request);
             return res.status(200).send(new BaseResponse().ok(vendor));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 }

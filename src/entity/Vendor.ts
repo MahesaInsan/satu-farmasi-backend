@@ -13,4 +13,30 @@ export default class Vendor extends BaseEntity {
         this.address = address;
         this.city = city;
     }
+
+    public static createSchema() {
+        return {
+            name: { isString: true },
+            phoneNum: { isString: true },
+            address: { isString: true },
+            city: { isString: true },
+        };
+    }
+
+    public static editSchema() {
+        return {
+            id: { isNumber: true },
+            name: { isString: true },
+            phoneNum: { isString: true },
+            address: { isString: true },
+            city: { isString: true },
+        };
+    }
+
+    public static deleteSchema() {
+        return {
+            id: { isNumber: true },
+            is_active: { isBoolean: true },
+        };
+    }
 }
