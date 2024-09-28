@@ -22,8 +22,8 @@ export default class MedicineService{
         this.medicineHasClassificationRepository = new MedicineHasClassificationRepository();
     }
 
-    public async getAllMedicineList(): Promise<MedicineDropdownVO[]>{
-        return await this.medicineRepository.fetchMedicineList()
+    public async getAllMedicineList(): Promise<Map<number, MedicineDropdownVO>>{
+        return await this.mapMedicineDropdownList(await this.medicineRepository.fetchMedicineList());
     }
 
     public async getTotalMedicines(): Promise<number>{
@@ -247,7 +247,18 @@ export default class MedicineService{
         await this.medicineRepository.decreaseStock(medicineId, quantity)
     }
 
+    public async increaseMedicineStock(medicineId: number, quantity: number){
+        await this.medicineRepository.increaseStock(medicineId, quantity)
+    }
+
     public async getMedicineValidationList(medicineIdList: number[]) {
-        return await this.medicineRepository.getMedicineIdIn(medicineIdList)
+        return this.medicineRepository.getMedicineIdIn(medicineIdList);
+    }
+
+    private async mapMedicineDropdownList(medicineList: MedicineDropdownVO[]) {
+        return medicineList.reduce((medicineByMedicineId, medicine) => {
+            medicineByMedicineId.set(medicine.id, medicine)
+            return medicineByMedicineId
+        }, new Map<number, MedicineDropdownVO>)
     }
 }

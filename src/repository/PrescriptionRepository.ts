@@ -1,6 +1,7 @@
-import {Prescription, PrismaClient} from "@prisma/client";
+import {Prescription, Prisma, PrismaClient} from "@prisma/client";
 import IdVO from "../model/VOs/IdVO";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
+import PrescriptionDetailVO from "../model/VOs/PrescriptionDetailVO";
 
 export default class PrescriptionRepository{
     private readonly prisma: PrismaClient;
@@ -18,6 +19,67 @@ export default class PrescriptionRepository{
                 }
             })
         } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async getPrescriptionByPrescriptionId(prescriptionId: number): Promise<PrescriptionDetailVO | null> {
+        try {
+            return this.prisma.prescription.findFirst({
+                where: {
+                    id: prescriptionId,
+                    is_active: true
+                },
+                select: {
+                    id: true,
+                    patient: {
+                        select: {
+                            id: true,
+                            name: true,
+                            credentialNumber: true,
+                            phoneNum: true
+                        }
+                    },
+                    medicineList: {
+                        select: {
+                            quantity: true,
+                            instruction: true,
+                            totalPrice: true,
+                            medicine: {
+                                select: {
+                                    id: true,
+                                    code: true,
+                                    name: true,
+                                    merk: true,
+                                    currStock: true,
+                                    minStock: true,
+                                    price: true,
+                                    classifications: {
+                                        select: {
+                                            classification: {
+                                                select: {
+                                                    label: true
+                                                }
+                                            }
+                                        }
+                                    },
+                                    packaging: {
+                                        select: {
+                                            label: true
+                                        }
+                                    },
+                                    genericName: {
+                                        select: {
+                                            label: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        } catch (error){
             throw error as string
         }
     }

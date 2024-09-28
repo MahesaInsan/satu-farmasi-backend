@@ -31,7 +31,7 @@ export default class PatientRepository {
                 }
             );
         } catch (error) {
-            throw error as string
+            throw new Error("failed to create Patient")
         }
     }
 

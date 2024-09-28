@@ -4,7 +4,6 @@ import GenericNameService from "../service/GenericNameService";
 import {Request, Response} from "express";
 import EditGenericNameRequest from "../model/request/editGenericNameRequest";
 import BaseController from "./BaseController";
-import PaginationRequest from "../model/request/PaginationRequest";
 import BaseResponse from "../model/response/BaseResponse";
 import GenericDropdownVO from "../model/VOs/GenericDropdownVO";
 
