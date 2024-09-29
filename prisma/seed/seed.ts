@@ -1,9 +1,11 @@
 import { createSeedClient, SeedClient } from "@snaplet/seed";
 import { faker } from '@faker-js/faker';
 import UserService from "../../src/service/UserService";
+import { Classification, Doctor, GenericName, Medicine, MedicineReport, Packaging, Patient, Prescription, PrismaClient, Vendor } from "@prisma/client";
 
 const userService: UserService = new UserService();
 const getDefaultPassword = async () => await userService.encryptPassword("password123");
+const prisma: PrismaClient = new PrismaClient();
 
 const main = async () => {
     const seed: SeedClient = await createSeedClient();
@@ -14,8 +16,8 @@ const main = async () => {
     const MAX_DATA: number = 50;
 
     await seedAdmin(seed);
-    await seedingDoctor(seed, MAX_DATA);
-    await seedPharmacist(seed, MAX_DATA);
+    await seedingDoctor(seed, 3);
+    await seedPharmacist(seed, 3);
     await seedPatient(seed, MAX_DATA);
 
     await seedPrescription(seed, MAX_DATA);
@@ -99,10 +101,11 @@ const seedPharmacist = async (seed: SeedClient, amount: number = 1) => {
 
 const seedPrescription = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding prescription ...")
+    const patient: Patient[] = await prisma.patient.findMany({ where: { is_active: true } });
     await seed.prescription((createMany) =>
-        createMany(amount, (data) => ({
-            patientId: data.index + 1,
+        createMany(amount, () => ({
             is_active: true,
+            patientId: patient[Math.floor(Math.random() * patient.length)].id,
         }))
     );
     console.log("Prescription seeded successfully!")
@@ -190,13 +193,16 @@ const seedClassification = async (seed: SeedClient, amount: number = 1) => {
 
 const seedMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding medicine ...")
-
+    const genericName: GenericName[] = await prisma.genericName.findMany({ where: { is_active: true } });
+    const packaging: Packaging[] = await prisma.packaging.findMany({ where: { is_active: true } });
     await seed.medicine((createMany) =>
         createMany(amount, (data) => ({
             code: `MED${data.index + 1}`,
             name: `Medicine ${data.index + 1}`,
             merk: `Merk ${data.index + 1}`,
             description: `Description ${data.index + 1}`,
+            genericNameId: genericName[Math.floor(Math.random() * genericName.length)].id,
+            packagingId: packaging[Math.floor(Math.random() * packaging.length)].id,
             price: Math.floor(Math.random() * 500000) + 150000,
             expiredDate: faker.date.future(),
             currStock: Math.floor(Math.random() * 100) + 1,
@@ -211,9 +217,11 @@ const seedMedicine = async (seed: SeedClient, amount: number = 1) => {
 
 const seedMedicineHasClassification = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding medicine has classification ...")
+    const classification: Classification[] = await prisma.classification.findMany({ where: { is_active: true } });
     await seed.medicineHasClassification((createMany) =>
         createMany(amount, (data) => ({
             medicineId: data.index + 1,
+            classificationId: classification[Math.floor(Math.random() * classification.length)].id,
         }))
     );
     console.log("Medicine has classification seeded successfully!")
@@ -222,11 +230,13 @@ const seedMedicineHasClassification = async (seed: SeedClient, amount: number = 
 const seedPrescriptionHasMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding prescription has medicine ...")
     // TODO: Create a total price logic
+    const medicine: Medicine[] = await prisma.medicine.findMany({ where: { is_active: true } });
     await seed.prescriptionHasMedicine((createMany) =>
         createMany(amount, (data) => ({
             prescriptionId: data.index + 1,
+            medicineId: medicine[Math.floor(Math.random() * medicine.length)].id,
             quantity: Math.floor(Math.random() * 10) + 1,
-            instruction: faker.lorem.words({ min: 1, max: 3 }),
+            instruction: faker.lorem.words({ min: 5, max: 10 }),
             totalPrice: Math.floor(Math.random() * 500000) + 150000,
         }))
     );
@@ -235,9 +245,11 @@ const seedPrescriptionHasMedicine = async (seed: SeedClient, amount: number = 1)
 
 const seedDiagnose = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding diagnose ...")
+    const doctor: Doctor[] = await prisma.doctor.findMany({ where: { is_active: true } });
     await seed.diagnose((createMany) =>
         createMany(amount, (data) => ({
-            doctorId: data.index + 1,
+            doctorId: doctor[Math.floor(Math.random() * doctor.length)].id,
+            prescriptionId: data.index + 1,
             title: `Diagnose ${data.index + 1}`,
             description: faker.lorem.words({ min: 1, max: 3 }),
             is_active: true,
@@ -258,9 +270,15 @@ const seedMedicineReport = async (seed: SeedClient, amount: number = 1) => {
 
 const seedReceiveMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding receive medicine ...")
+    const medicine: Medicine[] = await prisma.medicine.findMany({ where: { is_active: true } });
+    const vendor: Vendor[] = await prisma.vendor.findMany({ where: { is_active: true } });
+    const medicineReport: MedicineReport[] = await prisma.medicineReport.findMany({ where: { is_active: true } });
     await seed.receiveMedicine((createMany) =>
         createMany(amount, (data) => ({
             documentNumber: `Receive medicine ${data.index + 1}`,
+            medicineId: medicine[Math.floor(Math.random() * medicine.length)].id,
+            vendorId: vendor[Math.floor(Math.random() * vendor.length)].id,
+            reportId: medicineReport[Math.floor(Math.random() * medicineReport.length)].id,
             batchCode: `Batch code ${data.index + 1}`,
             quantity: Math.floor(Math.random() * 10) + 1,
             buyingPrice: Math.floor(Math.random() * 500000) + 150000,
@@ -273,8 +291,12 @@ const seedReceiveMedicine = async (seed: SeedClient, amount: number = 1) => {
 
 const seedOutputMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding output medicine ...")
+    const medicine: Medicine[] = await prisma.medicine.findMany({ where: { is_active: true } });
+    const medicineReport: MedicineReport[] = await prisma.medicineReport.findMany({ where: { is_active: true } });
     await seed.outputMedicine((createMany) =>
         createMany(amount, () => ({
+            medicineId: medicine[Math.floor(Math.random() * medicine.length)].id,
+            reportId: medicineReport[Math.floor(Math.random() * medicineReport.length)].id,
             quantity: Math.floor(Math.random() * 10) + 1,
             is_active: true,
         }))
@@ -285,8 +307,15 @@ const seedOutputMedicine = async (seed: SeedClient, amount: number = 1) => {
 // TODO: create a logic for totla price
 const seedTransaction = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding transaction ...")
+    const patient: Patient[] = await prisma.patient.findMany({ where: { is_active: true } });
+    const pharmacist: Doctor[] = await prisma.doctor.findMany({ where: { is_active: true } });
+    const medicineReport: MedicineReport[] = await prisma.medicineReport.findMany({ where: { is_active: true } });
     await seed.transaction((createMany) =>
-        createMany(amount, () => ({
+        createMany(amount, (data) => ({
+            patientId: patient[Math.floor(Math.random() * patient.length)].id,
+            reportId: medicineReport[Math.floor(Math.random() * medicineReport.length)].id,
+            prescriptionId: data.index + 1,
+            pharmacistId: pharmacist[Math.floor(Math.random() * pharmacist.length)].id,
             totalPrice: Math.floor(Math.random() * 500000) + 150000,
             is_active: true,
         }))
