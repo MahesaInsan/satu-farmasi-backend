@@ -465,4 +465,50 @@ export default class MedicineRepository{
             throw new Error('Failed to check expiration');
         }
     }
+
+    public async getTotalMedicineByName(name: string): Promise<number> {
+        try {
+            return this.prisma.medicine.count({
+                where: {
+                    AND: [
+                        {
+                            name: {
+                                contains: name
+                            }
+                        },
+                        {
+                            is_active: true
+                        }
+                    ],
+                },
+            });
+        } catch (error) {
+            console.error("Error counting medicine by name:", error);
+            throw new Error("Failed to count medicine by name");
+        }
+    }
+
+    public async getMedicineByName(limit: number, startIndex: number, name: string): Promise<Medicine[]> {
+        try {
+            return await this.prisma.medicine.findMany({
+                where: {
+                    AND: [
+                        {
+                            name: {
+                                contains: name
+                            }
+                        },
+                        {
+                            is_active: true
+                        }
+                    ],
+                },
+                skip: startIndex,
+                take: limit,
+            });
+        } catch (error) {
+            console.error("Error getting medicine by name:", error);
+            throw new Error("Failed to get medicine by name");
+        }
+    }
 }

@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import adminRouter from "../router/AdminRouter";
+import outputMedicineRouter from "../router/OutputMedicineRouter";
 import doctorRouter from "../router/DoctorRouter";
 import pharmacistRouter from "../router/PharmacistRouter";
 import dotenv from "dotenv";
@@ -46,6 +47,7 @@ export default class App {
         this.app.use("/api/v1/pharmacists", pharmacistRouter);
         this.app.use("/api/v1/users", UserRouter);
         this.app.use("/api/v1/medicines", medicineRouter);
+        this.app.use("/api/v1/outputMedicines", outputMedicineRouter);
         this.app.use("/api/v1/patients", patientRouter);
         this.app.use("/api/v1/diagnose", diagnoseRouter);
         this.app.use("/api/v1/packagings", packagingRouter);
