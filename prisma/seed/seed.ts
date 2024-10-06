@@ -1,3 +1,5 @@
+// Command: npm run seed
+
 import { createSeedClient, SeedClient } from "@snaplet/seed";
 import { faker } from '@faker-js/faker';
 import UserService from "../../src/service/UserService";
