@@ -1,11 +1,16 @@
 import { createSeedClient, SeedClient } from "@snaplet/seed";
 import { faker } from '@faker-js/faker';
 import UserService from "../../src/service/UserService";
-import { Classification, Doctor, GenericName, Medicine, MedicineReport, Packaging, Patient, Prescription, PrismaClient, Vendor } from "@prisma/client";
+import { Classification, Doctor, GenericName, Medicine, MedicineReport, Packaging, Patient, Prescription, PrescriptionHasMedicine, PrismaClient, Vendor } from "@prisma/client";
 
 const userService: UserService = new UserService();
 const getDefaultPassword = async () => await userService.encryptPassword("password123");
 const prisma: PrismaClient = new PrismaClient();
+
+const STOCK = {
+    MIN: 1,
+    MAX: 50
+}
 
 const main = async () => {
     const seed: SeedClient = await createSeedClient();
@@ -205,9 +210,9 @@ const seedMedicine = async (seed: SeedClient, amount: number = 1) => {
             packagingId: packaging[Math.floor(Math.random() * packaging.length)].id,
             price: Math.floor(Math.random() * 500000) + 150000,
             expiredDate: faker.date.future(),
-            currStock: Math.floor(Math.random() * 100) + 1,
-            minStock: Math.floor(Math.random() * 10) + 1,
-            maxStock: Math.floor(Math.random() * 100) + 1,
+            currStock: Math.floor(Math.random() * STOCK.MAX) + STOCK.MIN,
+            minStock: STOCK.MIN,
+            maxStock: STOCK.MAX,
             sideEffect: `Side effect ${data.index + 1}`,
             is_active: true,
         }))
@@ -229,15 +234,14 @@ const seedMedicineHasClassification = async (seed: SeedClient, amount: number = 
 
 const seedPrescriptionHasMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding prescription has medicine ...")
-    // TODO: Create a total price logic
     const medicine: Medicine[] = await prisma.medicine.findMany({ where: { is_active: true } });
     await seed.prescriptionHasMedicine((createMany) =>
         createMany(amount, (data) => ({
             prescriptionId: data.index + 1,
-            medicineId: medicine[Math.floor(Math.random() * medicine.length)].id,
-            quantity: Math.floor(Math.random() * 10) + 1,
+            medicineId: medicine[data.index].id,
+            quantity: 10,
             instruction: faker.lorem.words({ min: 5, max: 10 }),
-            totalPrice: Math.floor(Math.random() * 500000) + 150000,
+            totalPrice: Number(medicine[data.index].price) * 10,
         }))
     );
     console.log("Prescription has medicine seeded successfully!")
@@ -302,19 +306,30 @@ const seedOutputMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Output medicine seeded successfully!")
 }
 
-// TODO: create a logic for totla price
 const seedTransaction = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding transaction ...")
     const patient: Patient[] = await prisma.patient.findMany({ where: { is_active: true } });
     const pharmacist: Doctor[] = await prisma.doctor.findMany({ where: { is_active: true } });
     const medicineReport: MedicineReport[] = await prisma.medicineReport.findMany({ where: { is_active: true } });
+
+    const prescription: Prescription[] = await prisma.prescription.findMany({ where: { is_active: true } });
+    let totalPrice: Array<number> = Array(prescription.length).fill(0);
+    for (let i = 0; i < totalPrice.length; i++) {
+        const prescriptionHasMedicine: PrescriptionHasMedicine[] = await prisma.prescriptionHasMedicine.findMany({ where: { prescriptionId: prescription[i].id } });
+        let subTotalPrice: number  = 0;
+        prescriptionHasMedicine.forEach((prescription) => {
+            subTotalPrice += Number(prescription.totalPrice);
+        })
+        totalPrice[i] = subTotalPrice;
+    }
+
     await seed.transaction((createMany) =>
         createMany(amount, (data) => ({
             patientId: patient[Math.floor(Math.random() * patient.length)].id,
             reportId: medicineReport[Math.floor(Math.random() * medicineReport.length)].id,
-            prescriptionId: data.index + 1,
+            prescriptionId: prescription[data.index].id,
             pharmacistId: pharmacist[Math.floor(Math.random() * pharmacist.length)].id,
-            totalPrice: Math.floor(Math.random() * 500000) + 150000,
+            totalPrice: totalPrice[data.index],
             is_active: true,
         }))
     );
