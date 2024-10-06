@@ -3,18 +3,20 @@ import { ReasonOfDispose } from "@prisma/client";
 export default class EditOutputMedicineRequest {
     private _id: number;
     private _medicineId: number;
+    private _oldQuantity: number;
     private _quantity: number;
     private _reasonOfDispose: ReasonOfDispose;
     private _reportId: number;
     private _is_active: boolean;
 
-    constructor(id: number, medicineId: number, quantity: number, reasonOfDispose: ReasonOfDispose, reportId: number, is_active: boolean) {
+    constructor(id: number, medicineId: number, quantity: number, reasonOfDispose: ReasonOfDispose, reportId: number, is_active: boolean, oldQuantity: number) {
         this._id = id;
         this._medicineId = medicineId;
         this._quantity = quantity;
         this._reasonOfDispose = reasonOfDispose;
         this._reportId = reportId;
         this._is_active = is_active;
+        this._oldQuantity = oldQuantity;
     }
 
     get id(): number {
@@ -63,5 +65,13 @@ export default class EditOutputMedicineRequest {
 
     set is_active(value: boolean) {
         this._is_active = value;
+    }
+
+    get oldQuantity(): number {
+        return this._oldQuantity;
+    }
+
+    set currStock(value: number) {
+        this._oldQuantity = value;
     }
 }

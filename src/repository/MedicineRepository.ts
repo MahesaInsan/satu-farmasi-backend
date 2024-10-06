@@ -60,6 +60,11 @@ export default class MedicineRepository{
 
     public async decreaseStock(medicineId: number, quantity: number){
         try {
+            const medicine: Medicine | null = await this.getMedicineById(medicineId);
+            if (!medicine) throw new Error('Medicine not found');
+            const isValidStock =  (medicine.currStock - quantity) >= medicine.minStock;
+            if (!isValidStock) throw new Error('Medicine stock is not enough');
+
             await this.prisma.medicine.update({
                 where: {
                     id: medicineId
@@ -77,9 +82,14 @@ export default class MedicineRepository{
 
     public async increaseStock(medicineId: number, quantity: number){
         try {
+            const medicine: Medicine | null = await this.getMedicineById(medicineId);
+            if (!medicine) throw new Error('Medicine not found');
+            const isValid = (medicine.currStock + quantity) <= medicine.maxStock;
+            if (!isValid) throw new Error('Medicine stock is over the limit');
+
             await this.prisma.medicine.update({
                 where: {
-                    id: medicineId
+                    id: medicineId,
                 },
                 data: {
                     currStock: {
@@ -463,52 +473,6 @@ export default class MedicineRepository{
         } catch (error) {
             console.error('Error checking expiration: ', error);
             throw new Error('Failed to check expiration');
-        }
-    }
-
-    public async getTotalMedicineByName(name: string): Promise<number> {
-        try {
-            return this.prisma.medicine.count({
-                where: {
-                    AND: [
-                        {
-                            name: {
-                                contains: name
-                            }
-                        },
-                        {
-                            is_active: true
-                        }
-                    ],
-                },
-            });
-        } catch (error) {
-            console.error("Error counting medicine by name:", error);
-            throw new Error("Failed to count medicine by name");
-        }
-    }
-
-    public async getMedicineByName(limit: number, startIndex: number, name: string): Promise<Medicine[]> {
-        try {
-            return await this.prisma.medicine.findMany({
-                where: {
-                    AND: [
-                        {
-                            name: {
-                                contains: name
-                            }
-                        },
-                        {
-                            is_active: true
-                        }
-                    ],
-                },
-                skip: startIndex,
-                take: limit,
-            });
-        } catch (error) {
-            console.error("Error getting medicine by name:", error);
-            throw new Error("Failed to get medicine by name");
         }
     }
 }

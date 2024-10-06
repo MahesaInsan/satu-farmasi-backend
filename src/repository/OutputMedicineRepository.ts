@@ -22,7 +22,7 @@ export default class OutputMedicineRepository extends BaseRepository {
                     medicine: {
                         select: {
                             id: true,
-                            name: true
+                            name: true,
                         }
                     },
                     report: {
@@ -153,7 +153,7 @@ export default class OutputMedicineRepository extends BaseRepository {
     public async addOutputMedicine(outputMedicine: OutputMedicine): Promise<boolean> {
         try {
             const created: OutputMedicine = await this.Prisma.outputMedicine.create({ data: outputMedicine });
-            return created ? true : false;
+            return !!created;
         } catch (error) {
             console.error("Error adding output medicine:", error);
             throw new Error("Failed to add output medicine");
@@ -170,6 +170,19 @@ export default class OutputMedicineRepository extends BaseRepository {
         } catch (error) {
             console.error("Error editing output medicine:", error);
             throw new Error("Failed to edit output medicine");
+        }
+    }
+
+    public async deleteOutputMedicine(id: number): Promise<boolean> {
+        try {
+            const deleted: OutputMedicine = await this.Prisma.outputMedicine.update({
+                where: { id: id },
+                data: { is_active: false }
+            });
+            return deleted ? true : false;
+        } catch (error) {
+            console.error("Error deleting output medicine:", error);
+            throw new Error("Failed to delete output medicine");
         }
     }
 
