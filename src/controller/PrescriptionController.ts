@@ -37,6 +37,7 @@ export default class PrescriptionController {
             const request: AddPrescriptionRequest = req.body.data;
             res.status(200).send(new BaseResponse().ok(await this.prescriptionService.addNewPrescription(request)))
         } catch (error) {
+            console.error(error)
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
     }

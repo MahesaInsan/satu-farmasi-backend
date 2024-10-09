@@ -1,4 +1,4 @@
-import {Prescription, Prisma, PrismaClient} from "@prisma/client";
+import {Prescription, PrismaClient, Status} from "@prisma/client";
 import IdVO from "../model/VOs/IdVO";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
 import PrescriptionDetailVO from "../model/VOs/PrescriptionDetailVO";
@@ -32,6 +32,7 @@ export default class PrescriptionRepository{
                 },
                 select: {
                     id: true,
+                    status: true,
                     patient: {
                         select: {
                             id: true,
@@ -145,6 +146,38 @@ export default class PrescriptionRepository{
                 ]
             })
         } catch (error){
+            throw error as string
+        }
+    }
+
+    public async findIfExistById(id: number): Promise<IdVO | null> {
+        try {
+            return this.prisma.prescription.findUnique({
+                where: {
+                    id: id
+                },
+                select: {
+                    id: true
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async updatePrescriptionStatusById(status: Status, id: number) {
+        try {
+            console.log("saved")
+            return this.prisma.prescription.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    status: status
+                }
+            })
+        } catch (error) {
+            console.error("error here")
             throw error as string
         }
     }
