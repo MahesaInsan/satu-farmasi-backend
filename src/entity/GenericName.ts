@@ -9,4 +9,26 @@ export default class GenericName extends BaseEntity{
         this.label = label;
         this.value = value;
     }
+
+    public static createSchema() {
+        return {
+            value: { isString: true },
+            label: { isString: true },
+        };
+    }
+
+    public static editSchema() {
+        return {
+            id: { isNumber: true },
+            value: { isString: true },
+            label: { isString: true },
+        };
+    }
+
+    public static deleteSchema() {
+        return {
+            id: { isNumber: true },
+            is_active: { isBoolean: true },
+        };
+    }
 }

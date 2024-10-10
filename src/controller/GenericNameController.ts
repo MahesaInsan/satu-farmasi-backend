@@ -33,7 +33,8 @@ export default class GenericNameController  extends BaseController {
 
             return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -42,17 +43,20 @@ export default class GenericNameController  extends BaseController {
             const genericName: GenericDropdownVO[] = await this.genericNameService.getGenericNameDropdown();
             return res.status(200).send(new BaseResponse().ok(genericName));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object));
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     async addGenericName(req: Request, res: Response){
         try{
+            this.validateData(req);
             const request: AddGenericNameRequest = req.body;
             const createdGenericName: GenericName = await this.genericNameService.addGenericName(request)
-            res.status(200).send(new BaseResponse().ok(createdGenericName));
+            return res.status(200).send(new BaseResponse().ok(createdGenericName));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -60,32 +64,37 @@ export default class GenericNameController  extends BaseController {
         try {
             const id: number = Number(req.params.id);
             const genericName: GenericName | null = await this.genericNameService.getGenericNameById(id);
-            res.status(200).send(new BaseResponse().ok(genericName));
+            return res.status(200).send(new BaseResponse().ok(genericName));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     async editGenericName(req: Request, res: Response){
         try {
+            this.validateData(req);
             const id: number = Number(req.params.id);
             const data = req.body;
             data.id = id;
             const request: EditGenericNameRequest = data;
-            const editedGenericName: boolean = await this.genericNameService.editGenericName(request);
-            res.status(200).send(new BaseResponse().ok(editedGenericName));
+            await this.genericNameService.editGenericName(request);
+            return res.status(200).send(new BaseResponse().ok());
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     async deleteGenericName(req: Request, res: Response){
         try {
+            this.validateData(req);
             const id: number = Number(req.params.id);
-            const isDeleted: boolean = await this.genericNameService.deleteGenericName(id);
-            res.status(200).send(new BaseResponse().ok(isDeleted));
+             await this.genericNameService.deleteGenericName(id);
+            return res.status(200).send(new BaseResponse().ok());
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 }

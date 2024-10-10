@@ -17,13 +17,14 @@ export default class PackagingController extends BaseController {
 
     public async createPackaging(req: Request, res: Response) {
         try {
+            this.validateData(req);
             const request: AddPackagingRequest = req.body;
             const packaging: Packaging = await this.packagingService.createPackaging( request );
             return res.status(200).send(new BaseResponse().ok(packaging));
         } catch (error) {
             console.log("[src][controller][PackagingController][createPackaging] ", error);
-            const errorMessage: string = error instanceof Error ? error.message : String(error);
-            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -44,8 +45,8 @@ export default class PackagingController extends BaseController {
             return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
             console.log("[src][controller][PackagingController][getPackaging] ", error);
-            const errorMessage: string = error instanceof Error ? error.message : String(error);
-            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -55,30 +56,32 @@ export default class PackagingController extends BaseController {
             return res.status(200).send(new BaseResponse().ok(packagings));
         } catch (error) {
             console.log("[src][controller][PackagingController][getPackagingsDropdown] ", error);
-            const errorMessage: string = error instanceof Error ? error.message : String(error);
-            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     public async editPackaging(req: Request, res: Response) {
         try {
+            this.validateData(req);
             const packaging: Packaging = await this.packagingService.editPackaging(req.body);
             return res.status(200).send(new BaseResponse().ok(packaging));
         } catch (error) {
             console.log("[src][controller][PackagingController][editPackaging] ", error);
-            const errorMessage: string = error instanceof Error ? error.message : String(error);
-            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     public async deletePackaging(req: Request, res: Response) {
         try {
+            this.validateData(req);
             const packaging: Packaging = await this.packagingService.deletePackaging(req.body);
             return res.status(200).send(new BaseResponse().ok(packaging));
         } catch (error) {
             console.log("[src][controller][PackagingController][deletePackaging] ", error);
-            const errorMessage: string = error instanceof Error ? error.message : String(error);
-            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 }
