@@ -60,6 +60,11 @@ export default class MedicineRepository{
 
     public async decreaseStock(medicineId: number, quantity: number){
         try {
+            const medicine: Medicine | null = await this.getMedicineById(medicineId);
+            if (!medicine) throw new Error('Medicine not found');
+            const isValidStock =  (medicine.currStock - quantity) >= medicine.minStock;
+            if (!isValidStock) throw new Error('Medicine stock is not enough');
+
             await this.prisma.medicine.update({
                 where: {
                     id: medicineId
@@ -77,9 +82,14 @@ export default class MedicineRepository{
 
     public async increaseStock(medicineId: number, quantity: number){
         try {
+            const medicine: Medicine | null = await this.getMedicineById(medicineId);
+            if (!medicine) throw new Error('Medicine not found');
+            const isValid = (medicine.currStock + quantity) <= medicine.maxStock;
+            if (!isValid) throw new Error('Medicine stock is over the limit');
+
             await this.prisma.medicine.update({
                 where: {
-                    id: medicineId
+                    id: medicineId,
                 },
                 data: {
                     currStock: {

@@ -1,6 +1,5 @@
 import BaseRouter from "./BaseRouter";
 import MedicineController from "../controller/MedicineController";
-import BaseRequest from "../model/request/BaseRequest/BaseRequest";
 
 class MedicineRouter extends BaseRouter {
     private readonly medicineController: MedicineController;

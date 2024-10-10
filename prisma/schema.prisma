@@ -218,7 +218,7 @@ model ReceiveMedicine{
   created_at DateTime
   updated_at DateTime @default(now())
   report MedicineReport? @relation(fields: [reportId], references: [id])
-  reportId Int
+  reportId Int?
 }
 
 model OutputMedicine{
@@ -231,7 +231,7 @@ model OutputMedicine{
   created_at DateTime
   updated_at DateTime @default(now())
   report MedicineReport? @relation(fields: [reportId], references: [id])
-  reportId Int
+  reportId Int?
 }
 
 model MedicineReport{
