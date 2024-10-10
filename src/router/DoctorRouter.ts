@@ -1,5 +1,5 @@
 import DoctorController from "../controller/DoctorController";
-import DoctorValidation from "../validator/DoctorValidation";
+import DoctorValidation from "../validator/UserValidation/DoctorValidation";
 import BaseRouter from "./BaseRouter";
 
 class DoctorRouter extends BaseRouter{

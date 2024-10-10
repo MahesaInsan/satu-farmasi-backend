@@ -1,7 +1,6 @@
-import { isString } from "util";
 import BaseEntity from "./BaseEntity"
 
-export default class Classification extends BaseEntity {
+export default class Packaging extends BaseEntity {
     public value: string;
     public label: string;
 
