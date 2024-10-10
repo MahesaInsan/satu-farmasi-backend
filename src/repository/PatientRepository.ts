@@ -49,4 +49,19 @@ export default class PatientRepository {
             throw error as string
         }
     }
+
+    public async findIfExistById(id: number): Promise<IdVO | null>{
+        try {
+            return this.prisma.patient.findUnique({
+                where: {
+                    id: id
+                },
+                select: {
+                    id: true
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
 }

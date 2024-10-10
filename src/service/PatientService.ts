@@ -43,6 +43,14 @@ export default class PatientService{
         }
     }
 
+    public async findIfExistById(id: number) {
+        try {
+            return await this.patientRepository.findIfExistById(id)
+        } catch(error) {
+            throw error as string
+        }
+    }
+
     private async mapPatientById(patientList: Patient[]) {
         return patientList.reduce((patientByPatientId, patient) => {
             patientByPatientId.set(patient.id, patient);

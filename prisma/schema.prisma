@@ -1,6 +1,6 @@
-//npx prisma generate
-//npx prisma db push
-//Belum baca baca migration cuy nanti gua baca lagi ygy
+// npx prisma generate
+// npx prisma db push
+// Belum baca baca migration cuy nanti gua baca lagi ygy
 
 generator client {
   provider = "prisma-client-js"
@@ -198,7 +198,7 @@ model Transaction{
   created_at DateTime
   updated_at DateTime @default(now())
   report MedicineReport? @relation(fields: [reportId], references: [id])
-  reportId Int
+  reportId Int?
 }
 
 model ReceiveMedicine{
