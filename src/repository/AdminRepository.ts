@@ -7,6 +7,19 @@ export default class AdminRepository extends BaseRepository{
         super();
     }
 
+    public async nikIsExist(nik: string): Promise<Boolean> {
+        try {
+            const admin = await this.Prisma.admin.findUnique({
+                where: { nik: nik },
+                select: { nik: true }
+            });
+            return admin !== null;
+        } catch (error) {
+            console.error('Error checking nik:', error);
+            throw new Error('Failed to check nik');
+        }
+    }
+
     public async emailIsExist(email: string): Promise<Boolean> {
         try {
             const admin = await this.Prisma.admin.findUnique({

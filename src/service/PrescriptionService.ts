@@ -111,7 +111,7 @@ export default class PrescriptionService{
         newPrescriptionHasMedicine.forEach(newPrescription => {
             if (prescriptionHasMedicineByMedicineId.has(newPrescription.medicineId)) {
                 const updatedPrescriptionHasMedicine: PrescriptionHasMedicine = prescriptionHasMedicineByMedicineId.get(newPrescription.medicineId)!
-                this.updateMedicineStock(updatedPrescriptionHasMedicine.quantity, newPrescription.quantity, updatedPrescriptionHasMedicine.medicineId)
+                this.medicineService.updateMedicineStock(updatedPrescriptionHasMedicine.quantity, newPrescription.quantity, updatedPrescriptionHasMedicine.medicineId)
                 this.prescriptionHasMedicineRepository.updateWhereId(this.constructPrescriptionHasMedicine(newPrescription, prescriptionId),
                     updatedPrescriptionHasMedicine.id)
                 prescriptionHasMedicineById.delete(updatedPrescriptionHasMedicine.id)
@@ -123,20 +123,12 @@ export default class PrescriptionService{
 
         prescriptionHasMedicineById.forEach(deletedPrescriptionHasMedicine => {
             console.log(deletedPrescriptionHasMedicine)
-            this.updateMedicineStock(deletedPrescriptionHasMedicine.quantity, 0, deletedPrescriptionHasMedicine.medicineId)
+            this.medicineService.updateMedicineStock(deletedPrescriptionHasMedicine.quantity, 0, deletedPrescriptionHasMedicine.medicineId)
         })
         await this.prescriptionHasMedicineRepository.deleteWherePrescriptionIdAndInId(prescriptionId, Array.from(prescriptionHasMedicineById.keys()));
 
         if (newPrescriptionHasMedicineUpdate.length > 0) {
             this.prescriptionHasMedicineRepository.createPrescriptionHasMedicine(newPrescriptionHasMedicineUpdate);
-        }
-    }
-
-    private async updateMedicineStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineId: number) {
-        if (newPrescriptionQuantity > oldPrescriptionQuantity) {
-            await this.medicineService.decreaseMedicineStock(medicineId, newPrescriptionQuantity - oldPrescriptionQuantity)
-        } else if (oldPrescriptionQuantity > newPrescriptionQuantity) {
-            await this.medicineService.increaseMedicineStock(medicineId, oldPrescriptionQuantity - newPrescriptionQuantity)
         }
     }
 

@@ -261,4 +261,14 @@ export default class MedicineService{
             return medicineByMedicineId
         }, new Map<number, MedicineDropdownVO>)
     }
+
+    public async updateMedicineStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineId: number) {
+        if (newPrescriptionQuantity > oldPrescriptionQuantity) {
+            console.log("decrease stock")
+            await this.decreaseMedicineStock(medicineId, newPrescriptionQuantity - oldPrescriptionQuantity)
+        } else if (oldPrescriptionQuantity > newPrescriptionQuantity) {
+            console.log("increase stock")
+            await this.increaseMedicineStock(medicineId, oldPrescriptionQuantity - newPrescriptionQuantity)
+        }
+    }
 }

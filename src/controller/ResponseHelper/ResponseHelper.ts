@@ -11,6 +11,7 @@ import InternalServerRequest from "../../model/request/InteralServerRequest";
 import User from "../../entity/User";
 import SuccessRequest from "../../model/request/SuccessRequest";
 import PaginationRequest from "../../model/request/PaginationRequest";
+import { Result } from "express-validator";
 
 export default class ResponseHelper {
     public constructCookieRequest(maxAge: number): object {
@@ -21,7 +22,7 @@ export default class ResponseHelper {
         };
     }
 
-    public constructLoginResponse( user: Admin | Doctor | Pharmacist, token: string): LoginResponse {
+    public constructLoginResponse(user: Admin | Doctor | Pharmacist, token: string): LoginResponse {
         return Builder<LoginResponse>()
             .firstName(user.firstName)
             .lastName(user.lastName)
@@ -55,17 +56,25 @@ export default class ResponseHelper {
     }
 
     public constructBadRequest(error: object | Array<Object>): BadRequest {
-        const errorMessage =
-            error instanceof Error ? error.message : "Validation Failed!";
+        let errorMessage = "Something is wrong";
         let errors: Array<Object> = [];
-        error instanceof Object 
-            ? errors.push(error)
-            : errors = error;
+
+        if (error instanceof Error) errorMessage = error.message;
+        else if (error instanceof Result) {
+            errorMessage = "Validation Failed";
+            errors.push(error.mapped());
+            return Builder<BadRequest>()
+                .error("Bad Request")
+                .Code(400)
+                .message(errorMessage)
+                .errors(errors)
+                .build();
+        }
+
         return Builder<BadRequest>()
-            .error("Data not found!")
-            .Code(404)
+            .error("Bad Request")
+            .Code(400)
             .message(errorMessage)
-            .errors(errors)
             .build();
     }
 
