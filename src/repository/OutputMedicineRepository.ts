@@ -86,14 +86,15 @@ export default class OutputMedicineRepository extends BaseRepository {
         }
     }
 
-    public async getTotalOutputMedicineBySearch(params: string): Promise<number> {
+    public async getTotalOutputMedicineBySearch(q?: string, filter?: string): Promise<number> {
         try {
             return await this.Prisma.outputMedicine.count({
                 where: {
                     AND: [
                         {
-                            OR: [
-                                { medicine: { name: { contains: params, mode: 'insensitive' } } }
+                            AND: [
+                                { medicine: { name: { contains: q, mode: 'insensitive' } } },
+                                { reasonOfDispose: filter as ReasonOfDispose }
                             ],
                         },
                         { is_active: true }
@@ -107,14 +108,15 @@ export default class OutputMedicineRepository extends BaseRepository {
         }
     }
 
-    public async getOutputMedicineBySearch(limit: number, startIndex: number, params: string): Promise<OutputMedicineVO[]> {
+    public async getOutputMedicineBySearch(limit: number, startIndex: number, q?: string, filter?: string): Promise<OutputMedicineVO[]> {
         try {
             return await this.Prisma.outputMedicine.findMany({
                 where: {
                     AND: [
                         {
-                            OR: [
-                                { medicine: { name: { contains: params, mode: 'insensitive' } } }
+                            AND: [
+                                { medicine: { name: { contains: q, mode: 'insensitive' } } },
+                                { reasonOfDispose: filter as ReasonOfDispose }
                             ]
                         },
                         { is_active: true }
