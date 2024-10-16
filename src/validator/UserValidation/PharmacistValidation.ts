@@ -4,8 +4,8 @@ import { ValidationSchema } from "../helper/ValidationTypeHelper";
 
 export default class PharmacistValidation extends BaseValidation {
     public createPharmacistValidation() {
-        //const schema: ValidationSchema = Doctor.createSchema();
-        //return this.validateBodyData(schema);
+        const schema: ValidationSchema = Pharmacist.addSchema();
+        return this.validateBodyData(schema);
     }
 
     public updatePharmacistValidation() {

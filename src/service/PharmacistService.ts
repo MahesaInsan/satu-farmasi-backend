@@ -24,14 +24,14 @@ export default class PharmacistService{
         return await this.pharmacistRepository.emailIsExist(email)
     }
 
-    public async addPharmacist(request: AddPharmacistRequest): Promise<Pharmacist>{
+    public async addPharmacist(request: AddPharmacistRequest): Promise<boolean>{
         try {
             await this.userService.emailIsExist(request.email);
             request.password = await this.userService.encryptPassword(request.password);
             const pharmacist: Pharmacist = this.createUserHelper.createBaseUser(request);
             return await this.pharmacistRepository.addPharmacist(Builder(pharmacist).role(Role.PHARMACIST).build());
         } catch (error) {
-            throw error as string;
+            throw error as object;
         }
     }
 

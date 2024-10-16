@@ -10,6 +10,7 @@ export default class VendorRepository extends BaseRepository {
         try {
             return await this.Prisma.vendor.findMany({
                 where: { is_active: true },
+				orderBy: { created_at: 'desc' },
                 skip: startIndex,
                 take: limit,
             });
@@ -37,14 +38,16 @@ export default class VendorRepository extends BaseRepository {
                     AND: [
                         {
                             name: {
-                                contains: name
+                                contains: name,
+								mode: 'insensitive'
                             }
                         },
                         {
                             is_active: true
                         }
                     ]
-                }
+                },
+				orderBy: { created_at: 'desc' },
             });
         } catch (error) {
             console.error("Error getting total vendors by name:", error);
@@ -59,7 +62,8 @@ export default class VendorRepository extends BaseRepository {
                     AND: [
                         {
                             name: {
-                                contains: name
+                                contains: name,
+								mode: 'insensitive'
                             }
                         },
                         {
@@ -96,12 +100,13 @@ export default class VendorRepository extends BaseRepository {
         }
     }
 
-    public async editVendor(vendor: Vendor): Promise<Vendor> {
+    public async editVendor(vendor: Vendor): Promise<boolean> {
         try {
-            return await this.Prisma.vendor.update({
+            const data: Vendor = await this.Prisma.vendor.update({
                 where: { id: vendor.id },
                 data: vendor,
             });
+			return data !== null;
         } catch (error) {
             console.error("Error editing vendor:", error);
             throw new Error("Failed to edit vendor");

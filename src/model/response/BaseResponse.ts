@@ -1,5 +1,6 @@
 //CURRENTLY UNUSED SAVED FOR LATTER BUT MIGHT BE DELETED
 import { Result } from "express-validator";
+import { CustomError } from "../../validator/helper/ErrorHelper";
 
 export default class BaseResponse<T> {
     public code: number | undefined;
@@ -24,11 +25,14 @@ export default class BaseResponse<T> {
         return new BaseResponse<T>(400, "Bad Request", message, undefined, errors)
     }
 
-    public constructErrorHandler(error: object) {
+    public constructErrorHandler(error: any) {
         let defaultErrorMsg = "Something is wrong";
-        let errors: Array<Object> = [];
+        let errors: Array<Object | undefined> = [];
 
-        if (error instanceof Error) defaultErrorMsg = error.message;
+        if (error instanceof CustomError) {
+			defaultErrorMsg = error.message;
+			errors.push(error.details);
+		}
         else if (error instanceof Result) {
             defaultErrorMsg = "Validation Failed";
             errors.push(error.mapped());

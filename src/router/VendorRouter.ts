@@ -1,13 +1,16 @@
 import VendorController from "../controller/VendorController";
 import BaseRequest from "../model/request/BaseRequest/BaseRequest";
+import VendorValidation from "../validator/VendorValidation";
 import BaseRouter from "./BaseRouter";
 
 class VendorRouter extends BaseRouter {
     private readonly vendorController: VendorController;
+    private readonly vendorValidation: VendorValidation;
 
     constructor() {
         super();
         this.vendorController = new VendorController();
+        this.vendorValidation = new VendorValidation();
         this.initRoutes();
     }
 
@@ -19,9 +22,9 @@ class VendorRouter extends BaseRouter {
         this.router.get("/", this.vendorController.getAllVendor.bind(this.vendorController));
         this.router.get("/:id", this.vendorController.getVendorById.bind(this.vendorController));
         this.router.get("/:label", this.vendorController.getVendorByName.bind(this.vendorController));
-        this.router.post("/", this.vendorController.addVendor.bind(this.vendorController));
-        this.router.put("/:id", this.vendorController.editVendor.bind(this.vendorController));
-        this.router.delete("/:id", this.vendorController.deleteVendor.bind(this.vendorController));
+        this.router.post("/",  this.vendorValidation.createVendorValidation(), this.vendorController.addVendor.bind(this.vendorController));
+        this.router.put("/:id", this.vendorValidation.updateVendorValidation(), this.vendorController.editVendor.bind(this.vendorController));
+        this.router.delete("/:id", this.vendorValidation.deleteVendorValidation(), this.vendorController.deleteVendor.bind(this.vendorController));
     }
 }
 

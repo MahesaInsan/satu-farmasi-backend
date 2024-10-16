@@ -1,7 +1,6 @@
-import {Request, Response} from "express";
+import {Response} from "express";
 import PatientService from "../service/PatientService";
-import {Patient} from "@prisma/client";
-import AddPatientRequest from "../model/request/AddPatientRequest";
+import BaseResponse from "../model/response/BaseResponse";
 
 export default class PatientController{
     private readonly patientService: PatientService;
@@ -10,13 +9,14 @@ export default class PatientController{
         this.patientService = new PatientService();
     }
 
-    async getPatientDropdownOptions(req: Request, res: Response){
+    async getPatientDropdownOptions(res: Response){
         try{
             console.log("#getPatientDropdownOptions");
             const patientByPatientId = await this.patientService.fetchPatient()
             res.status(200).send(Object.fromEntries(patientByPatientId));
         } catch (error) {
-            res.status(400).send(error)
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 }
