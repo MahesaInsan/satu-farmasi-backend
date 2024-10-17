@@ -11,7 +11,11 @@ export default class GenericNameRepository extends BaseRepository {
 			return await this.Prisma.genericName.count({
 				where: {
 					is_active: true,
-				}
+				},
+				orderBy: [
+					{ updated_at: "desc" },
+					{ created_at: "desc" }
+				],
 			});
 		} catch (error) {
 			console.error("Error getting total generic name:", error);
@@ -23,18 +27,16 @@ export default class GenericNameRepository extends BaseRepository {
 		try {
 			return await this.Prisma.genericName.count({
 				where: {
-					AND: [
-						{
-							label: { contains: label, mode: 'insensitive' },
-						},
-						{
-							is_active: true,
-						},
-					],
+					label: {
+						contains: label,
+						mode: 'insensitive'
+					},
+					is_active: true,
 				},
-				orderBy: {
-					created_at: "desc",
-				}
+				orderBy: [
+					{ updated_at: 'desc' },
+					{ created_at: 'desc' },
+				],
 			});
 		} catch (error) {
 			console.error("Error getting total generic name by label:", error);
@@ -114,16 +116,16 @@ export default class GenericNameRepository extends BaseRepository {
 		try {
 			return await this.Prisma.genericName.findMany({
 				where: {
-					AND: [
-						{
-							label: { contains: label, mode: 'insensitive' },
-						},
-						{
-							is_active: true,
-						},
-					],
+					label: {
+						contains: label,
+						mode: 'insensitive'
+					},
+					is_active: true,
 				},
-				orderBy: { created_at: "desc", },
+				orderBy: [
+					{ updated_at: "desc" },
+					{ created_at: "desc" }
+				],
 				skip: startIndex,
 				take: limit,
 			});
