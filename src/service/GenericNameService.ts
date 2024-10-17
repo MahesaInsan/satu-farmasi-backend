@@ -66,7 +66,7 @@ export default class GenericNameService {
         }
     }
     
-    public async addGenericName(request: AddGenericNameRequest): Promise<GenericName>{
+    public async addGenericName(request: AddGenericNameRequest): Promise<boolean>{
     try {
             const genericName: GenericName = this.createMedicineHelper.createGenericName(request);
             return await this.genericNameRepository.addGenericName(Builder(genericName).label(request.label).value(request.value).build())

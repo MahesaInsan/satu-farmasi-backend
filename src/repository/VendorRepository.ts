@@ -10,7 +10,10 @@ export default class VendorRepository extends BaseRepository {
         try {
             return await this.Prisma.vendor.findMany({
                 where: { is_active: true },
-				orderBy: { created_at: 'desc' },
+				orderBy: [
+					{ updated_at: 'desc' },
+					{ created_at: 'desc' },
+				],
                 skip: startIndex,
                 take: limit,
             });
