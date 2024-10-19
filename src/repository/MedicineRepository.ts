@@ -467,7 +467,9 @@ export default class MedicineRepository{
         try {
             return this.prisma.medicine.findMany({
                 where: {
-                    expiredDate: date
+                    expiredDate: {
+                        lte: date
+                    }
                 }
             })
         } catch (error) {
