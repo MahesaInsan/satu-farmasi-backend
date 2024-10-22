@@ -1,5 +1,6 @@
 import { Doctor } from "@prisma/client";
 import BaseRepository from "./helper/BaseRepository";
+import { CustomError } from "../validator/helper/ErrorHelper";
 // import Doctor from "../entity/Doctor";
 
 export default class DoctorRepository extends BaseRepository{
@@ -21,8 +22,7 @@ export default class DoctorRepository extends BaseRepository{
         try {
             return await this.Prisma.doctor.create({data: doctor})
         } catch (error) {
-            console.error('Error adding admin:', error);
-            throw new Error('Failed to add admin');
+			throw new CustomError().handlePrismaError(error, 'Failed to add doctor');
         }
     }
 
