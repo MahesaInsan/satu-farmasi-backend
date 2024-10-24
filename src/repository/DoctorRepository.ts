@@ -1,6 +1,7 @@
 import { Doctor } from "@prisma/client";
 import BaseRepository from "./helper/BaseRepository";
 import DoctorVO from "../model/VOs/DoctorVO";
+import { CustomError } from "../validator/helper/ErrorHelper";
 // import Doctor from "../entity/Doctor";
 
 export default class DoctorRepository extends BaseRepository {
@@ -18,14 +19,13 @@ export default class DoctorRepository extends BaseRepository {
 		}
 	}
 
-	public async addDoctor(doctor: Doctor): Promise<Doctor> {
-		try {
-			return await this.Prisma.doctor.create({ data: doctor })
-		} catch (error) {
-			console.error('Error adding admin:', error);
-			throw new Error('Failed to add admin');
-		}
-	}
+    public async addDoctor(doctor: Doctor): Promise<Doctor>{
+        try {
+            return await this.Prisma.doctor.create({data: doctor})
+        } catch (error) {
+			throw new CustomError().handlePrismaError(error, 'Failed to add doctor');
+        }
+    }
 
 	public async getDoctorByEmail(email: string): Promise<Doctor | null> {
 		try {
