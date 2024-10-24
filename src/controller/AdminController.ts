@@ -1,21 +1,22 @@
 import AdminService from "../service/AdminService";
 import {Request, Response} from "express";
 import AddAdminRequest from "../model/request/AddAdminRequest";
-import {Admin} from "@prisma/client";
+import {Admin, Doctor} from "@prisma/client";
 import User from "../entity/User";
 import NikVO from "../model/VOs/nikVO";
 import BaseResponse from "../model/response/BaseResponse";
 import BaseController from "./BaseController";
-import AdminValidation from "../validator/UserValidation/AdminValidation";
+import EditAdminRequest from "../model/request/EditAdminRequest";
+import EditDoctorRequest from "../model/request/EditDoctorRequest";
+import EditPharmacistRequest from "../model/request/EditPharmacistRequest";
+import AdminVO from "../model/VOs/AdminVO";
 
 export default class AdminController extends BaseController{
     private readonly adminService: AdminService;
-    private readonly adminValidation: AdminValidation;
 
     constructor() {
         super();
         this.adminService = new AdminService();
-        this.adminValidation = new AdminValidation();
     }
 
     async addAdmin(req: Request, res: Response){
@@ -32,8 +33,13 @@ export default class AdminController extends BaseController{
 
     async getAllAdmin(req: Request, res: Response){
         try{
-            const adminList: Admin[] = await this.adminService.getAllAdmin()
-            res.status(200).send(adminList);
+            const param: string = req.query.label as string;
+            const totalData = await this.adminService.getTotalAdmin();
+            const pagination = this.getPagination(totalData, req);
+            const admins: AdminVO[] = await this.adminService.getAllAdmin(pagination.limit, pagination.startIndex, param);
+            pagination.results = admins;
+            pagination.total = totalData;
+            return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -42,9 +48,15 @@ export default class AdminController extends BaseController{
 
     async getAllStaff(req: Request, res: Response){
         try{
-            const staffList: User[] = await this.adminService.getAllStaff();
-            // TODO: Change this to use base response
-            res.status(200).send(this.responseHelper.constructGetStaffResponse(staffList));
+            const param: string = req.query.param as string;
+            const filter: string = req.query.filter as string;
+			if (filter === null || filter === undefined) throw new Error('Filter query is required');
+            const totalData = await this.adminService.getTotalStaff(filter, param);
+            const pagination = this.getPagination(totalData, req);
+            const staffList: User[] = await this.adminService.getAllStaff(pagination.limit, pagination.startIndex, filter, param);
+            pagination.results = staffList;
+            pagination.total = totalData;
+            return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -73,20 +85,40 @@ export default class AdminController extends BaseController{
         }
     }
 
-    async editStaff(req: Request, res: Response) {
+    async editAdmin(req: Request, res: Response) {
         try {
-             this.adminValidation.updateStaffValidation(req);
-            console.log("start validation")
             this.validateData(req);
-            console.log("end validation")
-            //const request: EditAdminRequest | EditDoctorRequest | EditPharmacistRequest = req.body;
-            //const editedStaff: User | null = await this.adminService.editStaff(request);
-            //// TODO: Change this to use base response
-            //return res.status(200).send(this.responseHelper.constructEditStaffResponse(editedStaff));
-            return res.status(200).send("Not implemented yet");
+            const request: EditAdminRequest = req.body;
+            const editedStaff: boolean = await this.adminService.editAdmin(request);
+            res.status(200).send(new BaseResponse().ok(editedStaff));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
+
+    async editDoctor(req: Request, res: Response) {
+        try {
+            this.validateData(req);
+            const request: EditDoctorRequest = req.body;
+            const editedStaff: boolean = await this.adminService.editDoctor(request);
+            res.status(200).send(new BaseResponse().ok(editedStaff));
+        } catch (error) {
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+
+    async editPharmacist(req: Request, res: Response) {
+        try {
+            this.validateData(req);
+            const request: EditPharmacistRequest = req.body;
+            const editedStaff: boolean = await this.adminService.editPharmacist(request);
+            res.status(200).send(new BaseResponse().ok(editedStaff));
+        } catch (error) {
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+
 }

@@ -88,8 +88,7 @@ export default class GenericNameController  extends BaseController {
     async deleteGenericName(req: Request, res: Response){
         try {
             this.validateData(req);
-            const id: number = Number(req.params.id);
-             await this.genericNameService.deleteGenericName(id);
+             await this.genericNameService.deleteGenericName(req.body);
             return res.status(200).send(new BaseResponse().ok());
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

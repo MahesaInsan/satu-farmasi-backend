@@ -134,14 +134,4 @@ export default class GenericNameRepository extends BaseRepository {
 			throw new Error("Failed to get generic name by label");
 		}
 	}
-
-	public async deleteGenericName(id: number): Promise<boolean> {
-		try {
-			await this.Prisma.genericName.delete({ where: { id: id } });
-			return true;
-		} catch (error) {
-			console.error("Error deleting generic name:", error);
-			throw new Error("Failed to delete generic name");
-		}
-	}
 }
