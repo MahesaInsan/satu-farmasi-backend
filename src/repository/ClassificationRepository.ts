@@ -119,4 +119,18 @@ export default class ClassificationRepository extends BaseRepository {
 			throw new Error("Failed to delete classification");
 		}
 	}
+
+	public async getClassificationsDropdown(): Promise<Classification[]> {
+		try {
+			return await this.Prisma.classification.findMany({
+				where: { is_active: true },
+				orderBy: [
+					{ updated_at: 'desc' },
+					{ created_at: 'desc' },
+				],
+			})
+		} catch (error) {
+			throw error as string;
+		}
+	}
 }

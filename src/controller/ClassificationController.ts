@@ -66,4 +66,14 @@ export default class ClassificationController extends BaseController {
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
+
+	async getClassificationsDropdown(req: Request, res: Response) {
+		try {
+			const classifications = await this.classificationService.getClassificationsDropdown();
+			res.status(200).send(new BaseResponse().ok(classifications));
+		} catch (error) {
+			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+			return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+		}
+	}
 }

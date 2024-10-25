@@ -28,6 +28,7 @@ export default class PharmacistService {
 	public async addPharmacist(request: AddPharmacistRequest): Promise<boolean> {
 		try {
 			await this.userService.emailIsExist(request.email);
+			await this.userService.nikIsExist(request.nik);
 			request.password = await this.userService.encryptPassword(request.password);
 			const pharmacist: Pharmacist = this.createUserHelper.createBaseUser(request);
 			return await this.pharmacistRepository.addPharmacist(Builder(pharmacist).role(Role.PHARMACIST).build());
@@ -38,11 +39,12 @@ export default class PharmacistService {
 
 	public async editPharmacist(request: EditPharmacistRequest): Promise<boolean> {
 		try {
+			await this.userService.emailIsExist(request.email);
+			await this.userService.nikIsExist(request.nik);
 			const pharmacist: Pharmacist = this.editUserHelper.editBaseUser(request);
 			return await this.pharmacistRepository.editPharmacist(Builder(pharmacist).role(Role.PHARMACIST).build());
 		} catch (error) {
-			console.error('Error updating pharmacist:', error);
-			throw new Error('Failed to update pharmacist');
+			throw error as object;
 		}
 	}
 
@@ -50,8 +52,7 @@ export default class PharmacistService {
 		try {
 			return await this.pharmacistRepository.getPharmacistByEmail(email)
 		} catch (error) {
-			console.error('Error getting pharmacist by email:', error);
-			throw new Error('Failed to get pharmacist');
+			throw error as object;
 		}
 	}
 

@@ -2,6 +2,7 @@
 import { Admin } from "@prisma/client";
 import BaseRepository from "./helper/BaseRepository";
 import AdminVO from "../model/VOs/AdminVO";
+import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class AdminRepository extends BaseRepository {
 	constructor() {
@@ -36,11 +37,9 @@ export default class AdminRepository extends BaseRepository {
 
 	public async addAdmin(admin: Admin): Promise<Admin> {
 		try {
-			console.log(admin);
 			return await this.Prisma.admin.create({ data: admin });
 		} catch (error) {
-			console.error("Error adding admin:", error);
-			throw new Error("Failed to add admin");
+			throw new CustomError().handlePrismaError(error, 'Failed to add admin');
 		}
 	}
 
@@ -88,8 +87,18 @@ export default class AdminRepository extends BaseRepository {
 						{
 							is_active: true,
 							OR: [
-								{ firstName: { contains: param } },
-								{ lastName: { contains: param } }
+								{
+									firstName: {
+										contains: param,
+										mode: 'insensitive'
+									}
+								},
+								{
+									lastName: {
+										contains: param,
+										mode: 'insensitive'
+									}
+								}
 							]
 						}
 					]
@@ -139,8 +148,7 @@ export default class AdminRepository extends BaseRepository {
 			});
 			return editedAdmin !== null;
 		} catch (error) {
-			console.error('Error editing admin:', error);
-			throw new Error('Failed to edit admin');
+			throw new CustomError().handlePrismaError(error, 'Failed to edit admin');
 		}
 	}
 }

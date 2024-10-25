@@ -46,63 +46,99 @@ export default class AdminService {
 	}
 
 	public async editAdmin(request: EditAdminRequest): Promise<boolean> {
-		const admin: Admin = this.editUserHelper.editBaseUser(request);
-		return await this.adminRepository.editAdmin(Builder(admin).role(Role.ADMIN).build());
+		try {
+			const admin: Admin = this.editUserHelper.editBaseUser(request);
+			return await this.adminRepository.editAdmin(Builder(admin).role(Role.ADMIN).build());
+		} catch (error) {
+			throw error as string;
+		}
 	}
 
 	public async getTotalAdmin(param?: string): Promise<number> {
-		return await this.adminRepository.getTotalAdmin(param);
+		try {
+			return await this.adminRepository.getTotalAdmin(param);
+		} catch (error) {
+			throw error as string;
+		}
 	}
 
 	public async getAllAdmin(limit: number, startIndex: number, param?: string): Promise<AdminVO[]> {
-		return await this.adminRepository.getAllAdmins(limit, startIndex, param);
+		try {
+			return await this.adminRepository.getAllAdmins(limit, startIndex, param);
+		} catch (error) {
+			throw error as string;
+		}
 	}
 
-	public async getTotalStaff(filter: string, param?: string, ): Promise<number> {
-		if (filter.toLowerCase() === "admin") return await this.getTotalAdmin(param);
-		else if (filter.toLowerCase() === "doctor") return await this.doctorService.getTotalDoctor(param);
-		else if (filter.toLowerCase() === "pharmacist") return await this.pharmacistService.getTotalPharmacist(param);
-		else return 0;
+	public async getTotalStaff(filter: string, param?: string,): Promise<number> {
+		try {
+			if (filter.toLowerCase() === "admin") return await this.getTotalAdmin(param);
+			else if (filter.toLowerCase() === "doctor") return await this.doctorService.getTotalDoctor(param);
+			else if (filter.toLowerCase() === "pharmacist") return await this.pharmacistService.getTotalPharmacist(param);
+			else return 0;
+		} catch (error) {
+			throw error as string;
+		}
 	}
 
 	public async getAllStaff(limit: number, startIndex: number, filter: string, param?: string): Promise<User[]> {
-		if (filter.toLowerCase() === "admin") return await this.adminRepository.getAllAdmins(limit, startIndex, param);
-		else if (filter.toLowerCase() === "doctor") return await this.doctorService.getAllDoctors(limit, startIndex, param);
-		else if (filter.toLowerCase() === "pharmacist") return await this.pharmacistService.getAllPharmacists(limit, startIndex, param);
-		return [];
+		try {
+			if (filter.toLowerCase() === "admin") return await this.adminRepository.getAllAdmins(limit, startIndex, param);
+			else if (filter.toLowerCase() === "doctor") return await this.doctorService.getAllDoctors(limit, startIndex, param);
+			else if (filter.toLowerCase() === "pharmacist") return await this.pharmacistService.getAllPharmacists(limit, startIndex, param);
+			return [];
+		} catch (error) {
+			throw error as string;
+		}
 	}
 
 	public async getStaffById(id: number): Promise<User | null> {
-		const admin: AdminVO | null = await this.adminRepository.getAdminById(id);
-		if (admin) return admin;
+		try {
+			const admin: AdminVO | null = await this.adminRepository.getAdminById(id);
+			if (admin) return admin;
 
-		const doctor: DoctorVO | null = await this.doctorService.getDoctorById(id);
-		if (doctor) return doctor;
+			const doctor: DoctorVO | null = await this.doctorService.getDoctorById(id);
+			if (doctor) return doctor;
 
-		const pharmacist: PharmacistVO | null = await this.pharmacistService.getPharmacistById(id);
-		if (pharmacist) return pharmacist;
+			const pharmacist: PharmacistVO | null = await this.pharmacistService.getPharmacistById(id);
+			if (pharmacist) return pharmacist;
 
-		return null;
+			return null;
+		} catch (error) {
+			throw error as string;
+		}
 	}
 
 	public async getStaffByNik(nik: string): Promise<User | null> {
-		const admin: AdminVO | null = await this.adminRepository.getAdminByNik(nik);
-		if (admin) return admin;
+		try {
+			const admin: AdminVO | null = await this.adminRepository.getAdminByNik(nik);
+			if (admin) return admin;
 
-		const doctor: DoctorVO | null = await this.doctorService.getDoctorByNik(nik);
-		if (doctor) return doctor;
+			const doctor: DoctorVO | null = await this.doctorService.getDoctorByNik(nik);
+			if (doctor) return doctor;
 
-		const pharmacist: PharmacistVO | null = await this.pharmacistService.getPharmacistByNik(nik);
-		if (pharmacist) return pharmacist;
+			const pharmacist: PharmacistVO | null = await this.pharmacistService.getPharmacistByNik(nik);
+			if (pharmacist) return pharmacist;
 
-		return null;
+			return null;
+		} catch (error) {
+			throw error as string;
+		}
 	}
 
 	public async editDoctor(req: EditDoctorRequest): Promise<boolean> {
-		return await this.doctorService.editDoctor(req);
+		try {
+			return await this.doctorService.editDoctor(req);
+		} catch (error) {
+			throw error as string;
+		}
 	}
 
 	public async editPharmacist(req: EditPharmacistRequest): Promise<boolean> {
-		return await this.pharmacistService.editPharmacist(req);
+		try {
+			return await this.pharmacistService.editPharmacist(req);
+		} catch (error) {
+			throw error as string;
+		}
 	}
 }

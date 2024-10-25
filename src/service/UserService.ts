@@ -33,7 +33,9 @@ export default class UserService {
 	public async nikIsExist(nik: string): Promise<void> {
 		const isExist =
 			await this.adminRepository.nikIsExist(nik)
-		if (isExist) throw new Error("NIK is already exist")
+		if (isExist) {
+			throw new CustomError().formatError("NIK is already exist", "nik");
+		}
 	}
 
 	public async emailIsExist(email: string): Promise<void> {

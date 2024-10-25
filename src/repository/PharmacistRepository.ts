@@ -70,8 +70,18 @@ export default class PharmacistRepository extends BaseRepository {
 						{
 							is_active: true,
 							OR: [
-								{ firstName: { contains: param } },
-								{ lastName: { contains: param } }
+								{
+									firstName: {
+										contains: param,
+										mode: 'insensitive'
+									}
+								},
+								{
+									lastName: {
+										contains: param,
+										mode: 'insensitive'
+									}
+								}
 							]
 						}
 					]
@@ -122,8 +132,7 @@ export default class PharmacistRepository extends BaseRepository {
 			});
 			return editedPharmacist !== null;
 		} catch (error) {
-			console.error('Error updating pharmacist:', error);
-			throw new Error('Failed to update pharmacist');
+			throw new CustomError().handlePrismaError(error, 'Failed to edit pharmacist');
 		}
 	}
 }

@@ -7,6 +7,7 @@ import EditDoctorRequest from "../model/request/EditDoctorRequest";
 import EditUserHelper from "./helper/EditUserHelper";
 import UserService from "./UserService";
 import DoctorVO from "../model/VOs/DoctorVO";
+import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class DoctorService {
 	private readonly doctorRepository: DoctorRepository;
@@ -28,6 +29,7 @@ export default class DoctorService {
 	public async addDoctor(request: AddDoctorRequest): Promise<Doctor> {
 		try {
 			await this.userService.emailIsExist(request.email);
+			await this.userService.nikIsExist(request.nik);
 			request.password = await this.userService.encryptPassword(request.password);
 			const doctor: Doctor = this.createUserHelper.createBaseUser(request);
 			return await this.doctorRepository.addDoctor(Builder(doctor).role(Role.DOCTOR).specialist(request.specialist).build())
@@ -38,12 +40,12 @@ export default class DoctorService {
 
 	public async editDoctor(request: EditDoctorRequest): Promise<boolean> {
 		try {
-			console.log("request doctor: ", request);
+			await this.userService.emailIsExist(request.email);
+			await this.userService.nikIsExist(request.nik);
 			const doctor: Doctor = this.editUserHelper.editBaseUser(request);
 			return await this.doctorRepository.editDoctor(Builder(doctor).role(Role.DOCTOR).specialist(request.specialist).build())
 		} catch (error) {
-			console.error('Error editing doctor:', error);
-			throw new Error('Failed to edit doctor');
+			throw error as string;
 		}
 	}
 

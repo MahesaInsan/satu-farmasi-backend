@@ -19,13 +19,13 @@ export default class DoctorRepository extends BaseRepository {
 		}
 	}
 
-    public async addDoctor(doctor: Doctor): Promise<Doctor>{
-        try {
-            return await this.Prisma.doctor.create({data: doctor})
-        } catch (error) {
+	public async addDoctor(doctor: Doctor): Promise<Doctor> {
+		try {
+			return await this.Prisma.doctor.create({ data: doctor })
+		} catch (error) {
 			throw new CustomError().handlePrismaError(error, 'Failed to add doctor');
-        }
-    }
+		}
+	}
 
 	public async getDoctorByEmail(email: string): Promise<Doctor | null> {
 		try {
@@ -70,8 +70,18 @@ export default class DoctorRepository extends BaseRepository {
 						{
 							is_active: true,
 							OR: [
-								{ firstName: { contains: param } },
-								{ lastName: { contains: param } }
+								{
+									firstName: {
+										contains: param,
+										mode: 'insensitive'
+									}
+								},
+								{
+									lastName: {
+										contains: param,
+										mode: 'insensitive'
+									}
+								}
 							]
 						}
 					]
@@ -120,11 +130,9 @@ export default class DoctorRepository extends BaseRepository {
 				where: { nik: doctor.nik },
 				data: doctor
 			});
-			console.log("editedData: ", editedDoctor)
 			return editedDoctor !== null;
 		} catch (error) {
-			console.error('Error editing doctor:', error);
-			throw new Error('Failed to edit doctor');
+			throw new CustomError().handlePrismaError(error, 'Failed to edit doctor');
 		}
 	}
 }
