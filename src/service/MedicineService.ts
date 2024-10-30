@@ -170,8 +170,9 @@ export default class MedicineService{
 
     public async checkExpiration(date: Date): Promise<Medicine[]> {
         try {
-            // const expiredDate: string = date.toString();
-            return await this.medicineRepository.checkExpiration(date);
+            const today = new Date(date);
+            const startOfNextMonth: Date = new Date(today.getFullYear(), today.getMonth()+1, 1)
+            return await this.medicineRepository.checkExpiration(date, startOfNextMonth);
         } catch (error) {
             throw error as string;
         }
