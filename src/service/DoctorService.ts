@@ -40,7 +40,7 @@ export default class DoctorService {
 
 	public async editDoctor(request: EditDoctorRequest): Promise<boolean> {
 		try {
-			await this.userService.emailIsExist(request.email);
+			await this.userService.emailIsExist(request.email, request.oldEmail);
 			await this.userService.nikIsExist(request.nik);
 			const doctor: Doctor = this.editUserHelper.editBaseUser(request);
 			return await this.doctorRepository.editDoctor(Builder(doctor).role(Role.DOCTOR).specialist(request.specialist).build())

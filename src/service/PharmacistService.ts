@@ -39,7 +39,7 @@ export default class PharmacistService {
 
 	public async editPharmacist(request: EditPharmacistRequest): Promise<boolean> {
 		try {
-			await this.userService.emailIsExist(request.email);
+			await this.userService.emailIsExist(request.email, request.oldEmail);
 			await this.userService.nikIsExist(request.nik);
 			const pharmacist: Pharmacist = this.editUserHelper.editBaseUser(request);
 			return await this.pharmacistRepository.editPharmacist(Builder(pharmacist).role(Role.PHARMACIST).build());

@@ -47,6 +47,8 @@ export default class AdminService {
 
 	public async editAdmin(request: EditAdminRequest): Promise<boolean> {
 		try {
+			await this.userService.emailIsExist(request.email, request.oldEmail);
+			await this.userService.nikIsExist(request.nik);
 			const admin: Admin = this.editUserHelper.editBaseUser(request);
 			return await this.adminRepository.editAdmin(Builder(admin).role(Role.ADMIN).build());
 		} catch (error) {

@@ -29,6 +29,7 @@ export class CustomError extends Error {
 
 	public handlePrismaError(error: any, defaultMessage: string): void {
 		if (error instanceof Prisma.PrismaClientKnownRequestError) {
+			console.log("error code: ", error.code)
 			const errorsList = [
 				{
 					code: 'P2002',
