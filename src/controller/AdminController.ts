@@ -90,7 +90,7 @@ export default class AdminController extends BaseController{
             this.validateData(req);
             const request: EditAdminRequest = req.body;
             const editedStaff: boolean = await this.adminService.editAdmin(request);
-            res.status(200).send(new BaseResponse().ok(editedStaff));
+            res.status(200).send(new BaseResponse().ok(editedStaff, "Successfully Edited Admin"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -102,7 +102,7 @@ export default class AdminController extends BaseController{
             this.validateData(req);
             const request: EditDoctorRequest = req.body;
             const editedStaff: boolean = await this.adminService.editDoctor(request);
-            res.status(200).send(new BaseResponse().ok(editedStaff));
+            res.status(200).send(new BaseResponse().ok(editedStaff, "Successfully Edited Doctor"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -114,7 +114,7 @@ export default class AdminController extends BaseController{
             this.validateData(req);
             const request: EditPharmacistRequest = req.body;
             const editedStaff: boolean = await this.adminService.editPharmacist(request);
-            res.status(200).send(new BaseResponse().ok(editedStaff));
+            res.status(200).send(new BaseResponse().ok(editedStaff, "Successfully Edited Pharmacist"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));

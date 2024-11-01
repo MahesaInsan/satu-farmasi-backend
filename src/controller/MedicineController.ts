@@ -55,7 +55,7 @@ export default class MedicineController extends BaseController {
         try {
             const request: AddMedicineRequest = req.body;
             const medicine: MedicineDisplayVO = await this.medicineService.createMedicine(request);
-            return res.status(200).send(new BaseResponse().ok("Succeed create medicine"));
+            return res.status(200).send(new BaseResponse().ok(null, "Succeed Created Medicine"));
         } catch (error) {
             console.log("[src][controller][MedicineController][createMedicine] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -67,7 +67,7 @@ export default class MedicineController extends BaseController {
         try {
             const request: EditMedicineRequest = req.body;
             const medicine: MedicineDisplayVO = await this.medicineService.editMedicine(request);
-            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed edit medicine"));
+            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed Edited Medicine"));
         } catch (error) {
             console.log("[src][controller][MedicineController][editMedicine] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -79,7 +79,7 @@ export default class MedicineController extends BaseController {
         try {
             const request: EditMedicineRequest = req.body;
             await this.medicineService.addStock(request.id, request.currStock);
-            return res.status(200).send(new BaseResponse().ok("Succeed add stock"));
+            return res.status(200).send(new BaseResponse().ok(null, "Succeed Addedd Stock"));
         } catch (error) {
             console.log("[src][controller][MedicineController][addStock] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -105,7 +105,7 @@ export default class MedicineController extends BaseController {
         try {
             const request: EditMedicineRequest = req.body;
             const medicine: MedicineDisplayVO = await this.medicineService.deleteMedicine(request.id);
-            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed delete medicine"));
+            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed Deleted Medicine"));
         } catch (error) {
             console.log("[src][controller][MedicineController][deleteMedicine] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -117,7 +117,7 @@ export default class MedicineController extends BaseController {
         try {
             const request: EditMedicineRequest = req.body;
             const medicine: Medicine[] = await this.medicineService.checkExpiration(request.expiredDate);
-            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed check expiration"));
+            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed Checked Expiration"));
         } catch (error) {
             console.log("[src][controller][MedicineController][checkExpiration] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

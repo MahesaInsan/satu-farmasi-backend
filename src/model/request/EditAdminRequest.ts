@@ -16,6 +16,7 @@ export default class EditAdminRequest extends BaseEditUserRequest {
         createdAt: Date,
         updatedAt: Date,
         oldEmail?: string,
+        oldNik?: string,
     ) {
         super(
             id,
@@ -31,6 +32,7 @@ export default class EditAdminRequest extends BaseEditUserRequest {
             createdAt,
             updatedAt,
             oldEmail,
+            oldNik,
         );
     }
 }

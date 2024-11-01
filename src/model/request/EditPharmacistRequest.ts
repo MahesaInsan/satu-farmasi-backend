@@ -17,6 +17,7 @@ export default class EditPharmacistRequest extends BaseEditUserRequest {
         createdAt: Date,
         updatedAt: Date,
         oldEmail: string,
+        oldNik?: string,
     ) {
         super(
             id,
@@ -32,6 +33,7 @@ export default class EditPharmacistRequest extends BaseEditUserRequest {
             createdAt,
             updatedAt,
             oldEmail,
+            oldNik,
         );
     }
 }

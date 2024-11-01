@@ -1,4 +1,4 @@
-import {Role} from "@prisma/client";
+import { Role } from "@prisma/client";
 
 export default abstract class BaseEditUserRequest {
     private _id: number;
@@ -14,9 +14,24 @@ export default abstract class BaseEditUserRequest {
     private _createdAt: Date;
     private _updatedAt: Date;
     private _oldEmail?: string;
+    private _oldNik?: string;
 
-    constructor(id: number, nik: string, email: string, password: string, firstName: string, lastName: string,
-                dob: Date, phoneNum: string, role: Role, is_active: boolean, createdAt: Date, updatedAt: Date, oldEmail?: string) {
+    constructor(
+        id: number,
+        nik: string,
+        email: string,
+        password: string,
+        firstName: string,
+        lastName: string,
+        dob: Date,
+        phoneNum: string,
+        role: Role,
+        is_active: boolean,
+        createdAt: Date,
+        updatedAt: Date,
+        oldEmail?: string,
+        oldNik?: string,
+    ) {
         this._id = id;
         this._nik = nik;
         this._email = email;
@@ -26,10 +41,11 @@ export default abstract class BaseEditUserRequest {
         this._dob = dob;
         this._phoneNum = phoneNum;
         this._role = role;
-        this._is_active = is_active;;
+        this._is_active = is_active;
         this._createdAt = createdAt;
         this._updatedAt = updatedAt;
         this._oldEmail = oldEmail;
+        this._oldNik = oldNik;
     }
 
     get id(): number {
@@ -70,6 +86,10 @@ export default abstract class BaseEditUserRequest {
 
     get lastName(): string {
         return this._lastName;
+    }
+
+    get oldNik(): string | undefined {
+        return this._oldNik;
     }
 
     set lastName(value: string) {
@@ -124,11 +144,15 @@ export default abstract class BaseEditUserRequest {
         return this._updatedAt;
     }
 
-    set updatedAt(value: Date) { 
+    set updatedAt(value: Date) {
         this._updatedAt = value;
     }
 
     set oldEmail(value: string | undefined) {
         this._oldEmail = value;
+    }
+
+    set oldNik(value: string | undefined) {
+        this._oldNik = value;
     }
 }

@@ -19,6 +19,7 @@ export default class EditDoctorRequest extends BaseEditUserRequest {
         updatedAt: Date,
         specialist: string,
         oldEmail?: string,
+        oldNik?: string,
     ) {
         super(
             id,
@@ -34,6 +35,7 @@ export default class EditDoctorRequest extends BaseEditUserRequest {
             createdAt,
             updatedAt,
             oldEmail,
+            oldNik,
         );
         this.specialist = specialist;
     }

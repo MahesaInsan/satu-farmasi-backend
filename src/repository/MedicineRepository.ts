@@ -1,7 +1,5 @@
 import { Medicine, PrismaClient } from "@prisma/client"
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
-import GetMedicineRequest from "../model/request/GetMedicineRequest";
-import { Decimal } from "@prisma/client/runtime/library";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
 
@@ -66,12 +64,7 @@ export default class MedicineRepository {
 				throw new CustomError().formatError("Medicine Not Found", "medicineId");
 			}
 			const isValidStock = (medicine.currStock - quantity) >= medicine.minStock;
-			console.log("currStock: ", medicine.currStock);
-				console.log("quantity: ", quantity);
-			console.log("minStock: ", medicine.minStock);
-			console.log("isValidStock: ", isValidStock);
 			if (!isValidStock) {
-				console.log("ga valid")
 				throw new CustomError().formatError("Medicine stock is not enough", "quantity");
 			}
 
@@ -86,7 +79,6 @@ export default class MedicineRepository {
 				}
 			})
 		} catch (error) {
-			console.log("error prisma")
 			throw error as string
 		}
 	}

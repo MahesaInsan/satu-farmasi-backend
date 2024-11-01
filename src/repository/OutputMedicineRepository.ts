@@ -23,6 +23,7 @@ export default class OutputMedicineRepository extends BaseRepository {
                         select: {
                             id: true,
                             name: true,
+                            currStock: true
                         }
                     },
                     report: {
@@ -69,7 +70,8 @@ export default class OutputMedicineRepository extends BaseRepository {
                     medicine: {
                         select: {
                             id: true,
-                            name: true
+                            name: true,
+                            currStock: true,
                         }
                     },
                     report: {

@@ -39,7 +39,7 @@ export default class VendorController extends BaseController {
             this.validateData(req);
             const request: AddVendorRequest = req.body;
             const createdVendor: Vendor = await this.vendorService.addVendor(request)
-            res.status(200).send(new BaseResponse().ok(createdVendor));
+            res.status(200).send(new BaseResponse().ok(createdVendor, "Successfully Created Vendor"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -80,7 +80,7 @@ export default class VendorController extends BaseController {
             data.id = id;
             const request: EditVendorRequest = data;
             const editVendor: boolean = await this.vendorService.editVendor(request);
-            res.status(200).send(new BaseResponse().ok(editVendor));
+            res.status(200).send(new BaseResponse().ok(editVendor, "Successfully Edited Vendor"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -95,7 +95,7 @@ export default class VendorController extends BaseController {
             data.id = id;
             const request: EditVendorRequest = data;
             const vendor: boolean = await this.vendorService.deleteVendor(request);
-            return res.status(200).send(new BaseResponse().ok(vendor));
+            return res.status(200).send(new BaseResponse().ok(vendor, "Successfully Deleted Vendor"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));

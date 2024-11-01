@@ -30,9 +30,8 @@ export default class UserService {
 			await this.pharmacistRepository.getPharmacistByEmail(email);
 	}
 
-	public async nikIsExist(nikTarget: string): Promise<void> {
-		const isExist =
-			await this.adminRepository.nikIsExist(nikTarget)
+	public async nikIsExist(nikTarget: string, selfNik?: string): Promise<void> {
+		const isExist = await this.adminRepository.nikIsExist(nikTarget, selfNik)
 		if (isExist) {
 			throw new CustomError().formatError("NIK is already exist", "nik");
 		}

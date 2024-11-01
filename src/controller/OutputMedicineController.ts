@@ -48,7 +48,7 @@ export default class OutputMedicineController extends BaseController {
 		try {
 			// TODO: add validation
 			await this.outputMedicineService.addOutputMedicine(req.body);
-			return res.status(200).send(new BaseResponse().ok("Succeed create output medicine"));
+			return res.status(200).send(new BaseResponse().ok(null, "Succeed Created Output Medicine"));
 		} catch (error) {
 			console.log("[src][controller][MedicineController][createMedicine] ", error);
 			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -59,7 +59,7 @@ export default class OutputMedicineController extends BaseController {
 	public async editOutputMedicine(req: Request, res: Response) {
 		try {
 			await this.outputMedicineService.editOutputMedicine(req.body);
-			return res.status(200).send(new BaseResponse().ok("Succeed edit output medicine"));
+			return res.status(200).send(new BaseResponse().ok(null, "Succeed Edited Output Medicine"));
 		} catch (error) {
 			console.log("[src][controller][MedicineController][createMedicine] ", error);
 			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -70,7 +70,7 @@ export default class OutputMedicineController extends BaseController {
 	public async deleteOutputMedicine(req: Request, res: Response) {
 		try {
 			await this.outputMedicineService.deleteOutputMedicine(req.body);
-			return res.status(200).send(new BaseResponse().ok("Succeed delete output medicine"));
+			return res.status(200).send(new BaseResponse().ok(null, "Succeed Deleted Output Medicine"));
 		} catch (error) {
 			console.log("[src][controller][MedicineController][createMedicine] ", error);
 			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
