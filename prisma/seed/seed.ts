@@ -3,7 +3,20 @@
 import { createSeedClient, SeedClient } from "@snaplet/seed";
 import { faker } from '@faker-js/faker';
 import UserService from "../../src/service/UserService";
-import { Classification, Doctor, GenericName, Medicine, MedicineReport, Packaging, Patient, Prescription, PrescriptionHasMedicine, PrismaClient, Vendor } from "@prisma/client";
+import {
+    Classification,
+    Doctor,
+    GenericName,
+    Medicine,
+    MedicineReport,
+    Packaging,
+    Patient,
+    PaymentMethod,
+    Prescription,
+    PrescriptionHasMedicine,
+    PrismaClient,
+    Vendor
+} from "@prisma/client";
 
 const userService: UserService = new UserService();
 const getDefaultPassword = async () => await userService.encryptPassword("password123");
@@ -315,6 +328,7 @@ const seedTransaction = async (seed: SeedClient, amount: number = 1) => {
     const medicineReport: MedicineReport[] = await prisma.medicineReport.findMany({ where: { is_active: true } });
 
     const prescription: Prescription[] = await prisma.prescription.findMany({ where: { is_active: true } });
+    const paymentMethod = Object.values(PaymentMethod)
     let totalPrice: Array<number> = Array(prescription.length).fill(0);
     for (let i = 0; i < totalPrice.length; i++) {
         const prescriptionHasMedicine: PrescriptionHasMedicine[] = await prisma.prescriptionHasMedicine.findMany({ where: { prescriptionId: prescription[i].id } });
@@ -332,6 +346,7 @@ const seedTransaction = async (seed: SeedClient, amount: number = 1) => {
             prescriptionId: prescription[data.index].id,
             pharmacistId: pharmacist[Math.floor(Math.random() * pharmacist.length)].id,
             totalPrice: totalPrice[data.index],
+            paymentMethod: paymentMethod[Math.floor(Math.random() * paymentMethod.length)],
             is_active: true,
         }))
     );

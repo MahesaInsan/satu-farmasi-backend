@@ -37,7 +37,7 @@ export default class PrescriptionController {
             const request: AddPrescriptionRequest = req.body.data;
             res.status(200).send(new BaseResponse().ok(await this.prescriptionService.addNewPrescription(request)))
         } catch (error) {
-            console.error(error)
+            console.error("error when #addPrescription with error: ", error)
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
     }
@@ -48,6 +48,7 @@ export default class PrescriptionController {
             console.log("#editPrescription with request:", request);
             res.status(200).send(new BaseResponse().ok(await this.prescriptionService.editPrescription(request)))
         } catch (error) {
+            console.error("error when #editPrescription with error: ", error)
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
     }
