@@ -463,11 +463,13 @@ export default class MedicineRepository{
         }
     }
 
-    public async checkExpiration(date: Date): Promise<Medicine[]> {
+    public async checkExpiration(date: Date, month: Date): Promise<Medicine[]> {
         try {
             return this.prisma.medicine.findMany({
                 where: {
-                    expiredDate: date
+                    expiredDate: {
+                        lte: date,
+                    },
                 }
             })
         } catch (error) {
