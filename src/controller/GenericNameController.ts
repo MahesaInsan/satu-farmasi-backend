@@ -4,7 +4,6 @@ import GenericNameService from "../service/GenericNameService";
 import {Request, Response} from "express";
 import EditGenericNameRequest from "../model/request/editGenericNameRequest";
 import BaseController from "./BaseController";
-import PaginationRequest from "../model/request/PaginationRequest";
 import BaseResponse from "../model/response/BaseResponse";
 import GenericDropdownVO from "../model/VOs/GenericDropdownVO";
 
@@ -52,7 +51,7 @@ export default class GenericNameController  extends BaseController {
         try{
             this.validateData(req);
             const request: AddGenericNameRequest = req.body;
-            const createdGenericName: GenericName = await this.genericNameService.addGenericName(request)
+            const createdGenericName: boolean = await this.genericNameService.addGenericName(request)
             return res.status(200).send(new BaseResponse().ok(createdGenericName));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

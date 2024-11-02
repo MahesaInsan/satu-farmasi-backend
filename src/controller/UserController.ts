@@ -4,6 +4,7 @@ import UserService from "../service/UserService";
 import LoginRequest from "../model/request/LoginRequest";
 import { Admin, Doctor, Pharmacist } from "@prisma/client";
 import jwt from 'jsonwebtoken';
+import BaseResponse from "../model/response/BaseResponse";
 
 export default class UserController {
     private readonly userService: UserService;
@@ -32,9 +33,8 @@ export default class UserController {
             }
             throw new Error("Invalid username or password!");
         } catch (error) {
-            res.status(400).send(
-                this.responseHelper.constructBadRequest(error as object)
-            );
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -51,7 +51,7 @@ export default class UserController {
         }
     }
 
-    async deleteUser(req: Request, res: Response){
+    async deleteUser(res: Response){
         res.cookie('token', '', { expires: new Date(0), httpOnly: true });
         res.status(200).send(this.responseHelper.constructDeleteUserResponse())
     }

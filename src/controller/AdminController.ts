@@ -25,7 +25,8 @@ export default class AdminController extends BaseController{
             const createdAdmin: Admin = await this.adminService.addAdmin(request)
             res.status(200).send(new BaseResponse().ok(createdAdmin));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -34,7 +35,8 @@ export default class AdminController extends BaseController{
             const adminList: Admin[] = await this.adminService.getAllAdmin()
             res.status(200).send(adminList);
         } catch (error) {
-            throw new Error(error as string)
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -44,7 +46,8 @@ export default class AdminController extends BaseController{
             // TODO: Change this to use base response
             res.status(200).send(this.responseHelper.constructGetStaffResponse(staffList));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -54,7 +57,8 @@ export default class AdminController extends BaseController{
             const staff: User | null = await this.adminService.getStaffById(id);
             return res.status(200).send(new BaseResponse().ok(staff));
         } catch (error) {
-            return res.status(400).send(this.responseHelper.constructBadRequest(error as object));
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -64,7 +68,8 @@ export default class AdminController extends BaseController{
             const staff: User | null = await this.adminService.getStaffByNik(body.nik);
             return res.status(200).send(new BaseResponse().ok(staff));
         } catch (error) {
-            return res.status(400).send(this.responseHelper.constructBadRequest(error as object));
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -80,7 +85,8 @@ export default class AdminController extends BaseController{
             //return res.status(200).send(this.responseHelper.constructEditStaffResponse(editedStaff));
             return res.status(200).send("Not implemented yet");
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 }
