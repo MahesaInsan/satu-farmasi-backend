@@ -12,9 +12,4 @@ export default class DoctorValidation extends BaseValidation {
         const schema: ValidationSchema = Doctor.updateSchema();
         return this.validateBodyData(schema);
     }
-
-    public deleteValidation() {
-        const schema: ValidationSchema = Doctor.deleteSchema();
-        return this.validateBodyData(schema);
-    }
 }

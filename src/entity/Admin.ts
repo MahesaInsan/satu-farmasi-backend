@@ -28,10 +28,10 @@ export default class Admin extends User{
             email: { isEmail: true },
             firstName: { isString: true },
             lastName: { isString: true },
-            password: { isString: true, isLength: { min: 8 } },
             phoneNum: { isString: true, isLength: { min: 10, max: 13 } },
+			is_active: { isBoolean: true },
             dob: {  isString: true, isISO8601: true },
-            role: { isString: true, equals: 'admin' },
+            role: { isString: true, equals: 'ADMIN' },
         };
     }
 }

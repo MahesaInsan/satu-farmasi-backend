@@ -43,7 +43,7 @@ export default class App {
     }
 
     private initRouter() {
-        this.app.use("/api/v1/admins", adminRouter);
+        this.app.use("/api/v2/admins", adminRouter);
         this.app.use("/api/v1/doctors", doctorRouter);
         this.app.use("/api/v1/pharmacists", pharmacistRouter);
         this.app.use("/api/v1/users", UserRouter);

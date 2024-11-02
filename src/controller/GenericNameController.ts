@@ -52,7 +52,7 @@ export default class GenericNameController  extends BaseController {
             this.validateData(req);
             const request: AddGenericNameRequest = req.body;
             const createdGenericName: boolean = await this.genericNameService.addGenericName(request)
-            return res.status(200).send(new BaseResponse().ok(createdGenericName));
+            return res.status(200).send(new BaseResponse().ok(createdGenericName, "Successfully Created Generic Name"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -78,7 +78,7 @@ export default class GenericNameController  extends BaseController {
             data.id = id;
             const request: EditGenericNameRequest = data;
             await this.genericNameService.editGenericName(request);
-            return res.status(200).send(new BaseResponse().ok());
+            return res.status(200).send(new BaseResponse().ok(null, "Successfully Edited Generic Name"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -88,9 +88,8 @@ export default class GenericNameController  extends BaseController {
     async deleteGenericName(req: Request, res: Response){
         try {
             this.validateData(req);
-            const id: number = Number(req.params.id);
-             await this.genericNameService.deleteGenericName(id);
-            return res.status(200).send(new BaseResponse().ok());
+             await this.genericNameService.deleteGenericName(req.body);
+            return res.status(200).send(new BaseResponse().ok(null, "Successfully Deleted Generic Name"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));

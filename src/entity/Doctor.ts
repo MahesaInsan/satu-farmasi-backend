@@ -31,25 +31,11 @@ export default class Doctor extends User{
             email: { isEmail: true },
             firstName: { isString: true },
             lastName: { isString: true },
-            password: { isString: true, isLength: { min: 8 } },
             phoneNum: { isString: true, isLength: { min: 10, max: 13 } },
             dob: {  isString: true, isISO8601: true },
+			is_active: { isBoolean: true },
             specialist: { isString: true },
-            role: { isString: true, equals: 'doctor' },
-        };
-    }
-
-
-    // TODO: Change with id
-    public static deleteSchema() {
-        return {
-            nik: { isString: true, isLength: { min: 16, max: 16 } },
-            email: { isEmail: true },
-            firstName: { isString: true },
-            lastName: { isString: true },
-            password: { isString: true, isLength: { min: 8 } },
-            role: { isString: true, equals: 'doctor' },
-            specialist: { isString: true }
+            role: { isString: true, equals: 'DOCTOR' },
         };
     }
 }

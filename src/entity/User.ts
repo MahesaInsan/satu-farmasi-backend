@@ -4,7 +4,7 @@ import {Role} from "@prisma/client"
 export default abstract class User extends BaseEntity{
     public nik: string;
     public email: string;
-    public password: string;
+    public password?: string;
     public firstName: string;
     public lastName: string;
     public dob: Date;

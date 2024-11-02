@@ -19,8 +19,8 @@ export default class PackagingController extends BaseController {
         try {
             this.validateData(req);
             const request: AddPackagingRequest = req.body;
-            const packaging: Packaging = await this.packagingService.createPackaging( request );
-            return res.status(200).send(new BaseResponse().ok(packaging));
+            const packaging: boolean = await this.packagingService.createPackaging( request );
+            return res.status(200).send(new BaseResponse().ok(packaging, "Successfully Created Packaging"));
         } catch (error) {
             console.log("[src][controller][PackagingController][createPackaging] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -64,8 +64,8 @@ export default class PackagingController extends BaseController {
     public async editPackaging(req: Request, res: Response) {
         try {
             this.validateData(req);
-            const packaging: Packaging = await this.packagingService.editPackaging(req.body);
-            return res.status(200).send(new BaseResponse().ok(packaging));
+            const packaging: boolean = await this.packagingService.editPackaging(req.body);
+            return res.status(200).send(new BaseResponse().ok(packaging, "Successfully Edited Packaging"));
         } catch (error) {
             console.log("[src][controller][PackagingController][editPackaging] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -76,8 +76,8 @@ export default class PackagingController extends BaseController {
     public async deletePackaging(req: Request, res: Response) {
         try {
             this.validateData(req);
-            const packaging: Packaging = await this.packagingService.deletePackaging(req.body);
-            return res.status(200).send(new BaseResponse().ok(packaging));
+            const packaging: boolean = await this.packagingService.deletePackaging(req.body);
+            return res.status(200).send(new BaseResponse().ok(packaging, "Successfully Deleted Packaging"));
         } catch (error) {
             console.log("[src][controller][PackagingController][deletePackaging] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
