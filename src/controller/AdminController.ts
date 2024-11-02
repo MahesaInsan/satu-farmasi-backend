@@ -29,7 +29,7 @@ export default class AdminController extends BaseController{
         }
     }
 
-    async getAllAdmin(res: Response){
+    async getAllAdmin(req: Request, res: Response){
         try{
             const adminList: Admin[] = await this.adminService.getAllAdmin()
             res.status(200).send(adminList);
@@ -38,11 +38,11 @@ export default class AdminController extends BaseController{
         }
     }
 
-    async getAllStaff(res: Response){
+    async getAllStaff(req: Request, res: Response){
         try{
             const staffList: User[] = await this.adminService.getAllStaff();
             // TODO: Change this to use base response
-            return res.status(200).send(this.responseHelper.constructGetStaffResponse(staffList));
+            res.status(200).send(this.responseHelper.constructGetStaffResponse(staffList));
         } catch (error) {
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }

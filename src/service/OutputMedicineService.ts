@@ -35,9 +35,9 @@ export default class OutputMedicineService {
         }
     }
 
-    public async getTotalOutputMedicineBySearch(params: string): Promise<number> {
+    public async getTotalOutputMedicineBySearch(q?: string, filter?: string): Promise<number> {
         try {
-            return await this.outputMedicineRepository.getTotalOutputMedicineBySearch(params);
+            return await this.outputMedicineRepository.getTotalOutputMedicineBySearch(q, filter);
         } catch (error) {
             throw new Error(error as string);
         }
@@ -51,9 +51,9 @@ export default class OutputMedicineService {
         }
     }
 
-    public async getOutputMedicineBySearch(params: string, limit: number, startIndex: number): Promise<OutputMedicineVO[]> {
+    public async getOutputMedicineBySearch(limit: number, startIndex: number, q?: string, filter?: string): Promise<OutputMedicineVO[]> {
         try {
-            return await this.outputMedicineRepository.getOutputMedicineBySearch(limit, startIndex, params);
+            return await this.outputMedicineRepository.getOutputMedicineBySearch(limit, startIndex, q, filter);
         } catch (error) {
             throw new Error(error as string);
         }

@@ -14,15 +14,15 @@ export default class OutputMedicineController extends BaseController {
 
     public async getAllOutputMedicines(req: Request, res: Response) {
         try {
-            const params: string = req.query.params as string;
-            const totalData: number = params
-                ? await this.outputMedicineService.getTotalOutputMedicineBySearch(params)
+            const { q , filter  }: { q?:string, filter?:string } = req.query as { q?:string, filter?:string };
+            const totalData: number = (q || filter)
+                ? await this.outputMedicineService.getTotalOutputMedicineBySearch(q, filter) 
                 : await this.outputMedicineService.getTotalOutputMedicines() ?? 0;
 
             const pagination: PaginationRequest = this.getPagination(totalData, req);
 
-            const outputMedicines = params
-                ? await this.outputMedicineService.getOutputMedicineBySearch(params, pagination.limit, pagination.startIndex)
+            const outputMedicines = (q || filter)
+                ? await this.outputMedicineService.getOutputMedicineBySearch(pagination.limit, pagination.startIndex, q, filter)
                 : await this.outputMedicineService.getAllOutputMedicines(pagination.limit, pagination.startIndex);
 
             pagination.results = outputMedicines;
