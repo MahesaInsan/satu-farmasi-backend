@@ -51,6 +51,14 @@ export default class PatientService{
         }
     }
 
+    public async getTotalPatient(): Promise<number> {
+        try {
+            return await this.patientRepository.getTotalPatient()
+        } catch (error) {
+            throw error as string
+        }
+    }
+
     private async mapPatientById(patientList: Patient[]) {
         return patientList.reduce((patientByPatientId, patient) => {
             patientByPatientId.set(patient.id, patient);

@@ -466,16 +466,18 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async checkExpiration(date: Date): Promise<Medicine[]> {
-		try {
-			return this.prisma.medicine.findMany({
-				where: {
-					expiredDate: date
-				}
-			})
-		} catch (error) {
-			console.error('Error checking expiration: ', error);
-			throw new Error('Failed to check expiration');
-		}
-	}
+    public async checkExpiration(date: Date, month: Date): Promise<Medicine[]> {
+        try {
+            return this.prisma.medicine.findMany({
+                where: {
+                    expiredDate: {
+                        lte: date,
+                    },
+                }
+            })
+        } catch (error) {
+            console.error('Error checking expiration: ', error);
+            throw new Error('Failed to check expiration');
+        }
+    }
 }

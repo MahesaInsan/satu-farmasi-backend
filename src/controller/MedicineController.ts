@@ -51,6 +51,17 @@ export default class MedicineController extends BaseController {
         }
     }
 
+    public async getTotalMedicine(req: Request, res: Response) {
+        try {
+            const total: number = await this.medicineService.getTotalMedicines();
+            return res.status(200).send(new BaseResponse().ok(total, "Succeed get total medicine"));
+        } catch (error) {
+            console.log("[src][controller][MedicineController][getTotalMedicine] ", error);
+            const errorMessage: string = error instanceof Error ? error.message : String(error);
+            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
+        }
+    }
+
     public async createMedicine(req: Request, res: Response) {
         try {
             const request: AddMedicineRequest = req.body;
