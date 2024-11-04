@@ -3,6 +3,8 @@ import TransactionService from "../service/TransactionService";
 import BaseResponse from "../model/response/BaseResponse";
 import BaseController from "./BaseController";
 import AddTransactionRequest from "../model/request/AddTransactionRequest";
+import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
+import ChangeTransactionStatusVO from "../model/VOs/ChangeTransactionStatusVO";
 
 export default class TransactionController extends BaseController{
     private readonly transactionService: TransactionService
@@ -72,12 +74,34 @@ export default class TransactionController extends BaseController{
 
     public async publishNotification(req: Request, res: Response) {
         try {
-            console.log(req.body)
-            console.log("#publishNotificationToTransaction");
-            await this.transactionService.publishNotification(req.body.data)
+            console.log("#publishNotification with request:", req.body);
+            const request : ChangeTransactionStatusVO = req.body
+            await this.transactionService.publishNotification(request)
             res.status(200).send('Published');
             console.log("Notification published successfully");
         } catch (error) {
+            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+        }
+    }
+
+    public async confirmPayment(req: Request, res: Response) {
+        try {
+            const request: ConfirmPayRequest = req.body.data
+            console.log("#confirmPayment with request: ", request)
+            res.status(200).send(new BaseResponse().ok(await this.transactionService.confirmPayment(request)));
+        } catch (error) {
+            console.error("error when #confirmPayment with error: ", error)
+            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+        }
+    }
+
+    public async finishTransaction(req: Request, res: Response) {
+        try {
+            const request: ChangeTransactionStatusVO = req.body.data
+            console.log("#finsihTransaction with request: ", request)
+            res.status(200).send(new BaseResponse().ok(await this.transactionService.finishTransaction(request)));
+        } catch (error) {
+            console.error("error when #finishTransaction with error: ", error)
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
         }
     }
