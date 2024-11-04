@@ -106,6 +106,7 @@ export default class PrescriptionService{
     private async compareAndUpdatePrescriptionHasMedicine(prescriptionHasMedicineByMedicineId: Map<number, PrescriptionHasMedicine>,
                                                           newPrescriptionHasMedicine: AddPrescribedMedicineRequest[], prescriptionId: number,
                                                           prescriptionHasMedicineById: Map<number, PrescriptionHasMedicine>) {
+															  try {
         let newPrescriptionHasMedicineUpdate: PrescriptionHasMedicine[] = [];
 
         newPrescriptionHasMedicine.forEach(newPrescription => {
@@ -130,6 +131,9 @@ export default class PrescriptionService{
         if (newPrescriptionHasMedicineUpdate.length > 0) {
             this.prescriptionHasMedicineRepository.createPrescriptionHasMedicine(newPrescriptionHasMedicineUpdate);
         }
+															  } catch (error) {
+																  throw error as string
+															  }
     }
 
     private async mapOldPrescriptionHasMedicine(oldPrescriptionHasMedicine: PrescriptionHasMedicine[]): Promise<[Map<number, PrescriptionHasMedicine>,

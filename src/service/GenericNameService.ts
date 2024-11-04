@@ -66,7 +66,7 @@ export default class GenericNameService {
         }
     }
     
-    public async addGenericName(request: AddGenericNameRequest): Promise<GenericName>{
+    public async addGenericName(request: AddGenericNameRequest): Promise<boolean>{
     try {
             const genericName: GenericName = this.createMedicineHelper.createGenericName(request);
             return await this.genericNameRepository.addGenericName(Builder(genericName).label(request.label).value(request.value).build())
@@ -84,9 +84,10 @@ export default class GenericNameService {
         }
     }
 
-    public async deleteGenericName(id: number): Promise<boolean>{
+    public async deleteGenericName(request: EditGenericNameRequest): Promise<boolean>{
         try {
-            return await this.genericNameRepository.deleteGenericName(id);
+            const genericName: GenericName = this.editGenericNameHelper.editGenericName(request);
+            return await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).is_active(false).build())
         } catch (error) {
             throw new Error(error as string);
         }

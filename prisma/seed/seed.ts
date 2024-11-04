@@ -311,10 +311,12 @@ const seedReceiveMedicine = async (seed: SeedClient, amount: number = 1) => {
 const seedOutputMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding output medicine ...")
     const medicine: Medicine[] = await prisma.medicine.findMany({ where: { is_active: true } });
+    const report: MedicineReport[] = await prisma.medicineReport.findMany({ where: { is_active: true } });
     await seed.outputMedicine((createMany) =>
         createMany(amount, () => ({
             medicineId: medicine[Math.floor(Math.random() * medicine.length)].id,
             quantity: Math.floor(Math.random() * 10) + 1,
+            reportId: report[Math.floor(Math.random() * report.length)].id,
             is_active: true,
         }))
     );

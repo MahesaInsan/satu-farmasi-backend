@@ -64,4 +64,16 @@ export default class PatientRepository {
             throw error as string
         }
     }
+
+    public async getTotalPatient(): Promise<number> {
+        try {
+            return this.prisma.patient.count({
+                where: {
+                    is_active: true
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
 }

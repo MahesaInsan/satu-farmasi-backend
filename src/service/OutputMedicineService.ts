@@ -22,7 +22,7 @@ export default class OutputMedicineService {
         try {
             return await this.outputMedicineRepository.getTotalOutputMedicines();
         } catch (error) {
-            throw new Error(error as string);
+			throw error as string;
         }
     }
 
@@ -31,15 +31,15 @@ export default class OutputMedicineService {
         try {
             return await this.outputMedicineRepository.getOutputMedicineById(id);
         } catch (error) {
-            throw new Error(error as string);
+			throw error as string;
         }
     }
 
-    public async getTotalOutputMedicineBySearch(params: string): Promise<number> {
+    public async getTotalOutputMedicineBySearch(q?: string, filter?: string): Promise<number> {
         try {
-            return await this.outputMedicineRepository.getTotalOutputMedicineBySearch(params);
+            return await this.outputMedicineRepository.getTotalOutputMedicineBySearch(q, filter);
         } catch (error) {
-            throw new Error(error as string);
+			throw error as string;
         }
     }
 
@@ -47,15 +47,15 @@ export default class OutputMedicineService {
         try {
             return await this.outputMedicineRepository.getAllOutputMedicines(limit, startIndex);
         } catch (error) {
-            throw new Error(error as string);
+			throw error as string;
         }
     }
 
-    public async getOutputMedicineBySearch(params: string, limit: number, startIndex: number): Promise<OutputMedicineVO[]> {
+    public async getOutputMedicineBySearch(limit: number, startIndex: number, q?: string, filter?: string): Promise<OutputMedicineVO[]> {
         try {
-            return await this.outputMedicineRepository.getOutputMedicineBySearch(limit, startIndex, params);
+            return await this.outputMedicineRepository.getOutputMedicineBySearch(limit, startIndex, q, filter);
         } catch (error) {
-            throw new Error(error as string);
+			throw error as string;
         }
     }
 
@@ -67,7 +67,7 @@ export default class OutputMedicineService {
             request.reasonOfDispose = matchedReason as ReasonOfDispose
             return await this.outputMedicineRepository.addOutputMedicine(outputMedicine);
         } catch (error) {
-            throw new Error(error as string);
+			throw error as string;
         }
     }
 
@@ -79,7 +79,7 @@ export default class OutputMedicineService {
             const outputMedicine: OutputMedicine = this.outputMedicineHelper.editOutputMedicine(request);
             return await this.outputMedicineRepository.editOutputMedicine(outputMedicine);
         } catch (error) {
-            throw new Error(error as string);
+			throw error as string;
         }
     }
 
@@ -89,7 +89,7 @@ export default class OutputMedicineService {
             const outputMedicine: OutputMedicine = this.outputMedicineHelper.deleteOutputMedicine(request);
             return await this.outputMedicineRepository.deleteOutputMedicine(outputMedicine.id);
         } catch (error) {
-            throw new Error(error as string);
+			throw error as string;
         }
     }
 }

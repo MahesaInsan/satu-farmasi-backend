@@ -12,7 +12,7 @@ export default class PackagingService {
         this.packagingRepository = new PackagingRepository();
     }
 
-    public async createPackaging(request: AddPackagingRequest): Promise<Packaging> {
+    public async createPackaging(request: AddPackagingRequest): Promise<boolean> {
         try {
             await this.isPackagingExist(request.label);
             const packaging: Packaging = this.constructPackaging(request);
@@ -76,9 +76,9 @@ export default class PackagingService {
         if (isExist) throw new Error("Packaging is already exist");
     }
 
-    public async editPackaging(request: EditPackagingRequest): Promise<Packaging> {
+    public async editPackaging(request: EditPackagingRequest): Promise<boolean> {
         try {
-            await this.isPackagingExist(request.label);
+            // await this.isPackagingExist(request.label);
             const packaging: Packaging = this.constructEditPackaging(request);
             return await this.packagingRepository.editPackaging(packaging);
         } catch (error) {
@@ -86,7 +86,7 @@ export default class PackagingService {
         }
     }
 
-    public async deletePackaging(request: EditPackagingRequest): Promise<Packaging> {
+    public async deletePackaging(request: EditPackagingRequest): Promise<boolean> {
         try {
             const packaging: Packaging = this.constructEditPackaging(request);
             return await this.packagingRepository.editPackaging(packaging);
