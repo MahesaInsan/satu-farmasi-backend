@@ -49,6 +49,14 @@ export default class MedicineService{
             throw error as string;
         }
     }
+
+    public async getTotalNeedToRestock(): Promise<number> {
+        try {
+            return await this.medicineRepository.getTotalNeedToRestock();
+        } catch (error) {
+            throw error as string;
+        }
+    }
     
     public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
         try {
@@ -170,9 +178,9 @@ export default class MedicineService{
 
     public async checkExpiration(date: Date): Promise<Medicine[]> {
         try {
-            const today = new Date(date);
-            const startOfNextMonth: Date = new Date(today.getFullYear(), today.getMonth()+1, 1)
-            return await this.medicineRepository.checkExpiration(date, startOfNextMonth);
+            const today: Date = new Date(date);
+            const lastDay: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+            return await this.medicineRepository.checkExpiration(today, lastDay);
         } catch (error) {
             throw error as string;
         }

@@ -120,6 +120,20 @@ export default class PrescriptionRepository{
         }
     }
 
+    public async getAllPrescriptionPerMonth(startDate: Date, lastDate: Date): Promise<Prescription[]> {
+        try {
+            return await this.prisma.prescription.findMany({
+                where: {
+                    AND: [
+                        { created_at: { gte: startDate } }
+                    ]
+                }
+            })
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
     public async getAllPrescription(): Promise<PrescriptionSummaryVO[]>{
         try {
             return this.prisma.prescription.findMany({

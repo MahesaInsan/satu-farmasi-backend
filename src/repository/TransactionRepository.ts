@@ -1,4 +1,4 @@
-import {Transaction, PrismaClient} from "@prisma/client";
+import {Transaction, PrismaClient, $Enums} from "@prisma/client";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import TransactionDetailVO from "../model/VOs/TransactionDetailVO";
 
@@ -123,6 +123,57 @@ export default class TransactionRepository{
                 }
             })
         } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async getTransactionByStatus(patientName: string | undefined, status: $Enums.Status, take: number): Promise<TransactionSummaryVO[]>{
+        try {
+            return this.prisma.transaction.findMany({
+                where: {
+                    is_active: true,
+                    patient: {
+                        name: {
+                            contains: patientName,
+                            mode: 'insensitive'
+                        }
+                    },
+                    prescription: {
+                        status: status
+                    }
+                },
+                select: {
+                    id: true,
+                    updated_at: true,
+                    patient: {
+                        select: {
+                            name: true
+                        },
+                    },
+                    pharmacist: {
+                        select: {
+                            firstName: true
+                        }
+                    },
+                    prescription: {
+                        select: {
+                            status: true
+                        }
+                    }
+                },
+                orderBy: [
+                    {
+                        prescription: {
+                            status: "asc"
+                        }
+                    },
+                    {
+                        updated_at: "asc"
+                    }
+                ],
+                take: take
+            })
+        } catch (error){
             throw error as string
         }
     }

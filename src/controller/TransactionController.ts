@@ -3,6 +3,8 @@ import TransactionService from "../service/TransactionService";
 import BaseResponse from "../model/response/BaseResponse";
 import BaseController from "./BaseController";
 import AddTransactionRequest from "../model/request/AddTransactionRequest";
+import PaginationRequest from "../model/request/PaginationRequest";
+import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 
 export default class TransactionController extends BaseController{
     private readonly transactionService: TransactionService
@@ -35,6 +37,19 @@ export default class TransactionController extends BaseController{
         } catch (error) {
             console.error("error when #getTransactionSummary with error: ", error)
             res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+        }
+    }
+
+    public async getOnGoingAndWaitingPaymentTransaction(req: Request, res: Response) {
+        try {
+            console.log("#getOnGoingAndWaitingPaymentTransaction with request: ", req.query);
+            const patientName = req.query.name as string | undefined;
+            const results: TransactionSummaryVO[] = await this.transactionService.getOnGoingAndWaitingPaymentTransaction(patientName)
+            return res.status(200).send(new BaseResponse().ok(results, "Succeed fetch transaction"))
+        } catch (error) {
+            console.error("error when #getOnGoingAndWaitingPaymentTransaction with error: ", error)
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
         }
     }
 

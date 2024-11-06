@@ -115,7 +115,7 @@ model Vendor{
 
 model Medicine{
   id Int @id @default(autoincrement())
-  code String @unique
+  code String
   name String
   genericName GenericName @relation(fields: [genericNameId], references: [id])
   genericNameId Int

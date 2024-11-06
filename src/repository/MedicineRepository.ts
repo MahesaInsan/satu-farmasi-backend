@@ -162,6 +162,20 @@ export default class MedicineRepository{
         }
     }
 
+    public async getTotalNeedToRestock(): Promise<number> {
+        try {
+            return this.prisma.medicine.count({
+                where: {
+                    currStock: {
+                        lte: this.prisma.medicine.fields.minStock
+                    }
+                }
+            })
+        } catch (error) {
+            console.error('Error get need to restock medicineList: ', error);
+            throw new Error('Failed to get need to restock medicineList');
+        }
+    }
 
     public async getMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
         try {
@@ -463,12 +477,13 @@ export default class MedicineRepository{
         }
     }
 
-    public async checkExpiration(date: Date, month: Date): Promise<Medicine[]> {
+    public async checkExpiration(startDay: Date, lastDay: Date): Promise<Medicine[]> {
         try {
             return this.prisma.medicine.findMany({
                 where: {
                     expiredDate: {
-                        lte: date,
+                        gte: startDay,
+                        lte: lastDay,
                     },
                 }
             })
