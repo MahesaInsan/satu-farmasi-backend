@@ -3,7 +3,6 @@ import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import { GenericName, Medicine, MedicineHasClassification, UnitOfMeasure } from "@prisma/client";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import { Builder } from "builder-pattern";
-import GetMedicineRequest from "../model/request/GetMedicineRequest";
 import GenericNameService from "./GenericNameService";
 import EditMedicineRequest from "../model/request/EditMedicineRequest";
 import MedicineCheckStockVO from "../model/VOs/MedicineCheckStockVO";
@@ -205,7 +204,7 @@ export default class MedicineService {
 			.genericNameId(request.genericNameId)
 			.merk(request.merk)
 			.description(request.description)
-			.unitOfMeasure(UnitOfMeasure.MILLIGRAM)
+			.unitOfMeasure(request.unitOfMeasure)
 			.price(request.price)
 			.expiredDate(request.expiredDate)
 			.packagingId(request.packagingId)
