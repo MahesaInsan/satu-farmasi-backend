@@ -87,9 +87,9 @@ export default class PrescriptionService{
         }
     }
 
-    public async updatePrescriptionToWaitingForPayment(id: number) {
+    public async updatePrescriptionStatus(id: number, status: Status) {
         try {
-            await this.prescriptionRepository.updatePrescriptionStatusById(Status.WAITING_FOR_PAYMENT, id);
+            await this.prescriptionRepository.updatePrescriptionStatusById(status, id);
         } catch (error) {
             throw error as string
         }
