@@ -11,6 +11,7 @@ import PrescriptionSummaryResponse from "../model/response/PrescriptionSummaryRe
 import PatientService from "./PatientService";
 import EditPrescriptionRequest from "../model/request/EditPrescriptionRequest";
 import ValidationHelper from "./helper/ValidationHelper";
+import PaginationRequest from "../model/request/PaginationRequest";
 
 export default class PrescriptionService{
     private readonly prescriptionRepository: PrescriptionRepository
@@ -95,6 +96,14 @@ export default class PrescriptionService{
         }
     }
 
+    public async countPrescription(patientName: string | undefined) {
+        try {
+            return await this.prescriptionRepository.countPrescriptionByPatientName(patientName)
+        } catch (error) {
+            throw error as string
+        }
+    }
+
     private async findPrescriptionMedicine(prescriptionId: number) {
         try {
             return await this.prescriptionHasMedicineRepository.getPrescriptionHasMedicine(prescriptionId)
@@ -172,25 +181,9 @@ export default class PrescriptionService{
             .build();
     }
 
-    public async getAllPrescriptionList(username?: string){
+    public async getPrescriptionSummary(patientName: string | undefined, pagination: PaginationRequest){
         try {
-            if (username) {
-                return await this.prescriptionRepository.getAllPrescription().then(
-                    prescriptions => {
-                        return prescriptions.map(prescription => {
-                            return this.constructPrescriptionSummaryVO(prescription)
-                        })
-                    }
-                )
-            } else {
-                return await this.prescriptionRepository.getAllPrescription().then(
-                    prescriptions => {
-                        return prescriptions.map(prescription => {
-                            return this.constructPrescriptionSummaryVO(prescription)
-                        })
-                    }
-                )
-            }
+            return await this.prescriptionRepository.getAllPrescriptionByUsername(patientName, pagination.startIndex, pagination.limit);
         } catch (error) {
             throw error as string
         }
