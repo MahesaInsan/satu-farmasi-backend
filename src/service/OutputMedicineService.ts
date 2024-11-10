@@ -1,4 +1,5 @@
 import { OutputMedicine, ReasonOfDispose } from "@prisma/client";
+import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
 import OutputMedicineRepository from "../repository/OutputMedicineRepository";
 import OutputMedicineHelper from "./helper/OutputMedicineHelper";
 import AddOutputMedicineRequest from "../model/request/AddOutputMedicineRequest";
@@ -6,14 +7,22 @@ import EditOutputMedicineRequest from "../model/request/EditOutputMedicineReques
 import OutputMedicineVO from "../model/VOs/OutputMedicineVO";
 import DeleteOutputMedicineRequest from "../model/request/DeleteOutputMedicineRequest";
 import MedicineService from "./MedicineService";
+import MedicineReportService from "./MedicineReportService";
+import MedicineReportHelper from "./helper/MedicineReportHelper";
+import AddMedicineRequest from "../model/request/AddMedicineRequest";
+import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
 
 export default class OutputMedicineService {
     private readonly medicineService: MedicineService;
     private readonly outputMedicineRepository: OutputMedicineRepository;
     private readonly outputMedicineHelper: OutputMedicineHelper;
+    private readonly reportService: MedicineReportService;
+    private readonly reportHelper: MedicineReportHelper;
 
     constructor() {
         this.outputMedicineRepository = new OutputMedicineRepository();
+        this.reportHelper = new MedicineReportHelper();
+        this.reportService = new MedicineReportService();
         this.outputMedicineHelper = new OutputMedicineHelper();
         this.medicineService = new MedicineService();
     }
@@ -61,10 +70,23 @@ export default class OutputMedicineService {
 
     public async addOutputMedicine(request: AddOutputMedicineRequest): Promise<Boolean> {
         try {
+            console.log("medicineId: ", request.medicineId)
             await this.medicineService.decreaseMedicineStock(request.medicineId, request.quantity);
             const outputMedicine: OutputMedicine = this.outputMedicineHelper.createOutputMedicine(request);
             const matchedReason = this.outputMedicineRepository.validReasonOfDispose(request.reasonOfDispose);
             request.reasonOfDispose = matchedReason as ReasonOfDispose
+
+            let todayReport: TodayMedicineReportVOs | null = 
+                await this.reportService.getTodayUnFinalizedMedicineReport();
+
+            if (!todayReport) {
+                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
+                todayReport = await this.reportService.
+                    addMedicineReport(this.reportHelper.createMedicineReport(reportRequest))
+            }
+
+            outputMedicine.reportId = todayReport.id
+
             return await this.outputMedicineRepository.addOutputMedicine(outputMedicine);
         } catch (error) {
 			throw error as string;

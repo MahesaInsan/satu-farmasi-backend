@@ -2,6 +2,7 @@ import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
 import MedicineReportRepository from "../repository/MedicineReportRepository";
 import MedicineReportVO from "../model/VOs/TodayMedicineReportVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
+import { MedicineReport } from "@prisma/client";
 
 export default class MedicineReportService {
     private readonly reportRepository: MedicineReportRepository;
@@ -25,15 +26,20 @@ export default class MedicineReportService {
             const unFinalizedReport: MedicineReportVO | null =
                 await this.getUnFinalizedReportd();
             if (unFinalizedReport) {
-                const currentReportId: MedicineReportVO | null = await this.getMedicineReportById(reportId);
+                const currentReportId: MedicineReportVO | null =
+                    await this.getMedicineReportById(reportId);
                 if (!currentReportId) {
                     throw new CustomError().formatError(
                         "Report Not Found",
                         "reportId",
                     );
                 }
-                const currReportCreated = new Date(currentReportId.created_at).getTime();
-                const unFinalizedReportCreated = new Date(unFinalizedReport.created_at).getTime();
+                const currReportCreated = new Date(
+                    currentReportId.created_at,
+                ).getTime();
+                const unFinalizedReportCreated = new Date(
+                    unFinalizedReport.created_at,
+                ).getTime();
                 if (currReportCreated !== unFinalizedReportCreated) {
                     throw new CustomError().formatError(
                         "Unfinalized Report",
@@ -83,6 +89,16 @@ export default class MedicineReportService {
     ): Promise<MedicineReportVO | null> {
         try {
             return await this.reportRepository.getMedicineReportById(reportId);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async addMedicineReport(
+        data: MedicineReport,
+    ): Promise<MedicineReport> {
+        try {
+            return await this.reportRepository.addMedicineReport(data);
         } catch (error) {
             throw error as string;
         }
