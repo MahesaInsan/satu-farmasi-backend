@@ -96,9 +96,9 @@ export default class PrescriptionService{
         }
     }
 
-    public async countPrescription(patientName: string | undefined) {
+    public async countPrescription(patientName: string | undefined, status: Status | undefined) {
         try {
-            return await this.prescriptionRepository.countPrescriptionByPatientName(patientName)
+            return await this.prescriptionRepository.countPrescriptionByPatientName(patientName, status)
         } catch (error) {
             throw error as string
         }
@@ -181,9 +181,9 @@ export default class PrescriptionService{
             .build();
     }
 
-    public async getPrescriptionSummary(patientName: string | undefined, pagination: PaginationRequest){
+    public async getPrescriptionSummary(patientName: string | undefined, status: Status | undefined, pagination: PaginationRequest){
         try {
-            return await this.prescriptionRepository.getAllPrescriptionByUsername(patientName, pagination.startIndex, pagination.limit);
+            return await this.prescriptionRepository.getAllPrescriptionByUsername(patientName, status, pagination.startIndex, pagination.limit);
         } catch (error) {
             throw error as string
         }
