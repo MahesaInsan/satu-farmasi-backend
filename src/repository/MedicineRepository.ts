@@ -63,7 +63,7 @@ export default class MedicineRepository {
 			if (!medicine) {
 				throw new CustomError().formatError("Medicine Not Found", "medicineId");
 			}
-			const isValidStock = (medicine.currStock - quantity) > 0;
+			const isValidStock = (medicine.currStock - quantity) >= 0;
             console.log("currStock: ", medicine.currStock)
             console.log("quantity: ", quantity)
             console.log(isValidStock)
