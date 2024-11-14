@@ -32,7 +32,13 @@ export default interface ReceiveMedicineVO {
         };
     };
     quantity: number;
-    vendorId: number;
+    vendor: {
+        id: number,
+        name: string,
+        phoneNum: string,
+        address: string,
+        city: string, 
+    };
     buyingPrice: Prisma.Decimal;
     paymentMethod: $Enums.PaymentMethod;
     deadline: Date;

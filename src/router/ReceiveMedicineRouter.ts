@@ -11,6 +11,7 @@ class MedicineRouter extends BaseRouter {
     }
 
     private initRoutes() {
+        this.router.get( "/", this.receiveMedicineController.getAllReceiveMedicines.bind(this.receiveMedicineController));
         this.router.post("/", this.receiveMedicineController.createReceiveMedicine.bind(this.receiveMedicineController));
     }
 }

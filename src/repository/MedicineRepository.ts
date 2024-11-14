@@ -1,4 +1,5 @@
 import { Medicine, PrismaClient } from "@prisma/client"
+import TotalMedicineGroupByCode from "../model/VOs/TotalMedicineGroupByCodeVO";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
@@ -63,7 +64,10 @@ export default class MedicineRepository {
 			if (!medicine) {
 				throw new CustomError().formatError("Medicine Not Found", "medicineId");
 			}
-			const isValidStock = (medicine.currStock - quantity) >= medicine.minStock;
+			const isValidStock = (medicine.currStock - quantity) > 0;
+            console.log("currStock: ", medicine.currStock)
+            console.log("quantity: ", quantity)
+            console.log(isValidStock)
 			if (!isValidStock) {
 				throw new CustomError().formatError("Medicine stock is not enough", "quantity");
 			}
@@ -152,13 +156,24 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async getTotalMedicineByCode(code: string): Promise<number> {
+	public async getTotalMedicineGroupByCode(code: string): Promise<TotalMedicineGroupByCode[]> {
 		try {
-			return this.prisma.medicine.count({
+			const result = await this.prisma.medicine.groupBy({
+				by: ['code'],
 				where: {
 					code: { contains: code }
-				}
+				},
+				_count: {
+					code: true
+				},
+				orderBy: {
+					_count: {
+						code: 'desc'
+					}
+				},
+				take: 1
 			})
+			return result;
 		} catch (error) {
 			console.error('Error counting medicineList: ', error);
 			throw new Error('Failed to count medicineList');
@@ -460,6 +475,18 @@ export default class MedicineRepository {
 				}
 			});
 			return newMedicine;
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
+	public async editMedicineByCode(dataMedicine: Medicine) {
+		try {
+			return await this.prisma.medicine.updateMany({
+				where: { code: dataMedicine.code },
+				data: dataMedicine
+			});
 		} catch (error) {
 			console.error('Error editing medicine: ', error);
 			throw new Error('Failed to edit medicine');
