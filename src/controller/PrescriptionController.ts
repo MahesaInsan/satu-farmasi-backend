@@ -4,6 +4,7 @@ import BaseResponse from "../model/response/BaseResponse";
 import AddPrescriptionRequest from "../model/request/AddPrescriptionRequest";
 import EditPrescriptionRequest from "../model/request/EditPrescriptionRequest";
 import BaseController from "./BaseController";
+import {Status} from "@prisma/client";
 
 export default class PrescriptionController extends BaseController{
     private readonly prescriptionService: PrescriptionService;
@@ -16,10 +17,11 @@ export default class PrescriptionController extends BaseController{
     public async getAllPrescription(req: Request, res: Response) {
         try{
             console.log("#getPrescriptionSummary with request: ", req.query)
-            const patientName = req.query.patientName = req.query.name as string | undefined
-            const totalData = await this.prescriptionService.countPrescription(patientName)
+            const patientName = req.query.name as string | undefined
+            const status = Object.values(Status).includes(req.query.status as Status) ? req.query.status as Status : undefined;
+            const totalData = await this.prescriptionService.countPrescription(patientName, status)
             const pagination = this.getPagination(totalData,req)
-            pagination.results = await this.prescriptionService.getPrescriptionSummary(patientName, pagination)
+            pagination.results = await this.prescriptionService.getPrescriptionSummary(patientName, status, pagination)
             pagination.total = totalData
             res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
