@@ -3,13 +3,15 @@ import PatientService from "./PatientService";
 import PrescriptionService from "./PrescriptionService";
 import PharmacistService from "./PharmacistService";
 import PrescriptionDetailVO from "../model/VOs/PrescriptionDetailVO";
-import {Prisma, Transaction} from "@prisma/client";
+import {PaymentMethod, Prisma, Status, Transaction} from "@prisma/client";
 import {Builder} from "builder-pattern";
 import {Response} from "express";
 import TransactionRepository from "../repository/TransactionRepository";
 import SSEConnection from "../model/response/SSEConnection";
 import PaginationRequest from "../model/request/PaginationRequest";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
+import ChangeTransactionStatusVO from "../model/VOs/ChangeTransactionStatusVO";
+import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
 
 export default class TransactionService{
     private readonly patientService: PatientService;
@@ -39,7 +41,7 @@ export default class TransactionService{
                 .created_at(new Date())
                 .updated_at(new Date())
                 .build();
-            await this.prescriptionService.updatePrescriptionToWaitingForPayment(tuple[1].id);
+            await this.prescriptionService.updatePrescriptionStatus(tuple[1].id, Status.WAITING_FOR_PAYMENT);
             return await this.transactionRepository.addTransaction(newTransaction).then(transaction => true)
         } catch (error) {
             throw error as string
@@ -88,7 +90,7 @@ export default class TransactionService{
         this.transactionSSE.push(connection)
     }
 
-    public async publishNotification(request: boolean) {
+    public async publishNotification(request: ChangeTransactionStatusVO) {
         if (request) {
             this.transactionSSE.forEach(transactionSSE => {
                 try {
@@ -98,6 +100,42 @@ export default class TransactionService{
                     this.transactionSSE = this.transactionSSE.filter(p => p !== transactionSSE);
                 }
             })
+        }
+    }
+
+    public async confirmPayment(request: ConfirmPayRequest) {
+        try {
+            const transaction = await this.transactionRepository.findById(request.id)
+            if (transaction !== null) {
+                if (Object.values(PaymentMethod).includes(request.paymentMethod) &&
+                        Status.WAITING_FOR_PAYMENT === transaction.prescription.status) {
+                    await this.transactionRepository.updatePaymentMethodById(request.paymentMethod, request.id)
+                    await this.prescriptionService.updatePrescriptionStatus(transaction.prescriptionId, Status.ON_PROGRESS)
+                    return true;
+                } else {
+                    new Error ('Payment method does not exist');
+                }
+            } else {
+                new Error ('Transaction Not Found')
+            }
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async finishTransaction(req: ChangeTransactionStatusVO) {
+        try {
+            const prescription = await this.prescriptionService.getPrescription(req.prescriptionId)
+            if (prescription !== null) {
+                if (Object.values(Status).includes(req.status) && Status.ON_PROGRESS === prescription!.status) {
+                    await this.prescriptionService.updatePrescriptionStatus(req.prescriptionId, Status.DONE)
+                    return true
+                }
+            } else {
+                new Error ('Prescription not found')
+            }
+        } catch (error) {
+            throw error as string
         }
     }
 

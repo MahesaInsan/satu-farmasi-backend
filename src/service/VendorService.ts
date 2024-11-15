@@ -62,7 +62,7 @@ export default class VendorService {
         }
     }
 
-    public async editVendor(request: EditVendorRequest): Promise<Vendor> {
+    public async editVendor(request: EditVendorRequest): Promise<boolean> {
         try {
             const vendor: Vendor = this.vendorHelper.editVendor(request);
             return await this.vendorRepository.editVendor(vendor);
@@ -71,7 +71,7 @@ export default class VendorService {
         }
     }
 
-    public async deleteVendor(request: EditVendorRequest): Promise<Vendor> {
+    public async deleteVendor(request: EditVendorRequest): Promise<boolean> {
         try {
             const vendor: Vendor = this.vendorHelper.editVendor(request);
             return await this.vendorRepository.editVendor(vendor);

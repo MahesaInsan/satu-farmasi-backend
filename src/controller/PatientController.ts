@@ -17,7 +17,8 @@ export default class PatientController{
             const patientByPatientId = await this.patientService.fetchPatient()
             res.status(200).send(Object.fromEntries(patientByPatientId));
         } catch (error) {
-            res.status(400).send(error)
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 

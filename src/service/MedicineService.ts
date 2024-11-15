@@ -11,36 +11,36 @@ import AddMedicineClassificationRequest from "../model/request/AddMedicineClassi
 import MedicineHasClassificationRepository from "../repository/MedicineHasClassificationRepository";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
 
-export default class MedicineService{
-    private readonly medicineRepository: MedicineRepository;
-    private readonly genericNameService: GenericNameService;
-    private readonly medicineHasClassificationRepository: MedicineHasClassificationRepository;
+export default class MedicineService {
+	private readonly medicineRepository: MedicineRepository;
+	private readonly genericNameService: GenericNameService;
+	private readonly medicineHasClassificationRepository: MedicineHasClassificationRepository;
 
-    constructor() {
-        this.medicineRepository = new MedicineRepository();
-        this.genericNameService = new GenericNameService();
-        this.medicineHasClassificationRepository = new MedicineHasClassificationRepository();
-    }
+	constructor() {
+		this.medicineRepository = new MedicineRepository();
+		this.genericNameService = new GenericNameService();
+		this.medicineHasClassificationRepository = new MedicineHasClassificationRepository();
+	}
 
-    public async getAllMedicineList(): Promise<Map<number, MedicineDropdownVO>>{
-        return await this.mapMedicineDropdownList(await this.medicineRepository.fetchMedicineList());
-    }
+	public async getAllMedicineList(): Promise<Map<number, MedicineDropdownVO>> {
+		return await this.mapMedicineDropdownList(await this.medicineRepository.fetchMedicineList());
+	}
 
-    public async getTotalMedicines(): Promise<number>{
-        try {
-            return await this.medicineRepository.getTotalMedicines();
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async getTotalMedicines(): Promise<number> {
+		try {
+			return await this.medicineRepository.getTotalMedicines();
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    public async getTotalSearchMedicines(parameter: string): Promise<number> {
-        try {
-            return await this.medicineRepository.getTotalSearchMedicines(parameter);
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async getTotalSearchMedicines(parameter: string): Promise<number> {
+		try {
+			return await this.medicineRepository.getTotalSearchMedicines(parameter);
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
     public async getTotalMedicineByCode(code: string): Promise<number> {
         try {
@@ -74,107 +74,107 @@ export default class MedicineService{
         }
     }
 
-    public async getMedicineByCode(code: string): Promise<MedicineDisplayVO | null> {
-        try {
-            return await this.medicineRepository.getMedicineByCode(code);
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async getMedicineByCode(code: string): Promise<MedicineDisplayVO | null> {
+		try {
+			return await this.medicineRepository.getMedicineByCode(code);
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    public async searchMedicines(startIndex: number, limit: number, parameter: string): Promise<MedicineDisplayVO[]> {
-        try {
-            return await this.medicineRepository.searchMedicines(startIndex, limit, parameter);
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async searchMedicines(startIndex: number, limit: number, parameter: string): Promise<MedicineDisplayVO[]> {
+		try {
+			return await this.medicineRepository.searchMedicines(startIndex, limit, parameter);
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    public async createMedicine(request: AddMedicineRequest): Promise<MedicineDisplayVO> {
-        try {
-            request.code = await this.generateMedicineCode(request.genericNameId);
-            const medicine: Medicine = this.constructMedicine(request);
-            return await this.medicineRepository.createMedicine(medicine)
-                .then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
-                    await this.createNewMedicineHasClassification(request.classificationList, newMedicine.id);
-                    return newMedicine;
-                });
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async createMedicine(request: AddMedicineRequest): Promise<MedicineDisplayVO> {
+		try {
+			request.code = await this.generateMedicineCode(request.genericNameId);
+			const medicine: Medicine = this.constructMedicine(request);
+			return await this.medicineRepository.createMedicine(medicine)
+				.then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
+					await this.createNewMedicineHasClassification(request.classificationList, newMedicine.id);
+					return newMedicine;
+				});
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    public async createNewMedicineHasClassification(classificationList: AddMedicineClassificationRequest[], medicineId: number) {
-        try {
-            const newMedicineHasClassification: MedicineHasClassification[] = classificationList
-                .map((classification: AddMedicineClassificationRequest) => {
-                    return this.constructMedicineHasClassification(classification.classificationId, medicineId);
-                })
-                console.log("newMedicineClassification: ", newMedicineHasClassification);
-            return await this.medicineHasClassificationRepository.createMedicineHasClassification(newMedicineHasClassification);
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async createNewMedicineHasClassification(classificationList: AddMedicineClassificationRequest[], medicineId: number) {
+		try {
+			const newMedicineHasClassification: MedicineHasClassification[] = classificationList
+				.map((classification: AddMedicineClassificationRequest) => {
+					return this.constructMedicineHasClassification(classification.classificationId, medicineId);
+				})
+			console.log("newMedicineClassification: ", newMedicineHasClassification);
+			return await this.medicineHasClassificationRepository.createMedicineHasClassification(newMedicineHasClassification);
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    public async editMedicine(request: EditMedicineRequest): Promise<MedicineDisplayVO> {
-        try {
-            const oldMedicine: Medicine | null = await this.getMedicineById(request.id);    
-            if (!oldMedicine) throw new Error("Medicine not found");
-            
-            request.code = oldMedicine && oldMedicine.genericNameId === request.genericNameId
-                ? request.code
-                : await this.generateMedicineCode(request.genericNameId);
+	public async editMedicine(request: EditMedicineRequest): Promise<MedicineDisplayVO> {
+		try {
+			const oldMedicine: Medicine | null = await this.getMedicineById(request.id);
+			if (!oldMedicine) throw new Error("Medicine not found");
 
-            const medicine: Medicine = this.constructEditMedicine(request);
-            return await this.medicineRepository.editMedicine(medicine)
-            .then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
-                    await this.medicineHasClassificationRepository.deleteMedicineHasClassification(request.id);
-                    await this.createNewMedicineHasClassification(request.classificationList, request.id);
-                    return newMedicine;
-                })
-        } catch (error) {
-            throw error as string;
-        }
-    }
+			request.code = oldMedicine && oldMedicine.genericNameId === request.genericNameId
+				? request.code
+				: await this.generateMedicineCode(request.genericNameId);
 
-    public async addStock(id: number, currStock: number): Promise<boolean> {
-        try {
-            const medicine: Medicine | null = await this.getMedicineById(id);
-            if (!medicine) throw new Error("Medicine not found");
-            medicine.currStock += currStock;
-            if (medicine.currStock > medicine.maxStock) throw new Error("Max stock reached");
-            return await this.medicineRepository.editMedicine(medicine) != null;
-        } catch (error) {
-            throw error as string;
-        }
-    }
+			const medicine: Medicine = this.constructEditMedicine(request);
+			return await this.medicineRepository.editMedicine(medicine)
+				.then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
+					await this.medicineHasClassificationRepository.deleteMedicineHasClassification(request.id);
+					await this.createNewMedicineHasClassification(request.classificationList, request.id);
+					return newMedicine;
+				})
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    public async checkStock(id: number): Promise<MedicineCheckStockVO> {
-        try {
-            const medicine: Medicine | null = await this.getMedicineById(id);
-            if (!medicine) throw new Error("Medicine not found");
+	public async addStock(id: number, currStock: number): Promise<boolean> {
+		try {
+			const medicine: Medicine | null = await this.getMedicineById(id);
+			if (!medicine) throw new Error("Medicine not found");
+			medicine.currStock += currStock;
+			if (medicine.currStock > medicine.maxStock) throw new Error("Max stock reached");
+			return await this.medicineRepository.editMedicine(medicine) != null;
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-            const vo: MedicineCheckStockVO = { isReady: true, flag: -1 };
-            if (medicine.currStock == medicine.minStock) vo.flag = 0;
-            else if (medicine.currStock > medicine.minStock && medicine.currStock <= medicine.maxStock) vo.flag = 1;
-            
-            return vo;
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async checkStock(id: number): Promise<MedicineCheckStockVO> {
+		try {
+			const medicine: Medicine | null = await this.getMedicineById(id);
+			if (!medicine) throw new Error("Medicine not found");
 
-    public async deleteMedicine(id: number): Promise<MedicineDisplayVO> {
-        try {
-            const medicine: Medicine | null = await this.getMedicineById(id);
-            if (!medicine) throw new Error("Medicine not found");
-            medicine.is_active = false;
-            return await this.medicineRepository.editMedicine(medicine);
-        } catch (error) {
-            throw error as string;
-        }
-    }
+			const vo: MedicineCheckStockVO = { isReady: true, flag: -1 };
+			if (medicine.currStock == medicine.minStock) vo.flag = 0;
+			else if (medicine.currStock > medicine.minStock && medicine.currStock <= medicine.maxStock) vo.flag = 1;
+
+			return vo;
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
+	public async deleteMedicine(id: number): Promise<MedicineDisplayVO> {
+		try {
+			const medicine: Medicine | null = await this.getMedicineById(id);
+			if (!medicine) throw new Error("Medicine not found");
+			medicine.is_active = false;
+			return await this.medicineRepository.editMedicine(medicine);
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
     public async checkExpiration(date: Date): Promise<Medicine[]> {
         try {
@@ -186,98 +186,114 @@ export default class MedicineService{
         }
     }
 
-    // ganti jadi count all (jangan spesifik per generic name)
-    private async generateMedicineCode(genericNameId: number): Promise<string> {
-        try {
-            const genericName: GenericName | null = await this.genericNameService.getGenericNameById(genericNameId);
-            if (!genericName) throw new Error("Generic name not found");
+	// ganti jadi count all (jangan spesifik per generic name)
+	private async generateMedicineCode(genericNameId: number): Promise<string> {
+		try {
+			const genericName: GenericName | null = await this.genericNameService.getGenericNameById(genericNameId);
+			if (!genericName) throw new Error("Generic name not found");
 
-            console.log(genericName.value);
-            const totalMedicine: number = await this.getTotalMedicineByCode(genericName.value);
-            const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
-            console.log("medicine code: ", formatNumber);
+			console.log(genericName.value);
+			const totalMedicine: number = await this.getTotalMedicineByCode(genericName.value);
+			const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
+			console.log("medicine code: ", formatNumber);
 
-            return `${genericName.value}-${formatNumber}`
-        } catch (error) {
-            throw error as string;
-        }
-    }
+			return `${genericName.value}-${formatNumber}`
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    private constructMedicine(request: AddMedicineRequest): Medicine {
-        return Builder<Medicine>()
-            .is_active(true)
-            .created_at(new Date())
-            .updated_at(new Date())
-            .code(request.code)
-            .name(request.name)
-            .genericNameId(request.genericNameId)
-            .merk(request.merk)
-            .description(request.description)
-            .unitOfMeasure(UnitOfMeasure.MILLIGRAM)
-            .price(request.price)
-            .expiredDate(request.expiredDate)
-            .packagingId(request.packagingId)
-            .currStock(request.currStock)
-            .minStock(request.minStock)
-            .maxStock(request.maxStock)
-            .sideEffect(request.sideEffect)
-            .build();
-    }
+	private constructMedicine(request: AddMedicineRequest): Medicine {
+		return Builder<Medicine>()
+			.is_active(true)
+			.created_at(new Date())
+			.updated_at(new Date())
+			.code(request.code)
+			.name(request.name)
+			.genericNameId(request.genericNameId)
+			.merk(request.merk)
+			.description(request.description)
+			.unitOfMeasure(UnitOfMeasure.MILLIGRAM)
+			.price(request.price)
+			.expiredDate(request.expiredDate)
+			.packagingId(request.packagingId)
+			.currStock(request.currStock)
+			.minStock(request.minStock)
+			.maxStock(request.maxStock)
+			.sideEffect(request.sideEffect)
+			.build();
+	}
 
-    private constructEditMedicine(request: EditMedicineRequest): Medicine {
-        return Builder<Medicine>()
-            .id(request.id)
-            .code(request.code)
-            .name(request.name)
-            .merk(request.merk)
-            .description(request.description)
-            .unitOfMeasure(request.unitOfMeasure)
-            .price(request.price)
-            .expiredDate(request.expiredDate)
-            .packagingId(request.packagingId)
-            .genericNameId(request.genericNameId)
-            .currStock(request.currStock)
-            .minStock(request.minStock)
-            .maxStock(request.maxStock)
-            .sideEffect(request.sideEffect)
-            .is_active(request.isActive)
-            .created_at(request.createdAt)
-            .updated_at(new Date())
-            .build();
-    }
+	private constructEditMedicine(request: EditMedicineRequest): Medicine {
+		return Builder<Medicine>()
+			.id(request.id)
+			.code(request.code)
+			.name(request.name)
+			.merk(request.merk)
+			.description(request.description)
+			.unitOfMeasure(request.unitOfMeasure)
+			.price(request.price)
+			.expiredDate(request.expiredDate)
+			.packagingId(request.packagingId)
+			.genericNameId(request.genericNameId)
+			.currStock(request.currStock)
+			.minStock(request.minStock)
+			.maxStock(request.maxStock)
+			.sideEffect(request.sideEffect)
+			.is_active(request.isActive)
+			.created_at(request.createdAt)
+			.updated_at(new Date())
+			.build();
+	}
 
-    private constructMedicineHasClassification(classificationId: number, medicineId: number): MedicineHasClassification {
-        return Builder<MedicineHasClassification>()
-            .medicineId(medicineId)
-            .classificationId(classificationId)
-            .build();
-    }
-    public async decreaseMedicineStock(medicineId: number, quantity: number){
-        await this.medicineRepository.decreaseStock(medicineId, quantity)
-    }
+	private constructMedicineHasClassification(classificationId: number, medicineId: number): MedicineHasClassification {
+		return Builder<MedicineHasClassification>()
+			.medicineId(medicineId)
+			.classificationId(classificationId)
+			.build();
+	}
+	public async decreaseMedicineStock(medicineId: number, quantity: number) {
+		try {
+			await this.medicineRepository.decreaseStock(medicineId, quantity)
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    public async increaseMedicineStock(medicineId: number, quantity: number){
-        await this.medicineRepository.increaseStock(medicineId, quantity)
-    }
+	public async increaseMedicineStock(medicineId: number, quantity: number) {
+		try {
+			await this.medicineRepository.increaseStock(medicineId, quantity)
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    public async getMedicineValidationList(medicineIdList: number[]) {
-        return this.medicineRepository.getMedicineIdIn(medicineIdList);
-    }
+	public async getMedicineValidationList(medicineIdList: number[]) {
+		try {
+			return this.medicineRepository.getMedicineIdIn(medicineIdList);
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    private async mapMedicineDropdownList(medicineList: MedicineDropdownVO[]) {
-        return medicineList.reduce((medicineByMedicineId, medicine) => {
-            medicineByMedicineId.set(medicine.id, medicine)
-            return medicineByMedicineId
-        }, new Map<number, MedicineDropdownVO>)
-    }
+	private async mapMedicineDropdownList(medicineList: MedicineDropdownVO[]) {
+		return medicineList.reduce((medicineByMedicineId, medicine) => {
+			medicineByMedicineId.set(medicine.id, medicine)
+			return medicineByMedicineId
+		}, new Map<number, MedicineDropdownVO>)
+	}
 
-    public async updateMedicineStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineId: number) {
-        if (newPrescriptionQuantity > oldPrescriptionQuantity) {
-            console.log("decrease stock")
-            await this.decreaseMedicineStock(medicineId, newPrescriptionQuantity - oldPrescriptionQuantity)
-        } else if (oldPrescriptionQuantity > newPrescriptionQuantity) {
-            console.log("increase stock")
-            await this.increaseMedicineStock(medicineId, oldPrescriptionQuantity - newPrescriptionQuantity)
-        }
-    }
+	public async updateMedicineStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineId: number) {
+		try {
+			if (newPrescriptionQuantity > oldPrescriptionQuantity) {
+				console.log("decrease stock")
+				await this.decreaseMedicineStock(medicineId, newPrescriptionQuantity - oldPrescriptionQuantity)
+			} else if (oldPrescriptionQuantity > newPrescriptionQuantity) {
+				console.log("increase stock")
+				await this.increaseMedicineStock(medicineId, oldPrescriptionQuantity - newPrescriptionQuantity)
+			}
+		} catch (error) {
+			throw error as object;
+		}
+	}
 }

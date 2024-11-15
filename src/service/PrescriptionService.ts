@@ -12,6 +12,7 @@ import PrescriptionSummaryResponse from "../model/response/PrescriptionSummaryRe
 import PatientService from "./PatientService";
 import EditPrescriptionRequest from "../model/request/EditPrescriptionRequest";
 import ValidationHelper from "./helper/ValidationHelper";
+import PaginationRequest from "../model/request/PaginationRequest";
 
 export default class PrescriptionService{
     private readonly prescriptionRepository: PrescriptionRepository
@@ -113,9 +114,17 @@ export default class PrescriptionService{
         }
     }
 
-    public async updatePrescriptionToWaitingForPayment(id: number) {
+    public async updatePrescriptionStatus(id: number, status: Status) {
         try {
-            await this.prescriptionRepository.updatePrescriptionStatusById(Status.WAITING_FOR_PAYMENT, id);
+            await this.prescriptionRepository.updatePrescriptionStatusById(status, id);
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async countPrescription(patientName: string | undefined) {
+        try {
+            return await this.prescriptionRepository.countPrescriptionByPatientName(patientName)
         } catch (error) {
             throw error as string
         }
@@ -132,6 +141,7 @@ export default class PrescriptionService{
     private async compareAndUpdatePrescriptionHasMedicine(prescriptionHasMedicineByMedicineId: Map<number, PrescriptionHasMedicine>,
                                                           newPrescriptionHasMedicine: AddPrescribedMedicineRequest[], prescriptionId: number,
                                                           prescriptionHasMedicineById: Map<number, PrescriptionHasMedicine>) {
+															  try {
         let newPrescriptionHasMedicineUpdate: PrescriptionHasMedicine[] = [];
 
         newPrescriptionHasMedicine.forEach(newPrescription => {
@@ -156,6 +166,9 @@ export default class PrescriptionService{
         if (newPrescriptionHasMedicineUpdate.length > 0) {
             this.prescriptionHasMedicineRepository.createPrescriptionHasMedicine(newPrescriptionHasMedicineUpdate);
         }
+															  } catch (error) {
+																  throw error as string
+															  }
     }
 
     private async mapOldPrescriptionHasMedicine(oldPrescriptionHasMedicine: PrescriptionHasMedicine[]): Promise<[Map<number, PrescriptionHasMedicine>,
@@ -194,25 +207,9 @@ export default class PrescriptionService{
             .build();
     }
 
-    public async getAllPrescriptionList(username?: string){
+    public async getPrescriptionSummary(patientName: string | undefined, pagination: PaginationRequest){
         try {
-            if (username) {
-                return await this.prescriptionRepository.getAllPrescription().then(
-                    prescriptions => {
-                        return prescriptions.map(prescription => {
-                            return this.constructPrescriptionSummaryVO(prescription)
-                        })
-                    }
-                )
-            } else {
-                return await this.prescriptionRepository.getAllPrescription().then(
-                    prescriptions => {
-                        return prescriptions.map(prescription => {
-                            return this.constructPrescriptionSummaryVO(prescription)
-                        })
-                    }
-                )
-            }
+            return await this.prescriptionRepository.getAllPrescriptionByUsername(patientName, pagination.startIndex, pagination.limit);
         } catch (error) {
             throw error as string
         }

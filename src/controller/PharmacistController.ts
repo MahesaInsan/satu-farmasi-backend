@@ -1,27 +1,26 @@
 import {Request, Response} from "express";
-import ResponseHelper from "./ResponseHelper/ResponseHelper";
 import PharmacistService from "../service/PharmacistService";
 import AddPharmacistRequest from "../model/request/AddPharmacistRequest";
-import { Pharmacist } from "@prisma/client";
+import BaseController from "./BaseController";
+import BaseResponse from "../model/response/BaseResponse";
 
-export default class PharmacistController{
+export default class PharmacistController extends BaseController{
     private readonly pharmacistService: PharmacistService
-    private readonly responseHelper: ResponseHelper;
 
     constructor() {
+		super();
         this.pharmacistService = new PharmacistService();
-        this.responseHelper = new ResponseHelper();
     }
 
     async addPharmacist(req: Request, res: Response){
         try{
+            this.validateData(req);
             const request: AddPharmacistRequest = req.body;
-            console.log("request: ", request);
-            // TODO: change response to boolean
-            const createdPharmacist: Pharmacist = await this.pharmacistService.addPharmacist(request)
-            res.status(200).send(this.responseHelper.constructAddPharmacistResponse(createdPharmacist));
+            const createdPharmacist: boolean = await this.pharmacistService.addPharmacist(request)
+             res.status(200).send(new BaseResponse().ok(createdPharmacist, "Pharmacist added successfully"));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 }

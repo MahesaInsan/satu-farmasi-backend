@@ -20,6 +20,8 @@ class TransactionRouter extends BaseRouter{
         this.router.get('/_summary', this.transactionController.getTransactionSummary.bind(this.transactionController))
         this.router.get('/_subscribe', this.transactionController.subscribeNotification.bind(this.transactionController))
         this.router.post('/_publish', this.transactionController.publishNotification.bind(this.transactionController))
+        this.router.post('/_pay', this.transactionController.confirmPayment.bind(this.transactionController))
+        this.router.post('/_finish', this.transactionController.finishTransaction.bind(this.transactionController))
         this.router.get('/:id', this.transactionController.getTransactionDetail.bind(this.transactionController))
         this.router.get('/_status/on-progress-waiting-payment', this.transactionController.getOnGoingAndWaitingPaymentTransaction.bind(this.transactionController))
     }

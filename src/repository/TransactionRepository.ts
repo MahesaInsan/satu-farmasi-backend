@@ -1,4 +1,4 @@
-import {Transaction, PrismaClient, $Enums} from "@prisma/client";
+import {Transaction, PrismaClient, $Enums, PaymentMethod, Status} from "@prisma/client";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import TransactionDetailVO from "../model/VOs/TransactionDetailVO";
 
@@ -12,6 +12,39 @@ export default class TransactionRepository{
     public async addTransaction(transaction: Transaction){
         try {
             return this.prisma.transaction.create({data: transaction})
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async findById(id: number){
+        try {
+            return this.prisma.transaction.findFirst(
+                {
+                    include: {
+                        prescription: true
+                    },
+                    where: {
+                        id: id,
+                        is_active: true
+                    }
+                }
+            )
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async updatePaymentMethodById(paymentMethod: PaymentMethod, id: number) {
+        try {
+            return this.prisma.transaction.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    paymentMethod: paymentMethod
+                }
+            })
         } catch (error) {
             throw error as string
         }
@@ -98,6 +131,7 @@ export default class TransactionRepository{
                     },
                     prescription: {
                         select: {
+                            id: true,
                             status: true,
                             patient: {
                                 select: {

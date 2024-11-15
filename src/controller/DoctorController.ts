@@ -4,6 +4,7 @@ import DoctorService from "../service/DoctorService";
 import AddDoctorRequest from "../model/request/AddDoctorRequest";
 import { Doctor } from "@prisma/client";
 import { validationResult } from "express-validator";
+import BaseResponse from "../model/response/BaseResponse";
 
 export default class DoctorController{
     private readonly doctorService: DoctorService
@@ -22,7 +23,8 @@ export default class DoctorController{
             const createdDoctor: Doctor = await this.doctorService.addDoctor(request)
             res.status(200).send(this.responseHelper.constructAddDoctorResponse(createdDoctor));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 }

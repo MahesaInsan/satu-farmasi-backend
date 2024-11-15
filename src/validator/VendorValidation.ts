@@ -8,7 +8,7 @@ export default class VendorValidation extends BaseValidation {
         return this.validateBodyData(schema);
     }
 
-    public editVendorValidation() {
+    public updateVendorValidation() {
         const schema: ValidationSchema = Vendor.editSchema();
         return this.validateBodyData(schema);
     }
