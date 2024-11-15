@@ -60,7 +60,11 @@ export default class MedicineService {
     
     public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
         try {
-            return await this.medicineRepository.getMedicines(startIndex, limit);
+            const medicines: MedicineDisplayVO[] = await this.medicineRepository.getMedicines(startIndex, limit);
+			return medicines.map(medicine => ({
+				...medicine,
+				status_stock: medicine.currStock - medicine.minStock
+			}));
         } catch (error) {
             throw error as string;
         }
@@ -84,7 +88,11 @@ export default class MedicineService {
 
 	public async searchMedicines(startIndex: number, limit: number, parameter: string): Promise<MedicineDisplayVO[]> {
 		try {
-			return await this.medicineRepository.searchMedicines(startIndex, limit, parameter);
+			const medicines: MedicineDisplayVO[] = await this.medicineRepository.searchMedicines(startIndex, limit, parameter);
+			return medicines.map(medicine => ({
+				...medicine,
+				status_stock: medicine.currStock - medicine.minStock
+			}))
 		} catch (error) {
 			throw error as string;
 		}

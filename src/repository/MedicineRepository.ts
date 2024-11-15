@@ -488,7 +488,7 @@ export default class MedicineRepository {
                         gte: startDay,
                         lte: lastDay,
                     },
-                }
+                },
             })
         } catch (error) {
             console.error('Error checking expiration: ', error);
