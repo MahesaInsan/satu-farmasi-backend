@@ -12,6 +12,7 @@ export default class AddReceiveMedicineRequest {
     private _deadline: Date;
     private _isPaid: boolean;
     private _medicineRequest: AddMedicineRequest;
+    private _reportId: number;
 
     constructor(
         documentNumber: string,
@@ -23,7 +24,8 @@ export default class AddReceiveMedicineRequest {
         paymentMethod: $Enums.PaymentMethod,
         deadline: Date,
         isPaid: boolean,
-        medicineRequest: AddMedicineRequest
+        medicineRequest: AddMedicineRequest,
+        reportId: number
     ) {
         this._documentNumber = documentNumber;
         this._batchCode = batchCode;
@@ -35,6 +37,7 @@ export default class AddReceiveMedicineRequest {
         this._deadline = deadline;
         this._isPaid = isPaid;
         this._medicineRequest = medicineRequest;
+        this._reportId = reportId;
     }
 
     get documentNumber(): string {
@@ -71,6 +74,10 @@ export default class AddReceiveMedicineRequest {
 
     get isPaid(): boolean {
         return this._isPaid;
+    }
+
+    get reportId(): number {
+        return this._reportId
     }
 
     get medicineRequest(): AddMedicineRequest {
@@ -115,5 +122,9 @@ export default class AddReceiveMedicineRequest {
 
     set medicineRequest(value: AddMedicineRequest) {
         this._medicineRequest = value;
+    }
+
+    set reportId(value: number) {
+        this._reportId = value;
     }
 }

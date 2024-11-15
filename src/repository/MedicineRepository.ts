@@ -30,23 +30,32 @@ export default class MedicineRepository {
 					merk: true,
 					currStock: true,
 					minStock: true,
+					maxStock: true,
+					description: true,
+					expiredDate: true,
 					price: true,
+					unitOfMeasure: true,
+					sideEffect: true,
 					classifications: {
 						select: {
 							classification: {
 								select: {
-									label: true
+									id: true,
+									label: true,
+									value: true
 								}
 							}
 						}
 					},
 					packaging: {
 						select: {
+							id: true,
 							label: true
 						}
 					},
 					genericName: {
 						select: {
+							id: true,
 							label: true
 						}
 					}
