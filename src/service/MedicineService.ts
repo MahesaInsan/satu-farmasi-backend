@@ -42,6 +42,7 @@ export default class MedicineService {
 		}
 	}
 
+<<<<<<< Updated upstream
     public async getTotalMedicineByCode(code: string): Promise<number> {
         try {
             return await this.medicineRepository.getTotalMedicineByCode(code);
@@ -49,6 +50,16 @@ export default class MedicineService {
             throw error as string;
         }
     }
+=======
+	public async getTotalMedicineByCode(code: string): Promise<number> {
+		try {
+			const result =  await this.medicineRepository.getTotalMedicineGroupByCode(code);
+			return result.length < 1 ? 0 : result.length;
+		} catch (error) {
+			throw error as string;
+		}
+	}
+>>>>>>> Stashed changes
 
     public async getTotalNeedToRestock(): Promise<number> {
         try {
@@ -100,7 +111,12 @@ export default class MedicineService {
 
 	public async createMedicine(request: AddMedicineRequest): Promise<MedicineDisplayVO> {
 		try {
-			request.code = await this.generateMedicineCode(request.genericNameId);
+			const oldMedicine: MedicineDisplayVO | null = await this.getMedicineByCode(request.code);
+
+			request.code = !oldMedicine 
+				? await this.generateMedicineCode(request.genericNameId)
+				: request.code;
+
 			const medicine: Medicine = this.constructMedicine(request);
 			return await this.medicineRepository.createMedicine(medicine)
 				.then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
@@ -145,6 +161,22 @@ export default class MedicineService {
 			throw error as string;
 		}
 	}
+
+	// public async editMedicineByCode(request: EditMedicineRequest): Promise<MedicineDisplayVO> {
+	// 	try {
+	// 		const oldMedicine: MedicineDisplayVO | null = await this.getMedicineByCode(request.code)
+	// 		if (!oldMedicine) throw new Error("Medicine not found");
+
+	// 		request.code = oldMedicine && oldMedicine.genericNameId === request.genericNameId
+	// 			? request.code
+	// 			: await this.generateMedicineCode(request.genericNameId);
+
+	// 		const medicine: Medicine = this.constructEditMedicine(request);
+	// 		return await this.medicineRepository.
+	// 	} catch (error) {
+	// 		throw error as string;
+	// 	}
+	// }
 
 	public async addStock(id: number, currStock: number): Promise<boolean> {
 		try {
@@ -202,7 +234,7 @@ export default class MedicineService {
 
 			console.log(genericName.value);
 			const totalMedicine: number = await this.getTotalMedicineByCode(genericName.value);
-			const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
+			const formatNumber: string = (totalMedicine+1).toString().padStart(6, "0");
 			console.log("medicine code: ", formatNumber);
 
 			return `${genericName.value}-${formatNumber}`
