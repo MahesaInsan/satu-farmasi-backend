@@ -43,7 +43,6 @@ export default class ValidationHelper {
                 throw new Error("Quantity must be greater than 0")
             }
             const medicineValidation: Medicine = medicineListValidation[indexByMedicineId.get(medicineRequest.medicineId)!]
-            // WARNING: should > minStock?
             if (medicineValidation.currStock - medicineRequest.quantity >= 0) {
                 throw new CustomError().formatError("Insufficient medicine stock", `prescription.medicineList.${index}.quantity`);
             }

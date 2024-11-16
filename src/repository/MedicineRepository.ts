@@ -57,15 +57,14 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async decreaseStock(medicineId: number, quantity: number) {
+	public async decreaseStock(medicineId: number, quantity: number, path: string = "quantity") {
 		try {
 			const medicine: Medicine | null = await this.getMedicineById(medicineId);
 			if (!medicine) {
 				throw new CustomError().formatError("Medicine Not Found", "medicineId");
 			}
-			const isValidStock = (medicine.currStock - quantity) >= medicine.minStock;
-			if (!isValidStock) {
-				throw new CustomError().formatError("Medicine stock is not enough", "quantity");
+			if (medicine.currStock - quantity >= 0) {
+				throw new CustomError().formatError("Medicine stock is not enough", path);
 			}
 
 			await this.prisma.medicine.update({
