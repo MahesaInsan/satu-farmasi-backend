@@ -1,5 +1,4 @@
 import { Medicine, PrismaClient } from "@prisma/client"
-import TotalMedicineGroupByCode from "../model/VOs/TotalMedicineGroupByCodeVO";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
@@ -153,29 +152,29 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async getTotalMedicineGroupByCode(code: string): Promise<TotalMedicineGroupByCode[]> {
-		try {
-			const result = await this.prisma.medicine.groupBy({
-				by: ['code'],
-				where: {
-					code: { contains: code }
-				},
-				_count: {
-					code: true
-				},
-				orderBy: {
-					_count: {
-						code: 'desc'
-					}
-				},
-				take: 1
-			})
-			return result;
-		} catch (error) {
-			console.error('Error counting medicineList: ', error);
-			throw new Error('Failed to count medicineList');
-		}
-	}
+	// public async getTotalMedicineGroupByCode(code: string): Promise<TotalMedicineGroupByCode[]> {
+	// 	try {
+	// 		const result = await this.prisma.medicine.groupBy({
+	// 			by: ['code'],
+	// 			where: {
+	// 				code: { contains: code }
+	// 			},
+	// 			_count: {
+	// 				code: true
+	// 			},
+	// 			orderBy: {
+	// 				_count: {
+	// 					code: 'desc'
+	// 				}
+	// 			},
+	// 			take: 1
+	// 		})
+	// 		return result;
+	// 	} catch (error) {
+	// 		console.error('Error counting medicineList: ', error);
+	// 		throw new Error('Failed to count medicineList');
+	// 	}
+	// }
 
     public async getTotalNeedToRestock(): Promise<number> {
         try {
@@ -492,23 +491,7 @@ export default class MedicineRepository {
 		}
 	}
 
-<<<<<<< Updated upstream
     public async checkExpiration(startDay: Date, lastDay: Date): Promise<Medicine[]> {
-=======
-	public async editMedicineByCode(dataMedicine: Medicine) {
-		try {
-			return await this.prisma.medicine.updateMany({
-				where: { code: dataMedicine.code },
-				data: dataMedicine
-			});
-		} catch (error) {
-			console.error('Error editing medicine: ', error);
-			throw new Error('Failed to edit medicine');
-		}
-	}
-
-    public async checkExpiration(date: Date, month: Date): Promise<Medicine[]> {
->>>>>>> Stashed changes
         try {
             return this.prisma.medicine.findMany({
                 where: {
