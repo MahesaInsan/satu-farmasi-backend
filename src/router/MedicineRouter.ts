@@ -16,6 +16,8 @@ class MedicineRouter extends BaseRouter {
         //     (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
         // )
         this.router.get( "/dropdownOptions", this.medicineController.getMedicineList.bind( this.medicineController));
+        this.router.get( "/summaryById", this.medicineController.getMedicineByIdSummary.bind( this.medicineController));
+        this.router.get( "/summaryByCode", this.medicineController.getMedicineByCodeSummary.bind( this.medicineController));
         this.router.get( "/", this.medicineController.getMedicines.bind(this.medicineController));
         this.router.get( "/total", this.medicineController.getTotalMedicine.bind(this.medicineController));
         this.router.post("/", this.medicineController.createMedicine.bind(this.medicineController));

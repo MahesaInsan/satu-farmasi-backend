@@ -1,6 +1,6 @@
 import MedicineRepository from "../repository/MedicineRepository";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
-import { GenericName, Medicine, MedicineHasClassification, UnitOfMeasure } from "@prisma/client";
+import {GenericName, Medicine, MedicineHasClassification, Prisma, UnitOfMeasure} from "@prisma/client";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import { Builder } from "builder-pattern";
 import GetMedicineRequest from "../model/request/GetMedicineRequest";
@@ -10,6 +10,8 @@ import MedicineCheckStockVO from "../model/VOs/MedicineCheckStockVO";
 import AddMedicineClassificationRequest from "../model/request/AddMedicineClassificationRequest";
 import MedicineHasClassificationRepository from "../repository/MedicineHasClassificationRepository";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
+import PaginationRequest from "../model/request/PaginationRequest";
+import * as sea from "node:sea";
 
 export default class MedicineService {
 	private readonly medicineRepository: MedicineRepository;
@@ -34,9 +36,17 @@ export default class MedicineService {
 		}
 	}
 
-	public async getTotalSearchMedicines(parameter: string): Promise<number> {
+	public async getTotalSearchMedicines(parameter: string | undefined): Promise<number> {
 		try {
 			return await this.medicineRepository.getTotalSearchMedicines(parameter);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
+	public async getTotalSearchMedicineByCode(parameter: string | undefined): Promise<number> {
+		try {
+			return await this.medicineRepository.getTotalSearchMedicinesByCode(parameter);
 		} catch (error) {
 			throw error as string;
 		}
@@ -53,6 +63,28 @@ export default class MedicineService {
 	public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
 		try {
 			return await this.medicineRepository.getMedicines(startIndex, limit);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
+	public async getMedicineSummaryByCode(startIndex: number, limit: number, searchQuery: string | undefined,
+										  sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
+		try {
+			const validatedQuery = await this.checkIfParamValid(searchQuery, sortBy, sortMode)
+			return await this.medicineRepository.getMedicineSummaryByCode(startIndex, limit, validatedQuery[0],
+				validatedQuery[1], validatedQuery[2]);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
+	public async getMedicineSummaryById(startIndex: number, limit: number, searchQuery: string | undefined,
+										sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
+		try {
+			const validatedQuery = await this.checkIfParamValid(searchQuery, sortBy, sortMode)
+			return await this.medicineRepository.getMedicineSummaryById(startIndex, limit, validatedQuery[0],
+				validatedQuery[1], validatedQuery[2]);
 		} catch (error) {
 			throw error as string;
 		}
@@ -287,5 +319,19 @@ export default class MedicineService {
 		} catch (error) {
 			throw error as object;
 		}
+	}
+
+	private async checkIfParamValid(searchQuery: string | undefined, sortBy: string | undefined, sortMode: string | undefined) {
+		searchQuery === undefined ? searchQuery = "" : searchQuery;
+		if (sortBy && !Object.values(Prisma.MedicineScalarFieldEnum).toString().includes(sortBy)) {
+			sortBy = undefined
+			sortMode = undefined
+		}
+		if (sortMode && !(sortMode === "asc" || sortMode === "desc")) {
+			sortBy = undefined
+			sortMode = undefined
+		}
+
+		return [searchQuery, sortBy, sortMode]
 	}
 }

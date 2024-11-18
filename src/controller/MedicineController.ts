@@ -135,4 +135,42 @@ export default class MedicineController extends BaseController {
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
+
+    public async getMedicineByCodeSummary(req: Request, res: Response) {
+        try {
+            console.log("#getMedicineSumaryByCode with request: ", req.query)
+            const searchQuery = req.query.search as string | undefined
+            const sortBy = req.query.sortBy as string | undefined
+            const sortMode = req.query.sortMode as string | undefined
+            const totalData = await this.medicineService.getTotalSearchMedicineByCode(searchQuery)
+            const pagination = this.getPagination(totalData, req)
+            pagination.results = await this.medicineService.getMedicineSummaryByCode(pagination.startIndex, pagination.limit, searchQuery,
+                sortBy, sortMode)
+            pagination.total = totalData
+            res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)))
+        } catch (error) {
+            console.error("Error when #getMedicineByCodeSummary with error: ", error)
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+
+    public async getMedicineByIdSummary(req: Request, res: Response) {
+        try {
+            console.log("#getMedicineSumaryById with request: ", req.query)
+            const searchQuery = req.query.search as string | undefined
+            const sortBy = req.query.sortBy as string | undefined
+            const sortMode = req.query.sortMode as string | undefined
+            const totalData = await this.medicineService.getTotalSearchMedicines(searchQuery)
+            const pagination = this.getPagination(totalData, req)
+            pagination.results = await this.medicineService.getMedicineSummaryById(pagination.startIndex, pagination.limit, searchQuery,
+                sortBy, sortMode)
+            pagination.total = totalData
+            res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)))
+        } catch (error) {
+            console.error("Error when #getMedicineByIdSummary with error: ", error)
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
 }

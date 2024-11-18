@@ -1,4 +1,4 @@
-import {Response} from "express";
+import {Request, Response} from "express";
 import PatientService from "../service/PatientService";
 import {Patient} from "@prisma/client";
 import AddPatientRequest from "../model/request/AddPatientRequest";
