@@ -1,5 +1,6 @@
 import MedicineRepository from "../repository/MedicineRepository";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
+import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
 import { GenericName, Medicine, MedicineHasClassification, UnitOfMeasure } from "@prisma/client";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import { Builder } from "builder-pattern";
@@ -45,28 +46,36 @@ export default class MedicineService {
 
 	public async getTotalMedicineByCode(code: string): Promise<number> {
 		try {
-			const result =  await this.medicineRepository.getTotalMedicineGroupByCode(code);
+			const result: TotalMedicineGroupByCodeVO[] =  await this.medicineRepository.getTotalMedicineGroupByCode(code);
 			return result.length < 1 ? 0 : result.length;
 		} catch (error) {
 			throw error as string;
 		}
 	}
 
-	public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
-		try {
-			return await this.medicineRepository.getMedicines(startIndex, limit);
-		} catch (error) {
-			throw error as string;
-		}
-	}
-
-	public async getMedicineById(id: number): Promise<Medicine | null> {
-		try {
-			return await this.medicineRepository.getMedicineById(id);
-		} catch (error) {
-			throw error as string;
-		}
-	}
+    public async getTotalNeedToRestock(): Promise<number> {
+        try {
+            return await this.medicineRepository.getTotalNeedToRestock();
+        } catch (error) {
+            throw error as string;
+        }
+    }
+    
+    public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
+        try {
+            return await this.medicineRepository.getMedicines(startIndex, limit);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+    
+    public async getMedicineById(id: number): Promise<Medicine | null> {
+        try {
+            return await this.medicineRepository.getMedicineById(id);
+        } catch (error) {
+            throw error as string;
+        }
+    }
 
 	public async getMedicineByCode(code: string): Promise<MedicineDisplayVO | null> {
 		try {
@@ -192,9 +201,9 @@ export default class MedicineService {
 
     public async checkExpiration(date: Date): Promise<Medicine[]> {
         try {
-            const today = new Date(date);
-            const startOfNextMonth: Date = new Date(today.getFullYear(), today.getMonth()+1, 1)
-            return await this.medicineRepository.checkExpiration(date, startOfNextMonth);
+            const today: Date = new Date(date);
+            const lastDay: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+            return await this.medicineRepository.checkExpiration(today, lastDay);
         } catch (error) {
             throw error as string;
         }

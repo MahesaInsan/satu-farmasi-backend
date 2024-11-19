@@ -61,6 +61,17 @@ export default class MedicineController extends BaseController {
             return res.status(400).send(new BaseResponse().badRequest(errorMessage));
         }
     }
+    
+    public async getTotalNeedToRestock(req: Request, res: Response) {
+        try {
+            const total: number = await this.medicineService.getTotalNeedToRestock();
+            return res.status(200).send(new BaseResponse().ok(total, "Succeed get total medicine need to restock"));
+        } catch (error) {
+            console.log("[src][controller][MedicineController][getTotalNeedToRestock] ", error);
+            const errorMessage: string = error instanceof Error ? error.message : String(error);
+            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
+        }
+    }
 
     public async createMedicine(req: Request, res: Response) {
         try {
@@ -131,18 +142,6 @@ export default class MedicineController extends BaseController {
             return res.status(200).send(new BaseResponse().ok(medicine, "Succeed Checked Expiration"));
         } catch (error) {
             console.log("[src][controller][MedicineController][checkExpiration] ", error);
-            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
-            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
-        }
-    }
-
-    public async getMedicineById(req: Request, res: Response) {
-        try {
-            const id: number = Number(req.params.id);
-            const medicine: Medicine | null = await this.medicineService.getMedicineById(id);
-            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed get medicine by id"));
-        } catch (error) {
-            console.log("[src][controller][MedicineController][getMedicineById] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }

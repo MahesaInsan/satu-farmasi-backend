@@ -2,6 +2,7 @@ import { Medicine, PrismaClient } from "@prisma/client"
 import TotalMedicineGroupByCode from "../model/VOs/TotalMedicineGroupByCodeVO";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
+import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class MedicineRepository {
@@ -161,7 +162,7 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async getTotalMedicineGroupByCode(code: string): Promise<TotalMedicineGroupByCode[]> {
+	public async getTotalMedicineGroupByCode(code: string): Promise<TotalMedicineGroupByCodeVO[]> {
 		try {
 			const result = await this.prisma.medicine.groupBy({
 				by: ['code'],
@@ -185,6 +186,20 @@ export default class MedicineRepository {
 		}
 	}
 
+    public async getTotalNeedToRestock(): Promise<number> {
+        try {
+            return this.prisma.medicine.count({
+                where: {
+                    currStock: {
+                        lte: this.prisma.medicine.fields.minStock
+                    }
+                }
+            })
+        } catch (error) {
+            console.error('Error get need to restock medicineList: ', error);
+            throw new Error('Failed to get need to restock medicineList');
+        }
+    }
 
 	public async getMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
 		try {
@@ -498,12 +513,13 @@ export default class MedicineRepository {
 		}
 	}
 
-    public async checkExpiration(date: Date, month: Date): Promise<Medicine[]> {
+    public async checkExpiration(startDay: Date, lastDay: Date): Promise<Medicine[]> {
         try {
             return this.prisma.medicine.findMany({
                 where: {
                     expiredDate: {
-                        lte: date,
+                        gte: startDay,
+                        lte: lastDay,
                     },
                 }
             })

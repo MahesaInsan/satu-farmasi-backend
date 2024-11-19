@@ -1,6 +1,6 @@
 export default interface TotalMedicineGroupByCodeVO {
-    code: string,
+    code: string;
     _count: {
-        code: number
+        code: number;
     }
 }

@@ -7,6 +7,7 @@ import AddPrescribedMedicineRequest from "../model/request/AddPrescribedMedicine
 import PrescriptionHasMedicineRepository from "../repository/PrescriptionHasMedicineRepository";
 import MedicineService from "./MedicineService";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
+import MostSalesMedicineVO from "../model/VOs/MostSalesMedicineVO";
 import PrescriptionSummaryResponse from "../model/response/PrescriptionSummaryResponse";
 import PatientService from "./PatientService";
 import EditPrescriptionRequest from "../model/request/EditPrescriptionRequest";
@@ -52,6 +53,31 @@ export default class PrescriptionService{
             } else return result;
         } catch (error) {
             throw error as string
+        }
+    }
+
+    public async getMostSalesMedicineByPrescription(startDate: Date, lastDate: Date) {
+        try {
+            // const prescriptions: Prescription[] = await this.prescriptionRepository.getAllPrescriptionPerMonth(startDate, lastDate);
+            // console.log("prescriptions: ", prescriptions);
+            // const result = await this.prescriptionHasMedicineRepository.getMostSalesMedicineByPrescription(
+            //     prescriptions?.map(prescription => prescription.id)
+            // );
+            const result = await this.prescriptionHasMedicineRepository.getMostSalesMedicineByPrescription(startDate, lastDate)
+            const data = await Promise.all(
+                result.map(async item => {
+                    const medicine = await this.medicineService.getMedicineById(item.medicineId);
+                    return {
+                        medicineName: medicine?.name || null,
+                        quantity: item._sum.quantity
+                    }
+                })
+            )
+            console.log(data);
+            return data
+        } catch (error) {
+            console.error(error);
+            throw error as string;
         }
     }
 

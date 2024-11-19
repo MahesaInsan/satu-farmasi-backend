@@ -3,6 +3,8 @@ import PrescriptionService from "../service/PrescriptionService";
 import BaseResponse from "../model/response/BaseResponse";
 import AddPrescriptionRequest from "../model/request/AddPrescriptionRequest";
 import EditPrescriptionRequest from "../model/request/EditPrescriptionRequest";
+import RangeMonthRequest from "../model/request/RangeMonthRequest";
+import MostSalesMedicineVO from "../model/VOs/MostSalesMedicineVO";
 import BaseController from "./BaseController";
 import {Status} from "@prisma/client";
 
@@ -38,6 +40,19 @@ export default class PrescriptionController extends BaseController{
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+
+    public async getMostSalesMedicineByPrescription(req: Request, res: Response) {
+        try {
+            console.log("#getMostSalesMedicineByPrescription with request:", req.body)
+            const request: RangeMonthRequest = req.body;
+            const result = await this.prescriptionService.getMostSalesMedicineByPrescription(request.startDate, request.startDate);
+            return res.status(200).send(new BaseResponse().ok(result, "Succeed get most sales medicine by prescription"));
+        } catch (error) {
+            console.log(error);
+            const errorMessage: string = error instanceof Error ? error.message : String(error);
+            return res.status(400).send(new BaseResponse().badRequest(errorMessage));
         }
     }
 
