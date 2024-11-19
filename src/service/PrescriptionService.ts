@@ -159,11 +159,12 @@ export default class PrescriptionService{
 
     private async createNewPrescriptionHasMedicine(medicineList: AddPrescribedMedicineRequest[], prescriptionId: number){
         try {
-            const newPrescribeMedicineList: PrescriptionHasMedicine[] = medicineList
-                .map((prescribedMedicineRequest: AddPrescribedMedicineRequest) => {
-                    this.medicineService.decreaseMedicineStock(prescribedMedicineRequest.medicineId, prescribedMedicineRequest.quantity)
-                    return this.constructPrescriptionHasMedicine(prescribedMedicineRequest, prescriptionId)
+            const newPrescribeMedicineList = await Promise.all(
+                medicineList .map(async (prescribedMedicineRequest: AddPrescribedMedicineRequest, index) => {
+                    await this.medicineService.decreaseMedicineStock(prescribedMedicineRequest.medicineId, prescribedMedicineRequest.quantity, `prescription.medicineList.${index}.quantity`)
+                    return  this.constructPrescriptionHasMedicine(prescribedMedicineRequest, prescriptionId)
                 })
+            )
             console.log("prescribedMedicineList: ", newPrescribeMedicineList)
             return await this.prescriptionHasMedicineRepository.createPrescriptionHasMedicine(newPrescribeMedicineList)
         } catch (error) {
