@@ -9,6 +9,8 @@ import MedicineCheckStockVO from "../model/VOs/MedicineCheckStockVO";
 import AddMedicineClassificationRequest from "../model/request/AddMedicineClassificationRequest";
 import MedicineHasClassificationRepository from "../repository/MedicineHasClassificationRepository";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
+import AddClassificationRequest from "../model/request/AddClassificationRequest";
+import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class MedicineService {
 	private readonly medicineRepository: MedicineRepository;
@@ -123,6 +125,8 @@ export default class MedicineService {
 				? request.code
 				: await this.generateMedicineCode(request.genericNameId);
 
+            this.isDuplicateClassification(request.classificationList);
+
 			const medicine: Medicine = this.constructEditMedicine(request);
 			return await this.medicineRepository.editMedicine(medicine)
 				.then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
@@ -135,21 +139,18 @@ export default class MedicineService {
 		}
 	}
 
-	// public async editMedicineByCode(request: EditMedicineRequest): Promise<MedicineDisplayVO> {
-	// 	try {
-	// 		const oldMedicine: MedicineDisplayVO | null = await this.getMedicineByCode(request.code)
-	// 		if (!oldMedicine) throw new Error("Medicine not found");
-
-	// 		request.code = oldMedicine && oldMedicine.genericNameId === request.genericNameId
-	// 			? request.code
-	// 			: await this.generateMedicineCode(request.genericNameId);
-
-	// 		const medicine: Medicine = this.constructEditMedicine(request);
-	// 		return await this.medicineRepository.
-	// 	} catch (error) {
-	// 		throw error as string;
-	// 	}
-	// }
+    public isDuplicateClassification(classificationList: AddMedicineClassificationRequest[]): void {
+        try {
+            const classificationSet = new Set<number>();
+            classificationList.forEach((classification: AddMedicineClassificationRequest) => {
+                classificationSet.add(classification.classificationId)
+            })
+            if (classificationSet.size != classificationList.length) 
+                throw new CustomError().formatError("Duplicate medicine classification are not allowed", "custom");
+        } catch (error) {
+            throw error as string;
+        }
+    }
 
 	public async addStock(id: number, currStock: number): Promise<boolean> {
 		try {
