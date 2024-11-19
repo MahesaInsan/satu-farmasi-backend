@@ -23,6 +23,21 @@ export default class VendorRepository extends BaseRepository {
 		}
 	}
 
+	public async getAllActiveVendors(): Promise<Vendor[]> {
+		try {
+			return await this.Prisma.vendor.findMany({
+				where: { is_active: true },
+				orderBy: [
+					{ updated_at: 'desc' },
+					{ created_at: 'desc' },
+				]
+			});
+		} catch (error) {
+			console.error("Error getting all active vendors:", error);
+			throw new Error("Failed to get all active vendors");
+		}
+	}
+
 	public async getTotalVendors(): Promise<number> {
 		try {
 			return await this.Prisma.vendor.count({

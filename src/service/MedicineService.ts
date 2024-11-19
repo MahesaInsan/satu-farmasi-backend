@@ -3,7 +3,6 @@ import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import { GenericName, Medicine, MedicineHasClassification, UnitOfMeasure } from "@prisma/client";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import { Builder } from "builder-pattern";
-import GetMedicineRequest from "../model/request/GetMedicineRequest";
 import GenericNameService from "./GenericNameService";
 import EditMedicineRequest from "../model/request/EditMedicineRequest";
 import MedicineCheckStockVO from "../model/VOs/MedicineCheckStockVO";
@@ -46,7 +45,8 @@ export default class MedicineService {
 
 	public async getTotalMedicineByCode(code: string): Promise<number> {
 		try {
-			return await this.medicineRepository.getTotalMedicineByCode(code);
+			const result =  await this.medicineRepository.getTotalMedicineGroupByCode(code);
+			return result.length < 1 ? 0 : result.length;
 		} catch (error) {
 			throw error as string;
 		}
@@ -86,7 +86,12 @@ export default class MedicineService {
 
 	public async createMedicine(request: AddMedicineRequest): Promise<MedicineDisplayVO> {
 		try {
-			request.code = await this.generateMedicineCode(request.genericNameId);
+			const oldMedicine: MedicineDisplayVO | null = await this.getMedicineByCode(request.code);
+
+			request.code = !oldMedicine 
+				? await this.generateMedicineCode(request.genericNameId)
+				: request.code;
+
 			const medicine: Medicine = this.constructMedicine(request);
 			return await this.medicineRepository.createMedicine(medicine)
 				.then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
@@ -203,7 +208,7 @@ export default class MedicineService {
 
 			console.log(genericName.value);
 			const totalMedicine: number = await this.getTotalMedicineByCode(genericName.value);
-			const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
+			const formatNumber: string = (totalMedicine+1).toString().padStart(6, "0");
 			console.log("medicine code: ", formatNumber);
 
 			return `${genericName.value}-${formatNumber}`
@@ -222,7 +227,7 @@ export default class MedicineService {
 			.genericNameId(request.genericNameId)
 			.merk(request.merk)
 			.description(request.description)
-			.unitOfMeasure(UnitOfMeasure.MILLIGRAM)
+			.unitOfMeasure(request.unitOfMeasure)
 			.price(request.price)
 			.expiredDate(request.expiredDate)
 			.packagingId(request.packagingId)
