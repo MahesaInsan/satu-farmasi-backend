@@ -244,9 +244,9 @@ export default class MedicineService {
 			.classificationId(classificationId)
 			.build();
 	}
-	public async decreaseMedicineStock(medicineId: number, quantity: number) {
+	public async decreaseMedicineStock(medicineId: number, quantity: number, path: string = "quantity") {
 		try {
-			await this.medicineRepository.decreaseStock(medicineId, quantity)
+			await this.medicineRepository.decreaseStock(medicineId, quantity, path)
 		} catch (error) {
 			throw error as string;
 		}
