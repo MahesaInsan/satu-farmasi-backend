@@ -1,4 +1,4 @@
-import {Response} from "express";
+import {Request, Response} from "express";
 import PatientService from "../service/PatientService";
 import {Patient} from "@prisma/client";
 import AddPatientRequest from "../model/request/AddPatientRequest";
@@ -11,7 +11,7 @@ export default class PatientController{
         this.patientService = new PatientService();
     }
 
-    async getPatientDropdownOptions(res: Response){
+    async getPatientDropdownOptions(req: Request, res: Response){
         try{
             console.log("#getPatientDropdownOptions");
             const patientByPatientId = await this.patientService.fetchPatient()

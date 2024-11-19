@@ -16,6 +16,7 @@ import cookieParser from "cookie-parser";
 import VendorRouter from "../router/VendorRouter";
 import ClassificationRouter from "../router/ClassificationRouter";
 import TransactionRouter from "../router/TransactionRouter";
+import MedicineReportRouter from "../router/MedicineReportRouter";
 
 export default class App {
     private readonly app: Application;
@@ -57,6 +58,7 @@ export default class App {
         this.app.use("/api/v1/vendors", VendorRouter);
         this.app.use("/api/v1/classifications", ClassificationRouter);
         this.app.use("/api/v1/transactions", TransactionRouter);
+        this.app.use("/api/v1/reports", MedicineReportRouter);
     }
 
     public listen() {

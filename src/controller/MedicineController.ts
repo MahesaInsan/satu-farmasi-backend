@@ -135,4 +135,16 @@ export default class MedicineController extends BaseController {
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
+
+    public async getMedicineById(req: Request, res: Response) {
+        try {
+            const id: number = Number(req.params.id);
+            const medicine: Medicine | null = await this.medicineService.getMedicineById(id);
+            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed get medicine by id"));
+        } catch (error) {
+            console.log("[src][controller][MedicineController][getMedicineById] ", error);
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
 }

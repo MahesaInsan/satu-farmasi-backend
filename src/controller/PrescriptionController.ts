@@ -1,23 +1,31 @@
 import {Request, Response} from "express";
-import ResponseHelper from "./ResponseHelper/ResponseHelper";
 import PrescriptionService from "../service/PrescriptionService";
 import BaseResponse from "../model/response/BaseResponse";
 import AddPrescriptionRequest from "../model/request/AddPrescriptionRequest";
 import EditPrescriptionRequest from "../model/request/EditPrescriptionRequest";
+import BaseController from "./BaseController";
+import {Status} from "@prisma/client";
 
-export default class PrescriptionController {
+export default class PrescriptionController extends BaseController{
     private readonly prescriptionService: PrescriptionService;
-    private readonly responseHelper: ResponseHelper;
 
     constructor() {
+        super()
         this.prescriptionService = new PrescriptionService();
-        this.responseHelper = new ResponseHelper();
     }
 
     public async getAllPrescription(req: Request, res: Response) {
         try{
-            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.getAllPrescriptionList(req.params.username)));
+            console.log("#getPrescriptionSummary with request: ", req.query)
+            const patientName = req.query.name as string | undefined
+            const status = Object.values(Status).includes(req.query.status as Status) ? req.query.status as Status : undefined;
+            const totalData = await this.prescriptionService.countPrescription(patientName, status)
+            const pagination = this.getPagination(totalData,req)
+            pagination.results = await this.prescriptionService.getPrescriptionSummary(patientName, status, pagination)
+            pagination.total = totalData
+            res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
+            console.error("error when #getPrescriptionSummary with error: ", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }

@@ -2,6 +2,7 @@ import {Prescription, PrismaClient, Status} from "@prisma/client";
 import IdVO from "../model/VOs/IdVO";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
 import PrescriptionDetailVO from "../model/VOs/PrescriptionDetailVO";
+import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 
 export default class PrescriptionRepository{
     private readonly prisma: PrismaClient;
@@ -85,15 +86,17 @@ export default class PrescriptionRepository{
         }
     }
 
-    public async getAllPrescriptionByUsername(username: string): Promise<PrescriptionSummaryVO[]>{
+    public async getAllPrescriptionByUsername(patientName: string | undefined, status: Status | undefined,
+                                              startIndex: number, limit: number): Promise<PrescriptionSummaryVO[]> {
         try {
             return this.prisma.prescription.findMany({
                 where: {
                     patient: {
                         name: {
-                            contains: username
+                            contains: patientName
                         }
                     },
+                    status: status,
                     is_active: true
                 },
                 select: {
@@ -106,6 +109,8 @@ export default class PrescriptionRepository{
                     },
                     status: true
                 },
+                skip: startIndex,
+                take: limit,
                 orderBy: [
                     {
                         status: "asc"
@@ -158,6 +163,24 @@ export default class PrescriptionRepository{
                 },
                 select: {
                     id: true
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async countPrescriptionByPatientName(patientName: string | undefined, status: Status | undefined) {
+        try {
+            return this.prisma.prescription.count({
+                where: {
+                    patient: {
+                        name: {
+                            contains: patientName
+                        }
+                    },
+                    status: status,
+                    is_active: true
                 }
             })
         } catch (error) {

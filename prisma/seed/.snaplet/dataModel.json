@@ -2778,6 +2778,20 @@
           "maxLength": null
         },
         {
+          "id": "public.Transaction.paymentMethod",
+          "name": "paymentMethod",
+          "columnName": "paymentMethod",
+          "type": "PaymentMethod",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "name": "MedicineReport",
           "type": "MedicineReport",
           "isRequired": false,

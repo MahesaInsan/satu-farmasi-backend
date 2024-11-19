@@ -9,6 +9,7 @@ export default interface TransactionSummaryVO {
         firstName: string
     },
     prescription: {
+        id: number
         status: Status
     },
     updated_at: Date
