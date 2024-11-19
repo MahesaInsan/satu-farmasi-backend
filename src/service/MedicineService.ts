@@ -1,5 +1,6 @@
 import MedicineRepository from "../repository/MedicineRepository";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
+import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
 import { GenericName, Medicine, MedicineHasClassification, UnitOfMeasure } from "@prisma/client";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import { Builder } from "builder-pattern";
@@ -42,24 +43,14 @@ export default class MedicineService {
 		}
 	}
 
-<<<<<<< Updated upstream
-    public async getTotalMedicineByCode(code: string): Promise<number> {
-        try {
-            return await this.medicineRepository.getTotalMedicineByCode(code);
-        } catch (error) {
-            throw error as string;
-        }
-    }
-=======
 	public async getTotalMedicineByCode(code: string): Promise<number> {
 		try {
-			const result =  await this.medicineRepository.getTotalMedicineGroupByCode(code);
+			const result: TotalMedicineGroupByCodeVO[] =  await this.medicineRepository.getTotalMedicineGroupByCode(code);
 			return result.length < 1 ? 0 : result.length;
 		} catch (error) {
 			throw error as string;
 		}
 	}
->>>>>>> Stashed changes
 
     public async getTotalNeedToRestock(): Promise<number> {
         try {

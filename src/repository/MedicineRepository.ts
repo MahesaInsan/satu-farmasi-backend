@@ -1,6 +1,7 @@
 import { Medicine, PrismaClient } from "@prisma/client"
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
+import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class MedicineRepository {
@@ -151,29 +152,29 @@ export default class MedicineRepository {
 		}
 	}
 
-	// public async getTotalMedicineGroupByCode(code: string): Promise<TotalMedicineGroupByCode[]> {
-	// 	try {
-	// 		const result = await this.prisma.medicine.groupBy({
-	// 			by: ['code'],
-	// 			where: {
-	// 				code: { contains: code }
-	// 			},
-	// 			_count: {
-	// 				code: true
-	// 			},
-	// 			orderBy: {
-	// 				_count: {
-	// 					code: 'desc'
-	// 				}
-	// 			},
-	// 			take: 1
-	// 		})
-	// 		return result;
-	// 	} catch (error) {
-	// 		console.error('Error counting medicineList: ', error);
-	// 		throw new Error('Failed to count medicineList');
-	// 	}
-	// }
+	public async getTotalMedicineGroupByCode(code: string): Promise<TotalMedicineGroupByCodeVO[]> {
+		try {
+			const result = await this.prisma.medicine.groupBy({
+				by: ['code'],
+				where: {
+					code: { contains: code }
+				},
+				_count: {
+					code: true
+				},
+				orderBy: {
+					_count: {
+						code: 'desc'
+					}
+				},
+				take: 1
+			})
+			return result;
+		} catch (error) {
+			console.error('Error counting medicineList: ', error);
+			throw new Error('Failed to count medicineList');
+		}
+	}
 
     public async getTotalNeedToRestock(): Promise<number> {
         try {
