@@ -192,6 +192,7 @@ export default class TransactionRepository{
                     },
                     prescription: {
                         select: {
+                            id: true,
                             status: true
                         }
                     }
