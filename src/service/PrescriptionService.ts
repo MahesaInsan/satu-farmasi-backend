@@ -122,9 +122,9 @@ export default class PrescriptionService{
         }
     }
 
-    public async countPrescription(patientName: string | undefined) {
+    public async countPrescription(patientName: string | undefined, status: Status | undefined) {
         try {
-            return await this.prescriptionRepository.countPrescriptionByPatientName(patientName)
+            return await this.prescriptionRepository.countPrescriptionByPatientName(patientName, status)
         } catch (error) {
             throw error as string
         }
@@ -185,11 +185,12 @@ export default class PrescriptionService{
 
     private async createNewPrescriptionHasMedicine(medicineList: AddPrescribedMedicineRequest[], prescriptionId: number){
         try {
-            const newPrescribeMedicineList: PrescriptionHasMedicine[] = medicineList
-                .map((prescribedMedicineRequest: AddPrescribedMedicineRequest) => {
-                    this.medicineService.decreaseMedicineStock(prescribedMedicineRequest.medicineId, prescribedMedicineRequest.quantity)
-                    return this.constructPrescriptionHasMedicine(prescribedMedicineRequest, prescriptionId)
+            const newPrescribeMedicineList = await Promise.all(
+                medicineList .map(async (prescribedMedicineRequest: AddPrescribedMedicineRequest, index) => {
+                    await this.medicineService.decreaseMedicineStock(prescribedMedicineRequest.medicineId, prescribedMedicineRequest.quantity, `prescription.medicineList.${index}.quantity`)
+                    return  this.constructPrescriptionHasMedicine(prescribedMedicineRequest, prescriptionId)
                 })
+            )
             console.log("prescribedMedicineList: ", newPrescribeMedicineList)
             return await this.prescriptionHasMedicineRepository.createPrescriptionHasMedicine(newPrescribeMedicineList)
         } catch (error) {
@@ -207,9 +208,9 @@ export default class PrescriptionService{
             .build();
     }
 
-    public async getPrescriptionSummary(patientName: string | undefined, pagination: PaginationRequest){
+    public async getPrescriptionSummary(patientName: string | undefined, status: Status | undefined, pagination: PaginationRequest){
         try {
-            return await this.prescriptionRepository.getAllPrescriptionByUsername(patientName, pagination.startIndex, pagination.limit);
+            return await this.prescriptionRepository.getAllPrescriptionByUsername(patientName, status, pagination.startIndex, pagination.limit);
         } catch (error) {
             throw error as string
         }

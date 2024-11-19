@@ -4,6 +4,7 @@ import AddPrescriptionRequest from "../../model/request/AddPrescriptionRequest";
 import MedicineService from "../MedicineService";
 import {Medicine} from "@prisma/client";
 import EditPrescriptionRequest from "../../model/request/EditPrescriptionRequest";
+import { CustomError } from "../../validator/helper/ErrorHelper";
 
 export default class ValidationHelper {
     private readonly doctorService: DoctorService;
@@ -34,7 +35,7 @@ export default class ValidationHelper {
         for (let i = 0; i < medicineListValidation.length; i++){
             indexByMedicineId.set(medicineListValidation[i].id, i)
         }
-        request.medicineList.forEach((medicineRequest) => {
+        request.medicineList.forEach((medicineRequest, index) => {
             if (!indexByMedicineId.has(medicineRequest.medicineId)) {
                 throw new Error("Medicine is not found")
             }
@@ -42,8 +43,10 @@ export default class ValidationHelper {
                 throw new Error("Quantity must be greater than 0")
             }
             const medicineValidation: Medicine = medicineListValidation[indexByMedicineId.get(medicineRequest.medicineId)!]
-            if (medicineValidation.currStock - medicineRequest.quantity < medicineValidation.minStock) {
-                throw new Error("Insufficient medicine stock")
+            console.log("curr stock medicine: ", medicineValidation.currStock)
+            console.log("auntity", medicineRequest.quantity)
+            if (medicineValidation.currStock - medicineRequest.quantity <= 0) {
+                throw new CustomError().formatError("Insufficient medicine stock", `prescription.medicineList.${index}.quantity`);
             }
         })
     }

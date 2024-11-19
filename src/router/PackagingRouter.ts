@@ -22,7 +22,6 @@ class PackagingRouter extends BaseRouter {
         this.router.post('/', this.packagingValidation.createPackagingValidation(),this.packagingController.createPackaging.bind(this.packagingController));
         this.router.get('/', this.packagingController.getPackaging.bind(this.packagingController));
         this.router.get('/dropdown', this.packagingController.getPackagingsDropdown.bind(this.packagingController));
-        // TODO: Change the HTTP method to PUT and DELETE
         this.router.post('/edit', this.packagingValidation.updatePackagingValidation(), this.packagingController.editPackaging.bind(this.packagingController));
         this.router.post('/delete', this.packagingValidation.deletePackagingValidation(), this.packagingController.deletePackaging.bind(this.packagingController));
     }

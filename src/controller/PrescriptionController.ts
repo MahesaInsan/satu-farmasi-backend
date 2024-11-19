@@ -6,6 +6,7 @@ import EditPrescriptionRequest from "../model/request/EditPrescriptionRequest";
 import RangeMonthRequest from "../model/request/RangeMonthRequest";
 import MostSalesMedicineVO from "../model/VOs/MostSalesMedicineVO";
 import BaseController from "./BaseController";
+import {Status} from "@prisma/client";
 
 export default class PrescriptionController extends BaseController{
     private readonly prescriptionService: PrescriptionService;
@@ -18,10 +19,11 @@ export default class PrescriptionController extends BaseController{
     public async getAllPrescription(req: Request, res: Response) {
         try{
             console.log("#getPrescriptionSummary with request: ", req.query)
-            const patientName = req.query.patientName = req.query.name as string | undefined
-            const totalData = await this.prescriptionService.countPrescription(patientName)
+            const patientName = req.query.name as string | undefined
+            const status = Object.values(Status).includes(req.query.status as Status) ? req.query.status as Status : undefined;
+            const totalData = await this.prescriptionService.countPrescription(patientName, status)
             const pagination = this.getPagination(totalData,req)
-            pagination.results = await this.prescriptionService.getPrescriptionSummary(patientName, pagination)
+            pagination.results = await this.prescriptionService.getPrescriptionSummary(patientName, status, pagination)
             pagination.total = totalData
             res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
@@ -58,7 +60,7 @@ export default class PrescriptionController extends BaseController{
         try {
             console.log("#addNewPrescription with request:", req.body.data)
             const request: AddPrescriptionRequest = req.body.data;
-            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.addNewPrescription(request)))
+            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.addNewPrescription(request), "Successfully added new prescription"))
         } catch (error) {
             console.error("error when #addPrescription with error: ", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -70,7 +72,7 @@ export default class PrescriptionController extends BaseController{
         try {
             const request: EditPrescriptionRequest = req.body.data;
             console.log("#editPrescription with request:", request);
-            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.editPrescription(request)))
+            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.editPrescription(request), "Successfully edited prescription"))
         } catch (error) {
             console.error("error when #editPrescription with error: ", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

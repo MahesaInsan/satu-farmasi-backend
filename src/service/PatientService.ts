@@ -4,6 +4,7 @@ import {Builder} from "builder-pattern";
 import AddPatientRequest from "../model/request/AddPatientRequest";
 import IdVO from "../model/VOs/IdVO";
 import PatientRequestDTO from "../model/request/PatientRequestDTO";
+import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class PatientService{
     private patientRepository: PatientRepository;
@@ -17,7 +18,7 @@ export default class PatientService{
             return await this.patientRepository.findIfExist(newPatientRequest.credentialNum)
                 .then(async (exist) => {
                     if (exist?.id) {
-                        throw new Error("Patient already exist")
+                        throw new CustomError().formatError("Patient already exist", "prescription.patient.credentialNum");
                     } else {
                         const newPatient: Patient = Builder<Patient>()
                             .name(newPatientRequest.patientName)
