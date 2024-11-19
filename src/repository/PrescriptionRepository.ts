@@ -95,7 +95,8 @@ export default class PrescriptionRepository{
         }
     }
 
-    public async getAllPrescriptionByUsername(patientName: string | undefined, startIndex: number, limit: number): Promise<PrescriptionSummaryVO[]> {
+    public async getAllPrescriptionByUsername(patientName: string | undefined, status: Status | undefined,
+                                              startIndex: number, limit: number): Promise<PrescriptionSummaryVO[]> {
         try {
             return this.prisma.prescription.findMany({
                 where: {
@@ -104,6 +105,7 @@ export default class PrescriptionRepository{
                             contains: patientName
                         }
                     },
+                    status: status,
                     is_active: true
                 },
                 select: {
@@ -177,14 +179,17 @@ export default class PrescriptionRepository{
         }
     }
 
-    public async countPrescriptionByPatientName(patientName: string | undefined) {
+    public async countPrescriptionByPatientName(patientName: string | undefined, status: Status | undefined) {
         try {
             return this.prisma.prescription.count({
                 where: {
-                    is_active: true,
                     patient: {
-                        name: patientName
-                    }
+                        name: {
+                            contains: patientName
+                        }
+                    },
+                    status: status,
+                    is_active: true
                 }
             })
         } catch (error) {
