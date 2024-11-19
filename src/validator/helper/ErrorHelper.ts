@@ -7,6 +7,7 @@ export class CustomError extends Error {
 			msg: string;
 			path: string;
 			location: string;
+            data?: object;
 		}
 	};
 
@@ -15,13 +16,14 @@ export class CustomError extends Error {
 		this.details = details;
 	}
 
-	public formatError(message: string, field: string): CustomError {
+	public formatError(message: string, field: string, data?: object): CustomError {
 		const detail = {
 			[field]: {
 				"type": "field",
 				"msg": message,
 				"path": field,
-				"location": "body"
+				"location": "body",
+                "data": data,
 			},
 		}
 		return new CustomError(message, detail);

@@ -4,16 +4,24 @@ import ReceiveMedicineRepository from "../repository/ReceiveMedicineRepository";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import AddReceiveMedicineRequest from "../model/request/AddReceiveMedicineRequest";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
+import TodayMedicineReportVO from "../model/VOs/TodayMedicineReportVO";
 import { Builder } from "builder-pattern";
 import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
+import MedicineReportService from "./MedicineReportService";
+import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
+import MedicineReportHelper from "./helper/MedicineReportHelper";
 
 export default class ReceiveMedicineService {
     private readonly receiveMedicineRepository: ReceiveMedicineRepository;
     private readonly medicineService: MedicineService;
+    private readonly reportService: MedicineReportService;
+    private readonly reportHelper: MedicineReportHelper;
 
     constructor() {
         this.receiveMedicineRepository = new ReceiveMedicineRepository();
         this.medicineService = new MedicineService();
+        this.reportService = new MedicineReportService();
+        this.reportHelper = new MedicineReportHelper();
     }
 
     public async getTotalReceiveMedicines(): Promise<number> {
@@ -50,9 +58,17 @@ export default class ReceiveMedicineService {
 
     public async createReceiveMedicine(data: AddReceiveMedicineRequest) {
         try {
-            // TODO: insert for report id
-            // const todayReport: TodayMedicineReportVOs | null = await this.repor
+            // insert for report id
+            let todayReport: TodayMedicineReportVO | null = await this.reportService.getTodayUnFinalizedMedicineReport();
+            if (!todayReport) {
+                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
+                todayReport = await this.reportService.addMedicineReport(this.reportHelper.createMedicineReport(reportRequest))
+            }
 
+            data.reportId = todayReport.id;
+            console.log("data: ", data);
+
+            // new medicine
             if (!data.medicineId || data.medicineId == 0) {
                 return await this.medicineService.createMedicine(data.medicineRequest)
                     .then(async (newMedicine: MedicineDisplayVO) => {
@@ -60,7 +76,7 @@ export default class ReceiveMedicineService {
                         const request: ReceiveMedicine = this.constructAddReceiveMedicine(data)
                         return await this.receiveMedicineRepository.createReceiveMedicine(request)
                     })
-            } else {
+            } else { // existing medicine
                 const request: ReceiveMedicine = this.constructAddReceiveMedicine(data)
                 return await this.receiveMedicineRepository.createReceiveMedicine(request)
                     .then(async () => {
@@ -86,7 +102,7 @@ export default class ReceiveMedicineService {
             .is_active(true)
             .created_at(new Date)
             .updated_at(new Date)
-            .reportId(null)
+            .reportId(request.reportId)
             .build();
     }
 }
