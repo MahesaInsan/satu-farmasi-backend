@@ -2,8 +2,8 @@ import AddDiagnoseRequest from "../../model/request/AddDiagnoseRequest";
 import DoctorService from "../DoctorService";
 import AddPrescriptionRequest from "../../model/request/AddPrescriptionRequest";
 import MedicineService from "../MedicineService";
-import {Medicine} from "@prisma/client";
 import EditPrescriptionRequest from "../../model/request/EditPrescriptionRequest";
+import MedicineData from "../../model/VOs/MedicineDropdownVO";
 
 export default class ValidationHelper {
     private readonly doctorService: DoctorService;
@@ -28,21 +28,21 @@ export default class ValidationHelper {
     }
 
     public async validatePrescriptionRequest(request: AddPrescriptionRequest | EditPrescriptionRequest) {
-        const medicineListValidation: Medicine[] = await this.medicineService.getMedicineValidationList(request.medicineList
-            .map((medicine) => medicine.medicineId))
-        let indexByMedicineId: Map<number, number> = new Map<number, number>();
+        const medicineListValidation: MedicineData[] = await this.medicineService.getMedicineValidationList(request.medicineList
+            .map((medicine) => medicine.code))
+        let indexByMedicineCode: Map<string, number> = new Map<string, number>();
         for (let i = 0; i < medicineListValidation.length; i++){
-            indexByMedicineId.set(medicineListValidation[i].id, i)
+            indexByMedicineCode.set(medicineListValidation[i].code, i)
         }
         request.medicineList.forEach((medicineRequest) => {
-            if (!indexByMedicineId.has(medicineRequest.medicineId)) {
+            if (!indexByMedicineCode.has(medicineRequest.code)) {
                 throw new Error("Medicine is not found")
             }
             if (medicineRequest.quantity < 1) {
                 throw new Error("Quantity must be greater than 0")
             }
-            const medicineValidation: Medicine = medicineListValidation[indexByMedicineId.get(medicineRequest.medicineId)!]
-            if (medicineValidation.currStock - medicineRequest.quantity < medicineValidation.minStock) {
+            const medicineValidation: MedicineData = medicineListValidation[indexByMedicineCode.get(medicineRequest.code)!]
+            if (medicineValidation.currStock - medicineRequest.quantity < 0) {
                 throw new Error("Insufficient medicine stock")
             }
         })

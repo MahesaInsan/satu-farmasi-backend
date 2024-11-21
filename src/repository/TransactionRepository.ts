@@ -114,7 +114,7 @@ export default class TransactionRepository{
         }
     }
 
-    public async getTransactionById(transactionId: number): Promise<TransactionDetailVO> {
+    public async getTransactionById(transactionId: number): Promise<TransactionDetailVO | null> {
         try {
             return this.prisma.transaction.findFirstOrThrow({
                 where: {
@@ -155,7 +155,7 @@ export default class TransactionRepository{
                         }
                     },
                 }
-            })
+            }).then(result => result as TransactionDetailVO | null)
         } catch (error) {
             throw error as string
         }

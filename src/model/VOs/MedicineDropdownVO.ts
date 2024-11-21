@@ -8,12 +8,8 @@ export default interface MedicineData {
     merk: string;
     currStock: number;
     minStock: number;
+    reservedStock: number;
     price: Prisma.Decimal;
-    classifications: {
-        classification: {
-            label: string;
-        }
-    }[];
     packaging: {
         label: string;
     };

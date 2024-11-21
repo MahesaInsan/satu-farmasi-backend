@@ -26,18 +26,29 @@ export default class PrescriptionController {
     public async getPrescription(req: Request, res: Response) {
         try {
             console.log("#getPrescriptionDetail with request:", req.params.id)
-            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.getPrescription(parseInt(req.params.id))))
+            return res.status(200).send(new BaseResponse().ok(await this.prescriptionService.getPrescription(parseInt(req.params.id))))
         } catch (error) {
+            console.error("error when #getPrescriptionDetail with error:", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
+    // public async getDraftPrescription(req: Request, res: Response) {
+    //     try {
+    //         console.log("#getDraftPrescription with request:", req.params.id)
+    //         return res.status(200).send(new BaseResponse().ok(await this.prescriptionService.getDraftPrescription(parseInt(req.params.id))))
+    //     } catch (error) {
+    //         const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+    //         return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+    //     }
+    // }
+
     public async addNewPrescription(req: Request, res: Response){
         try {
             console.log("#addNewPrescription with request:", req.body.data)
             const request: AddPrescriptionRequest = req.body.data;
-            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.addNewPrescription(request)))
+            return res.status(200).send(new BaseResponse().ok(await this.prescriptionService.addNewPrescription(request)))
         } catch (error) {
             console.error("error when #addPrescription with error: ", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
