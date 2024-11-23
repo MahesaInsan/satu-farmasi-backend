@@ -292,9 +292,11 @@ export default class PrescriptionService{
                         for (const medicine of medicineToBeAssign) {
                             if (quantityLeftToBeAssign === 0) break;
 
-                            const assignedQuantity = Math.min(medicine.currStock, quantityLeftToBeAssign)
-                            this.medicineService.increaseReservedMedicine(medicine.id, assignedQuantity)
-                            quantityLeftToBeAssign -= assignedQuantity
+                            const assignedQuantity = Math.min(medicine.currStock - medicine.reservedStock, quantityLeftToBeAssign)
+                            if (assignedQuantity > 0) {
+                                this.medicineService.increaseReservedMedicine(medicine.id, assignedQuantity)
+                                quantityLeftToBeAssign -= assignedQuantity
+                            }
                         }
                     }
                 }),
