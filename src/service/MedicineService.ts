@@ -1,9 +1,9 @@
 import MedicineRepository from "../repository/MedicineRepository";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
+import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
 import { GenericName, Medicine, MedicineHasClassification, UnitOfMeasure } from "@prisma/client";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import { Builder } from "builder-pattern";
-import GetMedicineRequest from "../model/request/GetMedicineRequest";
 import GenericNameService from "./GenericNameService";
 import EditMedicineRequest from "../model/request/EditMedicineRequest";
 import MedicineCheckStockVO from "../model/VOs/MedicineCheckStockVO";
@@ -12,6 +12,8 @@ import MedicineHasClassificationRepository from "../repository/MedicineHasClassi
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
 import AddPrescribedMedicineRequest from "../model/request/AddPrescribedMedicineRequest";
 import MedicineData from "../model/VOs/MedicineDropdownVO";
+import AddClassificationRequest from "../model/request/AddClassificationRequest";
+import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class MedicineService {
 	private readonly medicineRepository: MedicineRepository;
@@ -73,27 +75,36 @@ export default class MedicineService {
 
 	public async getTotalMedicineByCode(code: string): Promise<number> {
 		try {
-			return await this.medicineRepository.getTotalMedicineByCode(code);
+			const result: TotalMedicineGroupByCodeVO[] =  await this.medicineRepository.getTotalMedicineGroupByCode(code);
+			return result.length < 1 ? 0 : result.length;
 		} catch (error) {
 			throw error as string;
 		}
 	}
 
-	public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
-		try {
-			return await this.medicineRepository.getMedicines(startIndex, limit);
-		} catch (error) {
-			throw error as string;
-		}
-	}
+    public async getTotalNeedToRestock(): Promise<number> {
+        try {
+            return await this.medicineRepository.getTotalNeedToRestock();
+        } catch (error) {
+            throw error as string;
+        }
+    }
 
-	public async getMedicineById(id: number): Promise<Medicine | null> {
-		try {
-			return await this.medicineRepository.getMedicineById(id);
-		} catch (error) {
-			throw error as string;
-		}
-	}
+    public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
+        try {
+            return await this.medicineRepository.getMedicines(startIndex, limit);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async getMedicineById(id: number): Promise<Medicine | null> {
+        try {
+            return await this.medicineRepository.getMedicineById(id);
+        } catch (error) {
+            throw error as string;
+        }
+    }
 
 	public async getMedicineByCode(code: string): Promise<MedicineDisplayVO | null> {
 		try {
@@ -140,7 +151,12 @@ export default class MedicineService {
 
 	public async createMedicine(request: AddMedicineRequest): Promise<MedicineDisplayVO> {
 		try {
-			request.code = await this.generateMedicineCode(request.genericNameId);
+			const oldMedicine: MedicineDisplayVO | null = await this.getMedicineByCode(request.code);
+
+			request.code = !oldMedicine
+				? await this.generateMedicineCode(request.genericNameId)
+				: request.code;
+
 			const medicine: Medicine = this.constructMedicine(request);
 			return await this.medicineRepository.createMedicine(medicine)
 				.then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
@@ -174,6 +190,8 @@ export default class MedicineService {
 				? request.code
 				: await this.generateMedicineCode(request.genericNameId);
 
+            this.isDuplicateClassification(request.classificationList);
+
 			const medicine: Medicine = this.constructEditMedicine(request);
 			return await this.medicineRepository.editMedicine(medicine)
 				.then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
@@ -185,6 +203,19 @@ export default class MedicineService {
 			throw error as string;
 		}
 	}
+
+    public isDuplicateClassification(classificationList: AddMedicineClassificationRequest[]): void {
+        try {
+            const classificationSet = new Set<number>();
+            classificationList.forEach((classification: AddMedicineClassificationRequest) => {
+                classificationSet.add(classification.classificationId)
+            })
+            if (classificationSet.size != classificationList.length)
+                throw new CustomError().formatError("Duplicate medicine classification are not allowed", "custom");
+        } catch (error) {
+            throw error as string;
+        }
+    }
 
 	public async addStock(id: number, currStock: number): Promise<boolean> {
 		try {
@@ -226,9 +257,9 @@ export default class MedicineService {
 
     public async checkExpiration(date: Date): Promise<Medicine[]> {
         try {
-            const today = new Date(date);
-            const startOfNextMonth: Date = new Date(today.getFullYear(), today.getMonth()+1, 1)
-            return await this.medicineRepository.checkExpiration(date, startOfNextMonth);
+            const today: Date = new Date(date);
+            const lastDay: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+            return await this.medicineRepository.checkExpiration(today, lastDay);
         } catch (error) {
             throw error as string;
         }
@@ -242,7 +273,7 @@ export default class MedicineService {
 
 			console.log(genericName.value);
 			const totalMedicine: number = await this.getTotalMedicineByCode(genericName.value);
-			const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
+			const formatNumber: string = (totalMedicine+1).toString().padStart(6, "0");
 			console.log("medicine code: ", formatNumber);
 
 			return `${genericName.value}-${formatNumber}`
@@ -261,7 +292,7 @@ export default class MedicineService {
 			.genericNameId(request.genericNameId)
 			.merk(request.merk)
 			.description(request.description)
-			.unitOfMeasure(UnitOfMeasure.MILLIGRAM)
+			.unitOfMeasure(request.unitOfMeasure)
 			.price(request.price)
 			.expiredDate(request.expiredDate)
 			.packagingId(request.packagingId)
@@ -300,9 +331,10 @@ export default class MedicineService {
 			.classificationId(classificationId)
 			.build();
 	}
-	public async decreaseMedicineStock(medicineId: number, quantity: number) {
+
+	public async decreaseMedicineStock(medicineId: number, quantity: number, path: string = "quantity") {
 		try {
-			await this.medicineRepository.decreaseStock(medicineId, quantity)
+			await this.medicineRepository.decreaseStock(medicineId, quantity, path)
 		} catch (error) {
 			throw error as string;
 		}

@@ -9,6 +9,7 @@ import {Response} from "express";
 import TransactionRepository from "../repository/TransactionRepository";
 import SSEConnection from "../model/response/SSEConnection";
 import PaginationRequest from "../model/request/PaginationRequest";
+import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import ChangeTransactionStatusVO from "../model/VOs/ChangeTransactionStatusVO";
 import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
 
@@ -89,6 +90,16 @@ export default class TransactionService{
             }
             console.log(transactionDetail?.prescription.medicineList)
             return transactionDetail
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async getOnGoingAndWaitingPaymentTransaction(patientName: string | undefined) {
+        try {
+            const onGoing: TransactionSummaryVO[] = await this.transactionRepository.getTransactionByStatus(patientName, "ON_PROGRESS", 5)
+            const waitingPayment: TransactionSummaryVO[] = await this.transactionRepository.getTransactionByStatus(patientName, "WAITING_FOR_PAYMENT", 5)
+            return onGoing.concat(waitingPayment);
         } catch (error) {
             throw error as string
         }

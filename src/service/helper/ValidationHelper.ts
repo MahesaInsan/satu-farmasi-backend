@@ -4,6 +4,7 @@ import AddPrescriptionRequest from "../../model/request/AddPrescriptionRequest";
 import MedicineService from "../MedicineService";
 import EditPrescriptionRequest from "../../model/request/EditPrescriptionRequest";
 import MedicineData from "../../model/VOs/MedicineDropdownVO";
+import { CustomError } from "../../validator/helper/ErrorHelper";
 
 export default class ValidationHelper {
     private readonly doctorService: DoctorService;
@@ -44,6 +45,11 @@ export default class ValidationHelper {
             const medicineValidation: MedicineData = medicineListValidation[indexByMedicineCode.get(medicineRequest.code)!]
             if (medicineValidation.currStock - medicineRequest.quantity < 0) {
                 throw new Error("Insufficient medicine stock")
+            // const medicineValidation: Medicine = medicineListValidation[indexByMedicineId.get(medicineRequest.medicineId)!]
+            // console.log("curr stock medicine: ", medicineValidation.currStock)
+            // console.log("auntity", medicineRequest.quantity)
+            // if (medicineValidation.currStock - medicineRequest.quantity <= 0) {
+            //     throw new CustomError().formatError("Insufficient medicine stock", `prescription.medicineList.${index}.quantity`);
             }
         })
     }

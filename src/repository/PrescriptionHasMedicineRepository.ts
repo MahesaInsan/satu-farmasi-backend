@@ -29,6 +29,40 @@ export default class PrescriptionHasMedicineRepository{
         }
     }
 
+    public async getMostSalesMedicineByPrescription(startDate: Date, lastDate: Date) {
+        try {
+            return await this.prisma.prescriptionHasMedicine.groupBy({
+                by: ["medicineId"],
+                _sum: {
+                    quantity: true
+                },
+                orderBy: {
+                    _sum: {
+                        quantity: "desc",
+                    }
+                },
+                take: 3,
+                where: {
+                    AND: [
+                        {
+                            draft: false
+                        },
+                        {
+                            prescription: {
+                                created_at: {
+                                    gte: startDate,
+                                    lte: lastDate,
+                                }
+                            }
+                        }
+                    ]
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
     public async deleteWherePrescriptionIdAndInId(prescriptionId: number, idList: number[]) {
         try {
             return await this.prisma.prescriptionHasMedicine.deleteMany({

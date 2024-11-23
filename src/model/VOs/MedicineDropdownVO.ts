@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { $Enums, Prisma } from "@prisma/client";
 
 
 export default interface MedicineData {
@@ -9,11 +9,25 @@ export default interface MedicineData {
     currStock: number;
     minStock: number;
     reservedStock: number;
+    maxStock: number;
+    description: string;
+    expiredDate: Date;
     price: Prisma.Decimal;
+    unitOfMeasure: $Enums.UnitOfMeasure;
+    sideEffect: string;
+    classifications: {
+        classification: {
+            id: number;
+            label: string;
+            value: string;
+        }
+    }[];
     packaging: {
+        id: number;
         label: string;
     };
     genericName: {
+        id: number;
         label: string;
     };
 }

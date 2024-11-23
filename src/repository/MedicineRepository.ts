@@ -1,8 +1,10 @@
-import {Medicine, Prisma, PrismaClient} from "@prisma/client"
+import { Medicine, Prisma, PrismaClient } from "@prisma/client"
+import TotalMedicineGroupByCode from "../model/VOs/TotalMedicineGroupByCodeVO";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import MedicineData from "../model/VOs/MedicineDropdownVO"
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
-import {CustomError} from "../validator/helper/ErrorHelper";
+import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
+import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class MedicineRepository {
 	private prisma: PrismaClient
@@ -23,10 +25,24 @@ export default class MedicineRepository {
 						CAST(SUM(m."currStock" - m."reservedStock") AS INTEGER) as "currStock",
 						MIN(m."minStock") as "minStock",
 						MIN(m.price) as "price",
+						MIN(m."maxStock") as "maxStock",
+						MIN(m.description) as "description",
+						MIN(m."expiredDate") as "expiredDate",
+						MIN(m."unitOfMeasure") as "unitOfMeasure",
+						MIN(m."sideEffect") as "sideEffect",
+						json_agg(
+						  json_build_object(
+							 'id', c.id,
+							 'label', c.label,
+							 'value', c.value
+						  )
+					   ) as classifications,
 						json_build_object(
+							'id', MIN(p.id),
 							'label', MIN(p.label)
 						) as packaging,
 						json_build_object(
+							'id', MIN(g.id),
 							'label', MIN(g.label)
 						) as genericName
 					FROM "Medicine" m
@@ -34,6 +50,10 @@ export default class MedicineRepository {
 					ON m."packagingId" = p.id
 					INNER JOIN "GenericName" g
 					ON m."genericNameId" = g.id
+					INNER JOIN "MedicineHasClassification" mhc
+					ON m."id" = mhc."medicineId"
+					INNER JOIN "Classification" c
+					ON mhc."classificationId" = c."id"
 					WHERE 
 						m.is_active = true
 						AND m."currStock" > 0
@@ -75,22 +95,31 @@ export default class MedicineRepository {
 				minStock: true,
 				reservedStock: true,
 				price: true,
+				maxStock: true,
+				description: true,
+				expiredDate: true,
+				unitOfMeasure: true,
+				sideEffect: true,
 				classifications: {
 					select: {
 						classification: {
 							select: {
-								label: true
+								id: true,
+								label: true,
+								value: true
 							}
 						}
 					}
 				},
 				packaging: {
 					select: {
+						id: true,
 						label: true
 					}
 				},
 				genericName: {
 					select: {
+						id: true,
 						label: true
 					}
 				}
@@ -101,7 +130,8 @@ export default class MedicineRepository {
 		});
 	}
 
-	public async decreaseStock(medicineId: number, quantity: number) {
+	//PATH NYA DIM
+	public async decreaseStock(medicineId: number, quantity: number, path: string) {
 		try {
 			await this.validateMedicineId(medicineId, quantity)
 
@@ -289,19 +319,44 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async getTotalMedicineByCode(code: string): Promise<number> {
+	public async getTotalMedicineGroupByCode(code: string): Promise<TotalMedicineGroupByCodeVO[]> {
 		try {
-			return this.prisma.medicine.count({
+			const result = await this.prisma.medicine.groupBy({
+				by: ['code'],
 				where: {
 					code: { contains: code }
-				}
+				},
+				_count: {
+					code: true
+				},
+				orderBy: {
+					_count: {
+						code: 'desc'
+					}
+				},
+				take: 1
 			})
+			return result;
 		} catch (error) {
 			console.error('Error counting medicineList: ', error);
 			throw new Error('Failed to count medicineList');
 		}
 	}
 
+    public async getTotalNeedToRestock(): Promise<number> {
+        try {
+            return this.prisma.medicine.count({
+                where: {
+                    currStock: {
+                        lte: this.prisma.medicine.fields.minStock
+                    }
+                }
+            })
+        } catch (error) {
+            console.error('Error get need to restock medicineList: ', error);
+            throw new Error('Failed to get need to restock medicineList');
+        }
+    }
 
 	public async getMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
 		try {
@@ -603,12 +658,25 @@ export default class MedicineRepository {
 		}
 	}
 
-    public async checkExpiration(date: Date, month: Date): Promise<Medicine[]> {
+	public async editMedicineByCode(dataMedicine: Medicine) {
+		try {
+			return await this.prisma.medicine.updateMany({
+				where: { code: dataMedicine.code },
+				data: dataMedicine
+			});
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
+    public async checkExpiration(startDay: Date, lastDay: Date): Promise<Medicine[]> {
         try {
             return this.prisma.medicine.findMany({
                 where: {
                     expiredDate: {
-                        lte: date,
+                        gte: startDay,
+                        lte: lastDay,
                     },
                 }
             })
