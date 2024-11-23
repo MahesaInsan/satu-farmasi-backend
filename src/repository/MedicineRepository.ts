@@ -135,9 +135,15 @@ export default class MedicineRepository {
 			return this.prisma.medicine.count({
 				where: {
 					OR: [
-						{ name: { contains: parameter } },
-						{ code: { contains: parameter } },
-						{ merk: { contains: parameter } }
+						{ name: {
+								contains: parameter, mode: "insensitive"
+							}},
+						{ code: {
+								contains: parameter, mode: "insensitive"
+							}},
+						{ merk: {
+								contains: parameter, mode: "insensitive"
+							}}
 					]
 				}
 			})
@@ -156,8 +162,15 @@ export default class MedicineRepository {
 					AND: [
 						{
 							OR: [
-								{ name: { contains: parameter } },
-								{ code: { contains: parameter } },
+								{ name: {
+										contains: parameter, mode: "insensitive"
+									}},
+								{ code: {
+										contains: parameter, mode: "insensitive"
+									}},
+								{ merk: {
+										contains: parameter, mode: "insensitive"
+									}}
 							]
 						},
 						{

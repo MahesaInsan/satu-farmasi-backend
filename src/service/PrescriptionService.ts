@@ -112,7 +112,7 @@ export default class PrescriptionService{
         newPrescriptionHasMedicine.forEach(newPrescription => {
             if (prescriptionHasMedicineByMedicineId.has(newPrescription.medicineId)) {
                 const updatedPrescriptionHasMedicine: PrescriptionHasMedicine = prescriptionHasMedicineByMedicineId.get(newPrescription.medicineId)!
-                this.medicineService.updateMedicineStock(updatedPrescriptionHasMedicine.quantity, newPrescription.quantity, updatedPrescriptionHasMedicine.medicineId)
+                this.medicineService.updateMedicineStock(updatedPrescriptionHasMedicine.quantity, newPrescription.quantity, updatedPrescriptionHasMedicine.medicineId!)
                 this.prescriptionHasMedicineRepository.updateWhereId(this.constructPrescriptionHasMedicine(newPrescription, prescriptionId),
                     updatedPrescriptionHasMedicine.id)
                 prescriptionHasMedicineById.delete(updatedPrescriptionHasMedicine.id)
@@ -124,7 +124,7 @@ export default class PrescriptionService{
 
         prescriptionHasMedicineById.forEach(deletedPrescriptionHasMedicine => {
             console.log(deletedPrescriptionHasMedicine)
-            this.medicineService.updateMedicineStock(deletedPrescriptionHasMedicine.quantity, 0, deletedPrescriptionHasMedicine.medicineId)
+            this.medicineService.updateMedicineStock(deletedPrescriptionHasMedicine.quantity, 0, deletedPrescriptionHasMedicine.medicineId!)
         })
         await this.prescriptionHasMedicineRepository.deleteWherePrescriptionIdAndInId(prescriptionId, Array.from(prescriptionHasMedicineById.keys()));
 
@@ -143,7 +143,7 @@ export default class PrescriptionService{
 
         oldPrescriptionHasMedicine.forEach(prescriptionHasMedicine => {
             prescriptionHasMedicineById.set(prescriptionHasMedicine.id, prescriptionHasMedicine)
-            prescriptionHasMedicineByMedicineId.set(prescriptionHasMedicine.medicineId, prescriptionHasMedicine)
+            prescriptionHasMedicineByMedicineId.set(prescriptionHasMedicine.medicineId!, prescriptionHasMedicine)
         })
         return [prescriptionHasMedicineByMedicineId, prescriptionHasMedicineById];
     }

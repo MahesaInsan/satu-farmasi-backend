@@ -155,7 +155,7 @@ export default class TransactionRepository{
                         }
                     },
                 }
-            })
+            }) as Promise<TransactionDetailVO>
         } catch (error) {
             throw error as string
         }

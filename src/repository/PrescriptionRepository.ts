@@ -79,7 +79,7 @@ export default class PrescriptionRepository{
                         }
                     }
                 }
-            })
+            }) as Promise<PrescriptionDetailVO | null>
         } catch (error){
             throw error as string
         }
