@@ -43,12 +43,53 @@ export default class PrescriptionHasMedicineRepository{
                 },
                 take: 3,
                 where: {
-                    prescription: {
-                        created_at: {
-                            gte: startDate,
-                            // lte: lastDate,
+                    AND: [
+                        {
+                            draft: false
+                        },
+                        {
+                            prescription: {
+                                created_at: {
+                                    gte: startDate,
+                                    lte: lastDate,
+                                }
+                            }
                         }
-                    }
+                    ]
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async getSoldCountMedicineByCode(medicineCodeList: string[], startDate: Date, lastDate: Date) {
+        try {
+            console.log(medicineCodeList, startDate, lastDate)
+            return await this.prisma.prescriptionHasMedicine.groupBy({
+                by: ["medicineCode"],
+                _sum: {
+                    quantity: true,
+                },
+                where: {
+                    AND: [
+                        {
+                          medicineCode: {
+                              in: medicineCodeList
+                          }
+                        },
+                        {
+                            draft: false
+                        },
+                        {
+                            prescription: {
+                                created_at: {
+                                    gte: startDate,
+                                    lte: lastDate,
+                                }
+                            }
+                        }
+                    ]
                 }
             })
         } catch (error) {

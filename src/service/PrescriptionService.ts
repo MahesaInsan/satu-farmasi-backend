@@ -66,7 +66,7 @@ export default class PrescriptionService{
             const result = await this.prescriptionHasMedicineRepository.getMostSalesMedicineByPrescription(startDate, lastDate)
             const data = await Promise.all(
                 result.map(async item => {
-                    const medicine = await this.medicineService.getMedicineById(item.medicineId);
+                    const medicine = await this.medicineService.getMedicineById(item.medicineId!);
                     return {
                         medicineName: medicine?.name || null,
                         quantity: item._sum.quantity
@@ -141,34 +141,34 @@ export default class PrescriptionService{
     private async compareAndUpdatePrescriptionHasMedicine(prescriptionHasMedicineByMedicineId: Map<number, PrescriptionHasMedicine>,
                                                           newPrescriptionHasMedicine: AddPrescribedMedicineRequest[], prescriptionId: number,
                                                           prescriptionHasMedicineById: Map<number, PrescriptionHasMedicine>) {
-															  try {
-        let newPrescriptionHasMedicineUpdate: PrescriptionHasMedicine[] = [];
+        try {
+            let newPrescriptionHasMedicineUpdate: PrescriptionHasMedicine[] = [];
 
-        newPrescriptionHasMedicine.forEach(newPrescription => {
-            if (prescriptionHasMedicineByMedicineId.has(newPrescription.medicineId)) {
-                const updatedPrescriptionHasMedicine: PrescriptionHasMedicine = prescriptionHasMedicineByMedicineId.get(newPrescription.medicineId)!
-                this.medicineService.updateMedicineStock(updatedPrescriptionHasMedicine.quantity, newPrescription.quantity, updatedPrescriptionHasMedicine.medicineId!)
-                this.prescriptionHasMedicineRepository.updateWhereId(this.constructPrescriptionHasMedicine(newPrescription, prescriptionId),
-                    updatedPrescriptionHasMedicine.id)
-                prescriptionHasMedicineById.delete(updatedPrescriptionHasMedicine.id)
-            } else {
-                this.medicineService.decreaseMedicineStock(newPrescription.medicineId, newPrescription.quantity)
-                newPrescriptionHasMedicineUpdate.push(this.constructPrescriptionHasMedicine(newPrescription, prescriptionId))
+            newPrescriptionHasMedicine.forEach(newPrescription => {
+                if (prescriptionHasMedicineByMedicineId.has(newPrescription.medicineId)) {
+                    const updatedPrescriptionHasMedicine: PrescriptionHasMedicine = prescriptionHasMedicineByMedicineId.get(newPrescription.medicineId)!
+                    this.medicineService.updateMedicineStock(updatedPrescriptionHasMedicine.quantity, newPrescription.quantity, updatedPrescriptionHasMedicine.medicineId!)
+                    this.prescriptionHasMedicineRepository.updateWhereId(this.constructPrescriptionHasMedicine(newPrescription, prescriptionId),
+                        updatedPrescriptionHasMedicine.id)
+                    prescriptionHasMedicineById.delete(updatedPrescriptionHasMedicine.id)
+                } else {
+                    this.medicineService.decreaseMedicineStock(newPrescription.medicineId, newPrescription.quantity)
+                    newPrescriptionHasMedicineUpdate.push(this.constructPrescriptionHasMedicine(newPrescription, prescriptionId))
+                }
+            })
+
+            prescriptionHasMedicineById.forEach(deletedPrescriptionHasMedicine => {
+                console.log(deletedPrescriptionHasMedicine)
+                this.medicineService.updateMedicineStock(deletedPrescriptionHasMedicine.quantity, 0, deletedPrescriptionHasMedicine.medicineId!)
+            })
+            await this.prescriptionHasMedicineRepository.deleteWherePrescriptionIdAndInId(prescriptionId, Array.from(prescriptionHasMedicineById.keys()));
+
+            if (newPrescriptionHasMedicineUpdate.length > 0) {
+                this.prescriptionHasMedicineRepository.createPrescriptionHasMedicine(newPrescriptionHasMedicineUpdate);
             }
-        })
-
-        prescriptionHasMedicineById.forEach(deletedPrescriptionHasMedicine => {
-            console.log(deletedPrescriptionHasMedicine)
-            this.medicineService.updateMedicineStock(deletedPrescriptionHasMedicine.quantity, 0, deletedPrescriptionHasMedicine.medicineId!)
-        })
-        await this.prescriptionHasMedicineRepository.deleteWherePrescriptionIdAndInId(prescriptionId, Array.from(prescriptionHasMedicineById.keys()));
-
-        if (newPrescriptionHasMedicineUpdate.length > 0) {
-            this.prescriptionHasMedicineRepository.createPrescriptionHasMedicine(newPrescriptionHasMedicineUpdate);
+        } catch (error) {
+            throw error as string
         }
-															  } catch (error) {
-																  throw error as string
-															  }
     }
 
     private async mapOldPrescriptionHasMedicine(oldPrescriptionHasMedicine: PrescriptionHasMedicine[]): Promise<[Map<number, PrescriptionHasMedicine>,

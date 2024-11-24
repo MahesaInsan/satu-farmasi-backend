@@ -213,11 +213,16 @@ const seedClassification = async (seed: SeedClient, amount: number = 1) => {
 
 const seedMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding medicine ...")
+    const codePrefix: String[] = [
+        "PARACETAMOL",
+        "IBUPROFEN",
+        "ANALGESIK"
+    ]
     const genericName: GenericName[] = await prisma.genericName.findMany({ where: { is_active: true } });
     const packaging: Packaging[] = await prisma.packaging.findMany({ where: { is_active: true } });
     await seed.medicine((createMany) =>
         createMany(amount, (data) => ({
-            code: `MED${data.index + 1}`,
+            code: `${codePrefix[Math.floor(Math.random() * codePrefix.length)]}-${Math.floor(Math.random() * 5 + 1)}`,
             name: `Medicine ${data.index + 1}`,
             merk: `Merk ${data.index + 1}`,
             description: `Description ${data.index + 1}`,
@@ -254,9 +259,11 @@ const seedPrescriptionHasMedicine = async (seed: SeedClient, amount: number = 1)
         createMany(amount, (data) => ({
             prescriptionId: data.index + 1,
             medicineId: medicine[data.index].id,
+            medicineCode: medicine[data.index].code,
             quantity: 10,
             instruction: faker.lorem.words({ min: 5, max: 10 }),
             totalPrice: Number(medicine[data.index].price) * 10,
+            draft: false
         }))
     );
     console.log("Prescription has medicine seeded successfully!")

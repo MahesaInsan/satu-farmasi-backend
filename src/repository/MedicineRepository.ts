@@ -308,6 +308,8 @@ export default class MedicineRepository {
 					MAX("price") AS "price",
 					MAX("expiredDate") AS "expiredDate",
 					CAST(SUM("currStock") AS INTEGER) AS "currStock",
+					MAX("minStock") AS "minStock",
+					MAX("maxStock") AS "maxStock",
 					CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
 					MAX("sideEffect") AS "sideEffect",
 					MAX("created_at") AS "created_at",

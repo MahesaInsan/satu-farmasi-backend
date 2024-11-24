@@ -11,16 +11,19 @@ import AddMedicineClassificationRequest from "../model/request/AddMedicineClassi
 import MedicineHasClassificationRepository from "../repository/MedicineHasClassificationRepository";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
+import PrescriptionHasMedicineRepository from "../repository/PrescriptionHasMedicineRepository";
 
 export default class MedicineService {
 	private readonly medicineRepository: MedicineRepository;
 	private readonly genericNameService: GenericNameService;
 	private readonly medicineHasClassificationRepository: MedicineHasClassificationRepository;
+	private readonly prescriptionHasMedicineRepository: PrescriptionHasMedicineRepository;
 
 	constructor() {
 		this.medicineRepository = new MedicineRepository();
 		this.genericNameService = new GenericNameService();
 		this.medicineHasClassificationRepository = new MedicineHasClassificationRepository();
+		this.prescriptionHasMedicineRepository = new PrescriptionHasMedicineRepository();
 	}
 
 	public async getAllMedicineList(): Promise<Map<number, MedicineDropdownVO>> {
@@ -53,43 +56,44 @@ export default class MedicineService {
 
 	public async getTotalMedicineByCode(code: string): Promise<number> {
 		try {
-			const result: TotalMedicineGroupByCodeVO[] =  await this.medicineRepository.getTotalMedicineGroupByCode(code);
+			const result: TotalMedicineGroupByCodeVO[] = await this.medicineRepository.getTotalMedicineGroupByCode(code);
 			return result.length < 1 ? 0 : result.length;
 		} catch (error) {
 			throw error as string;
 		}
 	}
 
-    public async getTotalNeedToRestock(): Promise<number> {
-        try {
-            return await this.medicineRepository.getTotalNeedToRestock();
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async getTotalNeedToRestock(): Promise<number> {
+		try {
+			return await this.medicineRepository.getTotalNeedToRestock();
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
-        try {
-            return await this.medicineRepository.getMedicines(startIndex, limit);
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
+		try {
+			return await this.medicineRepository.getMedicines(startIndex, limit);
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
-    public async getMedicineById(id: number): Promise<Medicine | null> {
-        try {
-            return await this.medicineRepository.getMedicineById(id);
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async getMedicineById(id: number): Promise<Medicine | null> {
+		try {
+			return await this.medicineRepository.getMedicineById(id);
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
 	public async getMedicineSummaryByCode(startIndex: number, limit: number, searchQuery: string | undefined,
 										  sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
 		try {
 			const validatedQuery = await this.checkIfParamValid(searchQuery, sortBy, sortMode)
-			return await this.medicineRepository.getMedicineSummaryByCode(startIndex, limit, validatedQuery[0],
+			const medicineSummaryByCode = await this.medicineRepository.getMedicineSummaryByCode(startIndex, limit, validatedQuery[0],
 				validatedQuery[1], validatedQuery[2]);
+			return this.constructMedicineByCodeSummary(medicineSummaryByCode)
 		} catch (error) {
 			throw error as string;
 		}
@@ -163,7 +167,7 @@ export default class MedicineService {
 				? request.code
 				: await this.generateMedicineCode(request.genericNameId);
 
-            this.isDuplicateClassification(request.classificationList);
+			this.isDuplicateClassification(request.classificationList);
 
 			const medicine: Medicine = this.constructEditMedicine(request);
 			return await this.medicineRepository.editMedicine(medicine)
@@ -177,18 +181,18 @@ export default class MedicineService {
 		}
 	}
 
-    public isDuplicateClassification(classificationList: AddMedicineClassificationRequest[]): void {
-        try {
-            const classificationSet = new Set<number>();
-            classificationList.forEach((classification: AddMedicineClassificationRequest) => {
-                classificationSet.add(classification.classificationId)
-            })
-            if (classificationSet.size != classificationList.length)
-                throw new CustomError().formatError("Duplicate medicine classification are not allowed", "custom");
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public isDuplicateClassification(classificationList: AddMedicineClassificationRequest[]): void {
+		try {
+			const classificationSet = new Set<number>();
+			classificationList.forEach((classification: AddMedicineClassificationRequest) => {
+				classificationSet.add(classification.classificationId)
+			})
+			if (classificationSet.size != classificationList.length)
+				throw new CustomError().formatError("Duplicate medicine classification are not allowed", "custom");
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
 	public async addStock(id: number, currStock: number): Promise<boolean> {
 		try {
@@ -207,7 +211,7 @@ export default class MedicineService {
 			const medicine: Medicine | null = await this.getMedicineById(id);
 			if (!medicine) throw new Error("Medicine not found");
 
-			const vo: MedicineCheckStockVO = { isReady: true, flag: -1 };
+			const vo: MedicineCheckStockVO = {isReady: true, flag: -1};
 			if (medicine.currStock == medicine.minStock) vo.flag = 0;
 			else if (medicine.currStock > medicine.minStock && medicine.currStock <= medicine.maxStock) vo.flag = 1;
 
@@ -228,15 +232,15 @@ export default class MedicineService {
 		}
 	}
 
-    public async checkExpiration(date: Date): Promise<Medicine[]> {
-        try {
-            const today: Date = new Date(date);
-            const lastDay: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-            return await this.medicineRepository.checkExpiration(today, lastDay);
-        } catch (error) {
-            throw error as string;
-        }
-    }
+	public async checkExpiration(date: Date): Promise<Medicine[]> {
+		try {
+			const today: Date = new Date(date);
+			const lastDay: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+			return await this.medicineRepository.checkExpiration(today, lastDay);
+		} catch (error) {
+			throw error as string;
+		}
+	}
 
 	// ganti jadi count all (jangan spesifik per generic name)
 	private async generateMedicineCode(genericNameId: number): Promise<string> {
@@ -246,7 +250,7 @@ export default class MedicineService {
 
 			console.log(genericName.value);
 			const totalMedicine: number = await this.getTotalMedicineByCode(genericName.value);
-			const formatNumber: string = (totalMedicine+1).toString().padStart(6, "0");
+			const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
 			console.log("medicine code: ", formatNumber);
 
 			return `${genericName.value}-${formatNumber}`
@@ -304,6 +308,7 @@ export default class MedicineService {
 			.classificationId(classificationId)
 			.build();
 	}
+
 	public async decreaseMedicineStock(medicineId: number, quantity: number, path: string = "quantity") {
 		try {
 			await this.medicineRepository.decreaseStock(medicineId, quantity, path)
@@ -361,5 +366,56 @@ export default class MedicineService {
 		}
 
 		return [searchQuery, sortBy, sortMode]
+	}
+
+	private async constructMedicineByCodeSummary(medicineList: MedicineDisplayVO[]) {
+		const date = new Date()
+		const lastYear = new Date(date.getFullYear() - 5, date.getMonth(), date.getDate());
+		const thisYear = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+		let medicineSoldQuantityByMedicineCode = new Map<String, number>
+		const lowStockMedicineCodeList = medicineList.reduce((lowStockMedicineCodeList: string[], medicine) => {
+			if (medicine.currStock <= medicine.minStock) {
+				lowStockMedicineCodeList.push(medicine.code)
+			}
+			return lowStockMedicineCodeList
+		}, [])
+
+		const medicineSoldCount = await this.prescriptionHasMedicineRepository
+			.getSoldCountMedicineByCode(lowStockMedicineCodeList, lastYear, thisYear);
+
+		await Promise.all(
+			medicineSoldCount.map(async medicine => {
+				medicineSoldQuantityByMedicineCode.set(medicine.medicineCode, medicine._sum.quantity!);
+			})
+		);
+
+		console.log(medicineSoldQuantityByMedicineCode)
+
+		await Promise.all(
+			medicineList.map(async medicine => {
+				if (medicineSoldQuantityByMedicineCode.has(medicine.code)) {
+					const recommendedStock = this.countMedicineConsumption(
+						medicineSoldQuantityByMedicineCode.get(medicine.code)!,
+						medicine.currStock
+					);
+
+					medicine.lowStock = true;
+					medicine.recommendedRestock = Math.min(recommendedStock, medicine.maxStock)
+				} else {
+					medicine.lowStock = false;
+					medicine.recommendedRestock = 0;
+				}
+			})
+		);
+		return medicineList;
+	}
+
+	private countMedicineConsumption(soldCount: number, currentStock: number) {
+		const averageSold = Math.round(soldCount / 12);
+		const bufferStock = Math.round(averageSold * 0.2)
+		const leadTimeStock = Math.round(averageSold / 4)
+
+		console.log(averageSold, "+", bufferStock, "+", leadTimeStock, "-", currentStock)
+		return (averageSold + bufferStock + leadTimeStock) - currentStock
 	}
 }
