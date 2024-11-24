@@ -8,10 +8,12 @@ import EditVendorRequest from "../model/request/EditVendorRequest";
 
 export default class VendorController extends BaseController {
     private readonly vendorService: VendorService;
+
     constructor() {
         super();
         this.vendorService = new VendorService();
     }
+
     async getAllVendor(req: Request, res: Response) {
         try {
             const name: string = req.query.label as string;
@@ -28,6 +30,16 @@ export default class VendorController extends BaseController {
             pagination.total = totalData;
 
             return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
+        } catch (error) {
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+
+    async getAllActiveVendor(req: Request, res: Response) {
+        try {
+            const vendors = await this.vendorService.getAllActiveVendor();
+            return res.status(200).send(new BaseResponse().ok(vendors, "Successfully Get All Active Vendor"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));

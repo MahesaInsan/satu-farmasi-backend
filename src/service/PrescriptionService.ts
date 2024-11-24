@@ -7,10 +7,12 @@ import AddPrescribedMedicineRequest from "../model/request/AddPrescribedMedicine
 import PrescriptionHasMedicineRepository from "../repository/PrescriptionHasMedicineRepository";
 import MedicineService from "./MedicineService";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
+import MostSalesMedicineVO from "../model/VOs/MostSalesMedicineVO";
 import PrescriptionSummaryResponse from "../model/response/PrescriptionSummaryResponse";
 import PatientService from "./PatientService";
 import EditPrescriptionRequest from "../model/request/EditPrescriptionRequest";
 import ValidationHelper from "./helper/ValidationHelper";
+import PaginationRequest from "../model/request/PaginationRequest";
 
 export default class PrescriptionService{
     private readonly prescriptionRepository: PrescriptionRepository
@@ -54,6 +56,31 @@ export default class PrescriptionService{
         }
     }
 
+    public async getMostSalesMedicineByPrescription(startDate: Date, lastDate: Date) {
+        try {
+            // const prescriptions: Prescription[] = await this.prescriptionRepository.getAllPrescriptionPerMonth(startDate, lastDate);
+            // console.log("prescriptions: ", prescriptions);
+            // const result = await this.prescriptionHasMedicineRepository.getMostSalesMedicineByPrescription(
+            //     prescriptions?.map(prescription => prescription.id)
+            // );
+            const result = await this.prescriptionHasMedicineRepository.getMostSalesMedicineByPrescription(startDate, lastDate)
+            const data = await Promise.all(
+                result.map(async item => {
+                    const medicine = await this.medicineService.getMedicineById(item.medicineId);
+                    return {
+                        medicineName: medicine?.name || null,
+                        quantity: item._sum.quantity
+                    }
+                })
+            )
+            console.log(data);
+            return data
+        } catch (error) {
+            console.error(error);
+            throw error as string;
+        }
+    }
+
     public async createNewPrescription (request: AddPrescriptionRequest): Promise<number> {
         try {
             const newPrescription: Prescription = Builder<Prescription>()
@@ -90,6 +117,14 @@ export default class PrescriptionService{
     public async updatePrescriptionStatus(id: number, status: Status) {
         try {
             await this.prescriptionRepository.updatePrescriptionStatusById(status, id);
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async countPrescription(patientName: string | undefined, status: Status | undefined) {
+        try {
+            return await this.prescriptionRepository.countPrescriptionByPatientName(patientName, status)
         } catch (error) {
             throw error as string
         }
@@ -150,11 +185,12 @@ export default class PrescriptionService{
 
     private async createNewPrescriptionHasMedicine(medicineList: AddPrescribedMedicineRequest[], prescriptionId: number){
         try {
-            const newPrescribeMedicineList: PrescriptionHasMedicine[] = medicineList
-                .map((prescribedMedicineRequest: AddPrescribedMedicineRequest) => {
-                    this.medicineService.decreaseMedicineStock(prescribedMedicineRequest.medicineId, prescribedMedicineRequest.quantity)
-                    return this.constructPrescriptionHasMedicine(prescribedMedicineRequest, prescriptionId)
+            const newPrescribeMedicineList = await Promise.all(
+                medicineList .map(async (prescribedMedicineRequest: AddPrescribedMedicineRequest, index) => {
+                    await this.medicineService.decreaseMedicineStock(prescribedMedicineRequest.medicineId, prescribedMedicineRequest.quantity, `prescription.medicineList.${index}.quantity`)
+                    return  this.constructPrescriptionHasMedicine(prescribedMedicineRequest, prescriptionId)
                 })
+            )
             console.log("prescribedMedicineList: ", newPrescribeMedicineList)
             return await this.prescriptionHasMedicineRepository.createPrescriptionHasMedicine(newPrescribeMedicineList)
         } catch (error) {
@@ -172,25 +208,9 @@ export default class PrescriptionService{
             .build();
     }
 
-    public async getAllPrescriptionList(username?: string){
+    public async getPrescriptionSummary(patientName: string | undefined, status: Status | undefined, pagination: PaginationRequest){
         try {
-            if (username) {
-                return await this.prescriptionRepository.getAllPrescription().then(
-                    prescriptions => {
-                        return prescriptions.map(prescription => {
-                            return this.constructPrescriptionSummaryVO(prescription)
-                        })
-                    }
-                )
-            } else {
-                return await this.prescriptionRepository.getAllPrescription().then(
-                    prescriptions => {
-                        return prescriptions.map(prescription => {
-                            return this.constructPrescriptionSummaryVO(prescription)
-                        })
-                    }
-                )
-            }
+            return await this.prescriptionRepository.getAllPrescriptionByUsername(patientName, status, pagination.startIndex, pagination.limit);
         } catch (error) {
             throw error as string
         }

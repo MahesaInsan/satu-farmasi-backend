@@ -37,6 +37,14 @@ export default class VendorService {
         }
     }
 
+    public async getAllActiveVendor(): Promise<Vendor[]> {
+        try {
+            return await this.vendorRepository.getAllActiveVendors();
+        } catch (error) {
+            throw new Error(error as string);
+        }
+    }
+
     public async getVendorById(id: number): Promise<Vendor | null> {
         try {
             return await this.vendorRepository.getVendorById(id);

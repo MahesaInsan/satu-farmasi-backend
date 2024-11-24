@@ -2,6 +2,7 @@ import {Prescription, PrismaClient, Status} from "@prisma/client";
 import IdVO from "../model/VOs/IdVO";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
 import PrescriptionDetailVO from "../model/VOs/PrescriptionDetailVO";
+import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 
 export default class PrescriptionRepository{
     private readonly prisma: PrismaClient;
@@ -54,23 +55,32 @@ export default class PrescriptionRepository{
                                     merk: true,
                                     currStock: true,
                                     minStock: true,
+                                    maxStock: true,
+                                    description: true,
+                                    expiredDate: true,
                                     price: true,
+                                    unitOfMeasure: true,
+                                    sideEffect: true,
                                     classifications: {
                                         select: {
                                             classification: {
                                                 select: {
-                                                    label: true
+                                                    id: true,
+                                                    label: true,
+                                                    value: true
                                                 }
                                             }
                                         }
                                     },
                                     packaging: {
                                         select: {
+                                            id: true,
                                             label: true
                                         }
                                     },
                                     genericName: {
                                         select: {
+                                            id: true,
                                             label: true
                                         }
                                     }
@@ -85,15 +95,17 @@ export default class PrescriptionRepository{
         }
     }
 
-    public async getAllPrescriptionByUsername(username: string): Promise<PrescriptionSummaryVO[]>{
+    public async getAllPrescriptionByUsername(patientName: string | undefined, status: Status | undefined,
+                                              startIndex: number, limit: number): Promise<PrescriptionSummaryVO[]> {
         try {
             return this.prisma.prescription.findMany({
                 where: {
                     patient: {
                         name: {
-                            contains: username
+                            contains: patientName
                         }
                     },
+                    status: status,
                     is_active: true
                 },
                 select: {
@@ -106,6 +118,8 @@ export default class PrescriptionRepository{
                     },
                     status: true
                 },
+                skip: startIndex,
+                take: limit,
                 orderBy: [
                     {
                         status: "asc"
@@ -117,6 +131,20 @@ export default class PrescriptionRepository{
             })
         } catch (error){
             throw error as string
+        }
+    }
+
+    public async getAllPrescriptionPerMonth(startDate: Date, lastDate: Date): Promise<Prescription[]> {
+        try {
+            return await this.prisma.prescription.findMany({
+                where: {
+                    AND: [
+                        { created_at: { gte: startDate } }
+                    ]
+                }
+            })
+        } catch (error) {
+            throw error as string;
         }
     }
 
@@ -158,6 +186,24 @@ export default class PrescriptionRepository{
                 },
                 select: {
                     id: true
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async countPrescriptionByPatientName(patientName: string | undefined, status: Status | undefined) {
+        try {
+            return this.prisma.prescription.count({
+                where: {
+                    patient: {
+                        name: {
+                            contains: patientName
+                        }
+                    },
+                    status: status,
+                    is_active: true
                 }
             })
         } catch (error) {
