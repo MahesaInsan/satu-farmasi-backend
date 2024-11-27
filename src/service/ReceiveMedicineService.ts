@@ -48,6 +48,14 @@ export default class ReceiveMedicineService {
         }
     }
 
+    public async getReceiveMedicineByMedicineId(medicineID: number): Promise<ReceiveMedicineVO | null> {
+        try {
+            return await this.receiveMedicineRepository.getReceiveMedicineByMedicineId(medicineID);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
     public async searchReceiveMedicine(limit: number, startIndex: number, parameter: string): Promise<ReceiveMedicineVO[]> {
         try {
             return await this.receiveMedicineRepository.searchReceiveMedicine(limit, startIndex, parameter);

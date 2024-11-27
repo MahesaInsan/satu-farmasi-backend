@@ -31,8 +31,29 @@ export default class PrescriptionHasMedicineRepository{
 
     public async getMostSalesMedicineByPrescription(startDate: Date, lastDate: Date) {
         try {
-            return await this.prisma.prescriptionHasMedicine.groupBy({
+            // const data = await this.prisma.$queryRaw
+            //     `
+            //         SELECT
+            //             a."medicineId",
+            //             SUM(a."quantity") as "total_quantity"
+            //         FROM "public"."PrescriptionHasMedicine" a
+            //         JOIN "public"."Prescription" b ON a."prescriptionId" = b."id"
+            //         WHERE b."created_at" >= ${new Date(startDate)} AND b."created_at" <= ${new Date(lastDate)}
+            //         GROUP BY a."medicineId"
+            //         ORDER BY "total_quantity" DESC
+            //         LIMIT 3
+            //     `
+            
+            const data = await this.prisma.prescriptionHasMedicine.groupBy({
                 by: ["medicineId"],
+                where: {
+                    prescription: {
+                        created_at: {
+                            lte: new Date(lastDate).toISOString(),
+                            gte: new Date(startDate).toISOString(),
+                        }
+                    }                    
+                },
                 _sum: {
                     quantity: true
                 },
@@ -42,15 +63,9 @@ export default class PrescriptionHasMedicineRepository{
                     }
                 },
                 take: 3,
-                where: {
-                    prescription: {
-                        created_at: {
-                            gte: startDate,
-                            // lte: lastDate,
-                        }
-                    }
-                }
             })
+            console.log("data: ", data)
+            return data
         } catch (error) {
             throw error as string
         }

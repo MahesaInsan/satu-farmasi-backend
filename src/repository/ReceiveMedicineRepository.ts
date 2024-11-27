@@ -209,7 +209,7 @@ export default class ReceiveMedicineRepository {
         }
     }
 
-    public async getLatestReceiveMedicineByMedicineId(medicineId: number): Promise<ReceiveMedicineVO | null> {
+    public async getReceiveMedicineByMedicineId(medicineId: number): Promise<ReceiveMedicineVO | null> {
         try {
             return await this.prisma.receiveMedicine.findFirst({
                 where: {

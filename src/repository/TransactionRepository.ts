@@ -1,6 +1,7 @@
 import {Transaction, PrismaClient, $Enums, PaymentMethod, Status} from "@prisma/client";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import TransactionDetailVO from "../model/VOs/TransactionDetailVO";
+import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
 
 export default class TransactionRepository{
     private readonly prisma: PrismaClient;
@@ -213,4 +214,29 @@ export default class TransactionRepository{
             throw error as string
         }
     }
+
+    public async getTransactionByDate(startDate: Date, lastDate: Date): Promise<TransactionByDateVO[]> {
+        try {
+            return this.prisma.$queryRawUnsafe(
+                `SELECT 
+                    a."id",
+                    a."prescriptionId",
+                    d."id" as "medicineId",
+                    d."name" as "medicineName",
+                    c."quantity",
+                    d."price" as "sellingPrice",
+                    a."totalPrice"
+                FROM "public"."Transaction" a
+                LEFT JOIN "public"."Prescription" b ON a."prescriptionId" = b."id" 
+                LEFT JOIN "public"."PrescriptionHasMedicine" c ON b."id" = c."prescriptionId"
+                LEFT JOIN "public"."Medicine" d ON c."medicineId" = d."id"
+                WHERE a."created_at" >= $1 AND a."created_at" <= $2;`,
+                startDate, lastDate
+            )
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    
 }

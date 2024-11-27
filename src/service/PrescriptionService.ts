@@ -73,8 +73,8 @@ export default class PrescriptionService{
                     }
                 })
             )
-            console.log(data);
             return data
+            // return result
         } catch (error) {
             console.error(error);
             throw error as string;
