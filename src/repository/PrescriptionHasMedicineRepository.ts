@@ -43,12 +43,19 @@ export default class PrescriptionHasMedicineRepository{
                 },
                 take: 3,
                 where: {
-                    prescription: {
-                        created_at: {
-                            gte: startDate,
-                            // lte: lastDate,
+                    AND: [
+                        {
+                            draft: false
+                        },
+                        {
+                            prescription: {
+                                created_at: {
+                                    gte: startDate,
+                                    lte: lastDate,
+                                }
+                            }
                         }
-                    }
+                    ]
                 }
             })
         } catch (error) {

@@ -8,6 +8,7 @@ export default interface TransactionDetailVO {
         lastName: string
     },
     prescription: {
+        id: number,
         status: Status,
         patient: {
             credentialNumber: string

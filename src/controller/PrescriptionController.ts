@@ -36,8 +36,9 @@ export default class PrescriptionController extends BaseController{
     public async getPrescription(req: Request, res: Response) {
         try {
             console.log("#getPrescriptionDetail with request:", req.params.id)
-            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.getPrescription(parseInt(req.params.id))))
+            return res.status(200).send(new BaseResponse().ok(await this.prescriptionService.getPrescription(parseInt(req.params.id))))
         } catch (error) {
+            console.error("error when #getPrescriptionDetail with error:", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
