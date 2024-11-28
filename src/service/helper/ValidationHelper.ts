@@ -4,15 +4,18 @@ import AddPrescriptionRequest from "../../model/request/AddPrescriptionRequest";
 import MedicineService from "../MedicineService";
 import EditPrescriptionRequest from "../../model/request/EditPrescriptionRequest";
 import MedicineData from "../../model/VOs/MedicineDropdownVO";
-import { CustomError } from "../../validator/helper/ErrorHelper";
+import PrescriptionHasMedicineRepository from "../../repository/PrescriptionHasMedicineRepository";
+import {PrescriptionHasMedicine} from "@prisma/client";
 
 export default class ValidationHelper {
     private readonly doctorService: DoctorService;
     private readonly medicineService: MedicineService;
+    private readonly prescriptionHasMedicineRepository: PrescriptionHasMedicineRepository;
 
     constructor() {
         this.doctorService = new DoctorService();
         this.medicineService = new MedicineService();
+        this.prescriptionHasMedicineRepository = new PrescriptionHasMedicineRepository();
     }
 
     public async validateDiagnoseRequest(request: AddDiagnoseRequest) {
@@ -29,12 +32,25 @@ export default class ValidationHelper {
     }
 
     public async validatePrescriptionRequest(request: AddPrescriptionRequest | EditPrescriptionRequest) {
+        let prescriptionHasMedicine: PrescriptionHasMedicine[] = []
+        let indexByMedicineCode: Map<string, number> = new Map<string, number>();
         const medicineListValidation: MedicineData[] = await this.medicineService.getMedicineValidationList(request.medicineList
             .map((medicine) => medicine.code))
-        let indexByMedicineCode: Map<string, number> = new Map<string, number>();
+        let quantityByMedicineCode: Map<string, number> = new Map<string, number>();
+
+        if (request instanceof EditPrescriptionRequest) {
+           prescriptionHasMedicine = await this.prescriptionHasMedicineRepository.getPrescriptionHasMedicine(request.prescriptionId)
+        }
+
         for (let i = 0; i < medicineListValidation.length; i++){
             indexByMedicineCode.set(medicineListValidation[i].code, i)
         }
+        for (const phm of prescriptionHasMedicine) {
+            if (quantityByMedicineCode.has(phm.medicineCode)) {
+                quantityByMedicineCode.set(phm.medicineCode, quantityByMedicineCode.get(phm.medicineCode)! + phm.quantity)
+            } else quantityByMedicineCode.set(phm.medicineCode, phm.quantity)
+        }
+
         request.medicineList.forEach((medicineRequest) => {
             if (!indexByMedicineCode.has(medicineRequest.code)) {
                 throw new Error("Medicine is not found")
@@ -43,13 +59,15 @@ export default class ValidationHelper {
                 throw new Error("Quantity must be greater than 0")
             }
             const medicineValidation: MedicineData = medicineListValidation[indexByMedicineCode.get(medicineRequest.code)!]
-            if (medicineValidation.currStock - medicineRequest.quantity < 0) {
+            if (prescriptionHasMedicine.length === 0 && medicineValidation.currStock - medicineRequest.quantity < 0) {
                 throw new Error("Insufficient medicine stock")
-            // const medicineValidation: Medicine = medicineListValidation[indexByMedicineId.get(medicineRequest.medicineId)!]
-            // console.log("curr stock medicine: ", medicineValidation.currStock)
-            // console.log("auntity", medicineRequest.quantity)
-            // if (medicineValidation.currStock - medicineRequest.quantity <= 0) {
-            //     throw new CustomError().formatError("Insufficient medicine stock", `prescription.medicineList.${index}.quantity`);
+            }
+            if (prescriptionHasMedicine.length > 0) {
+                const quantityAlreadyAssigned =
+                    quantityByMedicineCode.get(medicineValidation.code) ? quantityByMedicineCode.get(medicineValidation.code)! : 0
+                if (medicineValidation.currStock + quantityAlreadyAssigned - medicineRequest.quantity < 0) {
+                    throw new Error("Insufficient medicine stock")
+                }
             }
         })
     }
