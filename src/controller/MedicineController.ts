@@ -88,8 +88,8 @@ export default class MedicineController extends BaseController {
     public async editMedicine(req: Request, res: Response) {
         try {
             const request: EditMedicineRequest = req.body;
-            const medicine: MedicineDisplayVO = await this.medicineService.editMedicine(request);
-            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed Edited Medicine"));
+            const success = await this.medicineService.editMedicine(request);
+            return res.status(200).send(new BaseResponse().ok(success, "Succeed Edited Medicine"));
         } catch (error) {
             console.log("[src][controller][MedicineController][editMedicine] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -97,17 +97,17 @@ export default class MedicineController extends BaseController {
         }
     }
 
-    public async addStock(req: Request, res: Response) {
-        try {
-            const request: EditMedicineRequest = req.body;
-            await this.medicineService.addStock(request.id, request.currStock);
-            return res.status(200).send(new BaseResponse().ok(null, "Succeed Addedd Stock"));
-        } catch (error) {
-            console.log("[src][controller][MedicineController][addStock] ", error);
-            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
-            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
-        }
-    }
+    // public async addStock(req: Request, res: Response) {
+    //     try {
+    //         const request: EditMedicineRequest = req.body;
+    //         await this.medicineService.addStock(request.id, request.currStock);
+    //         return res.status(200).send(new BaseResponse().ok(null, "Succeed Addedd Stock"));
+    //     } catch (error) {
+    //         console.log("[src][controller][MedicineController][addStock] ", error);
+    //         const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+    //         return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+    //     }
+    // }
 
     public async checkStock(req: Request, res: Response) {
         try {
@@ -123,17 +123,17 @@ export default class MedicineController extends BaseController {
         }
     }
 
-    public async deleteMedicine(req: Request, res: Response) {
-        try {
-            const request: EditMedicineRequest = req.body;
-            const medicine: MedicineDisplayVO = await this.medicineService.deleteMedicine(request.id);
-            return res.status(200).send(new BaseResponse().ok(medicine, "Succeed Deleted Medicine"));
-        } catch (error) {
-            console.log("[src][controller][MedicineController][deleteMedicine] ", error);
-            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
-            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
-        }
-    }
+    // public async deleteMedicine(req: Request, res: Response) {
+    //     try {
+    //         const request: EditMedicineRequest = req.body;
+    //         const medicine: MedicineDisplayVO = await this.medicineService.deleteMedicine(request.id);
+    //         return res.status(200).send(new BaseResponse().ok(medicine, "Succeed Deleted Medicine"));
+    //     } catch (error) {
+    //         console.log("[src][controller][MedicineController][deleteMedicine] ", error);
+    //         const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+    //         return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+    //     }
+    // }
 
     public async checkExpiration(req: Request, res: Response) {
         try {

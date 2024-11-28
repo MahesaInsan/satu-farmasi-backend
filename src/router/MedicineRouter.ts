@@ -24,9 +24,9 @@ class MedicineRouter extends BaseRouter {
         this.router.get( "/total/need-to-restock", this.medicineController.getTotalNeedToRestock.bind(this.medicineController));
         this.router.post("/", this.medicineController.createMedicine.bind(this.medicineController));
         this.router.post("/edit", this.medicineController.editMedicine.bind(this.medicineController));
-        this.router.post("/add-stock", this.medicineController.addStock.bind(this.medicineController));
+        // this.router.post("/add-stock", this.medicineController.addStock.bind(this.medicineController));
         this.router.post("/check-stock", this.medicineController.checkStock.bind(this.medicineController));
-        this.router.post("/delete", this.medicineController.deleteMedicine.bind(this.medicineController));
+        // this.router.post("/delete", this.medicineController.deleteMedicine.bind(this.medicineController));
         this.router.post("/check-expiration", this.medicineController.checkExpiration.bind(this.medicineController));
     }
 }

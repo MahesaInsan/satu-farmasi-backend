@@ -158,7 +158,7 @@ export default class MedicineService {
 		}
 	}
 
-	public async editMedicine(request: EditMedicineRequest): Promise<MedicineDisplayVO> {
+	public async editMedicine(request: EditMedicineRequest): Promise<boolean> {
 		try {
 			const oldMedicine: Medicine | null = await this.getMedicineById(request.id);
 			if (!oldMedicine) throw new Error("Medicine not found");
@@ -170,12 +170,24 @@ export default class MedicineService {
 			this.isDuplicateClassification(request.classificationList);
 
 			const medicine: Medicine = this.constructEditMedicine(request);
-			return await this.medicineRepository.editMedicine(medicine)
-				.then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
-					await this.medicineHasClassificationRepository.deleteMedicineHasClassification(request.id);
-					await this.createNewMedicineHasClassification(request.classificationList, request.id);
-					return newMedicine;
-				})
+			const updatedMedicines = await Promise.all([
+				this.medicineRepository.updateActiveMedicine(medicine),
+				this.medicineRepository.findAllMedicineIdByMedicineCode(medicine.code)
+			]).then(value => value[1])
+
+			await Promise.all(
+				updatedMedicines?.map(async (medicine) => {
+					try {
+						await this.medicineHasClassificationRepository.deleteMedicineHasClassification(medicine.id);
+						await this.createNewMedicineHasClassification(request.classificationList, medicine.id);
+					} catch (error) {
+						console.error(`Error processing update medicine with ID ${medicine.id}:`, error);
+					}
+				}) ?? []
+			);
+
+			this.medicineRepository.updateInactiveMedicine(medicine)
+			return true
 		} catch (error) {
 			throw error as string;
 		}
@@ -194,17 +206,17 @@ export default class MedicineService {
 		}
 	}
 
-	public async addStock(id: number, currStock: number): Promise<boolean> {
-		try {
-			const medicine: Medicine | null = await this.getMedicineById(id);
-			if (!medicine) throw new Error("Medicine not found");
-			medicine.currStock += currStock;
-			if (medicine.currStock > medicine.maxStock) throw new Error("Max stock reached");
-			return await this.medicineRepository.editMedicine(medicine) != null;
-		} catch (error) {
-			throw error as string;
-		}
-	}
+	// public async addStock(id: number, currStock: number): Promise<boolean> {
+	// 	try {
+	// 		const medicine: Medicine | null = await this.getMedicineById(id);
+	// 		if (!medicine) throw new Error("Medicine not found");
+	// 		medicine.currStock += currStock;
+	// 		if (medicine.currStock > medicine.maxStock) throw new Error("Max stock reached");
+	// 		return await this.medicineRepository.editMedicine(medicine) != null;
+	// 	} catch (error) {
+	// 		throw error as string;
+	// 	}
+	// }
 
 	public async checkStock(id: number): Promise<MedicineCheckStockVO> {
 		try {
@@ -221,16 +233,16 @@ export default class MedicineService {
 		}
 	}
 
-	public async deleteMedicine(id: number): Promise<MedicineDisplayVO> {
-		try {
-			const medicine: Medicine | null = await this.getMedicineById(id);
-			if (!medicine) throw new Error("Medicine not found");
-			medicine.is_active = false;
-			return await this.medicineRepository.editMedicine(medicine);
-		} catch (error) {
-			throw error as string;
-		}
-	}
+	// public async deleteMedicine(id: number): Promise<MedicineDisplayVO> {
+	// 	try {
+	// 		const medicine: Medicine | null = await this.getMedicineById(id);
+	// 		if (!medicine) throw new Error("Medicine not found");
+	// 		medicine.is_active = false;
+	// 		return await this.medicineRepository.editMedicine(medicine);
+	// 	} catch (error) {
+	// 		throw error as string;
+	// 	}
+	// }
 
 	public async checkExpiration(date: Date): Promise<Medicine[]> {
 		try {

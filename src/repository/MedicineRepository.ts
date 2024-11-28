@@ -595,55 +595,50 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async editMedicine(dataMedicine: Medicine): Promise<MedicineDisplayVO> {
+	public async updateActiveMedicine(dataMedicine: Medicine) {
 		try {
-			const newMedicine = await this.prisma.medicine.update({
-				where: { id: dataMedicine.id },
-				data: dataMedicine,
+			await this.prisma.medicine.updateMany({
+				where: {
+					AND: [
+						{ code: dataMedicine.code },
+						{ is_active: true}
+					]
+				},
+				data: dataMedicine
+			});
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
+	public async updateInactiveMedicine(dataMedicine: Medicine) {
+		try {
+			await this.prisma.medicine.updateMany({
+				where: {
+					AND: [
+						{ code: dataMedicine.code },
+						{ is_active: false}
+					]
+				},
+				data: dataMedicine
+			});
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
+	public async findAllMedicineIdByMedicineCode(medicineCode: string) {
+		try {
+			return await this.prisma.medicine.findMany({
+				where: {
+					code: medicineCode
+				},
 				select: {
-					id: true,
-					code: true,
-					name: true,
-					merk: true,
-					description: true,
-					unitOfMeasure: true,
-					price: true,
-					expiredDate: true,
-					currStock: true,
-					minStock: true,
-					maxStock: true,
-					sideEffect: true,
-					is_active: true,
-					created_at: true,
-					updated_at: true,
-					classifications: {
-						select: {
-							classification: {
-								select: {
-									id: true,
-									label: true,
-									value: true
-								}
-							}
-						}
-					},
-					packaging: {
-						select: {
-							id: true,
-							label: true,
-							value: true
-						}
-					},
-					genericName: {
-						select: {
-							id: true,
-							label: true,
-							value: true
-						}
-					}
+					id: true
 				}
 			});
-			return newMedicine;
 		} catch (error) {
 			console.error('Error editing medicine: ', error);
 			throw new Error('Failed to edit medicine');
