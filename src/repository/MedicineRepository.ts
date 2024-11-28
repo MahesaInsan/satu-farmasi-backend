@@ -296,24 +296,60 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async getTotalSearchMedicines(parameter: string): Promise<number> {
+	public async getTotalSearchMedicines(parameter: string | undefined): Promise<number> {
 		try {
+			parameter === undefined ? parameter = "" : undefined
 			return this.prisma.medicine.count({
+				where: {
+					OR: [
+						{ name: {
+								contains: parameter, mode: "insensitive"
+							}},
+						{ code: {
+								contains: parameter, mode: "insensitive"
+							}},
+						{ merk: {
+								contains: parameter, mode: "insensitive"
+							}}
+					]
+				}
+			})
+		} catch (error) {
+			console.error('Error coounting search medicineList: ', error);
+			throw new Error('Failed to count medicineList');
+		}
+	}
+
+	public async getTotalSearchMedicinesByCode(parameter: string | undefined): Promise<number> {
+		try {
+			parameter === undefined ? parameter = "" : undefined
+			const distinctCount = await this.prisma.medicine.groupBy({
+				by: ['code'],
 				where: {
 					AND: [
 						{
 							OR: [
-								{ name: { contains: parameter } },
-								{ code: { startsWith: parameter } },
-								{ merk: { contains: parameter } }
+								{ name: {
+										contains: parameter, mode: "insensitive"
+									}},
+								{ code: {
+										contains: parameter, mode: "insensitive"
+									}},
+								{ merk: {
+										contains: parameter, mode: "insensitive"
+									}}
 							]
 						},
 						{
 							is_active: true
 						}
 					]
+				},
+				_count: {
+					code: true,
 				}
 			})
+			return distinctCount.length;
 		} catch (error) {
 			console.error('Error coounting search medicineList: ', error);
 			throw new Error('Failed to count medicineList');
@@ -363,6 +399,120 @@ export default class MedicineRepository {
 		try {
 			return this.prisma.medicine.findMany({
 				where: { is_active: true },
+				skip: startIndex,
+				take: limit,
+				select: {
+					id: true,
+					code: true,
+					name: true,
+					merk: true,
+					description: true,
+					unitOfMeasure: true,
+					price: true,
+					expiredDate: true,
+					currStock: true,
+					minStock: true,
+					maxStock: true,
+					sideEffect: true,
+					is_active: true,
+					created_at: true,
+					updated_at: true,
+					genericName: {
+						select: {
+							id: true,
+							label: true,
+							value: true
+						}
+					},
+					packaging: {
+						select: {
+							id: true,
+							label: true,
+							value: true
+						}
+					},
+					classifications: {
+						select: {
+							classification: {
+								select: {
+									id: true,
+									label: true,
+									value: true
+								}
+							}
+						}
+					},
+				},
+			});
+		} catch (error) {
+			console.error('Error getting medicineList:', error);
+			throw new Error('Failed to get medicineList');
+		}
+	}
+
+	public async getMedicineSummaryByCode(startIndex: number, limit: number, searchQuery: string | undefined,
+										  sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
+		try {
+			const orderBy = sortBy && sortMode
+				? `ORDER BY "${sortBy}" ${sortMode}`
+				: `ORDER BY "code" ASC, "is_active" DESC`;
+
+			return await this.prisma.$queryRaw`
+				SELECT 
+					"code",
+					MAX("name") AS "name", 
+					MAX("merk") AS "merk",
+					MAX("description") AS "description",
+					MAX("unitOfMeasure") AS "unitOfMeasure",
+					MAX("price") AS "price",
+					MAX("expiredDate") AS "expiredDate",
+					CAST(SUM("currStock") AS INTEGER) AS "currStock",
+					MAX("minStock") AS "minStock",
+					MAX("maxStock") AS "maxStock",
+					CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+					MAX("sideEffect") AS "sideEffect",
+					MAX("created_at") AS "created_at",
+					MAX("updated_at") AS "updated_at"
+				FROM "Medicine"
+				WHERE 
+					"name" ILIKE ${`%${searchQuery}%`} 
+					OR "code" ILIKE ${`%${searchQuery}%`} 
+					OR "merk" ILIKE ${`%${searchQuery}%`}
+				GROUP BY "code"
+				${Prisma.sql([orderBy])}
+				LIMIT ${limit} OFFSET ${startIndex};
+			`;
+		} catch (error) {
+			throw error as string
+		}
+	}
+
+	public async getMedicineSummaryById(startIndex: number, limit: number, searchQuery: string | undefined,
+										sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
+		try {
+			const orderBy: Prisma.MedicineOrderByWithRelationInput[] = [];
+
+			if (sortBy && sortMode) {
+				orderBy.push({ [sortBy]: sortMode as Prisma.SortOrder });
+			}
+			orderBy.push({ id: "asc" });
+			orderBy.push({ is_active: "desc" });
+
+			return this.prisma.medicine.findMany({
+				where: {
+					OR: [
+						{ name: {
+							contains: searchQuery, mode: "insensitive"
+						}},
+						{ code: {
+							contains: searchQuery, mode: "insensitive"
+						}},
+						{ merk: {
+							contains: searchQuery, mode: "insensitive"
+						}}
+					]
+				},
+				orderBy: orderBy,
 				skip: startIndex,
 				take: limit,
 				select: {
@@ -604,55 +754,50 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async editMedicine(dataMedicine: Medicine): Promise<MedicineDisplayVO> {
+	public async updateActiveMedicine(dataMedicine: Medicine) {
 		try {
-			const newMedicine = await this.prisma.medicine.update({
-				where: { id: dataMedicine.id },
-				data: dataMedicine,
+			await this.prisma.medicine.updateMany({
+				where: {
+					AND: [
+						{ code: dataMedicine.code },
+						{ is_active: true}
+					]
+				},
+				data: dataMedicine
+			});
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
+	public async updateInactiveMedicine(dataMedicine: Medicine) {
+		try {
+			await this.prisma.medicine.updateMany({
+				where: {
+					AND: [
+						{ code: dataMedicine.code },
+						{ is_active: false}
+					]
+				},
+				data: dataMedicine
+			});
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
+	public async findAllMedicineIdByMedicineCode(medicineCode: string) {
+		try {
+			return await this.prisma.medicine.findMany({
+				where: {
+					code: medicineCode
+				},
 				select: {
-					id: true,
-					code: true,
-					name: true,
-					merk: true,
-					description: true,
-					unitOfMeasure: true,
-					price: true,
-					expiredDate: true,
-					currStock: true,
-					minStock: true,
-					maxStock: true,
-					sideEffect: true,
-					is_active: true,
-					created_at: true,
-					updated_at: true,
-					classifications: {
-						select: {
-							classification: {
-								select: {
-									id: true,
-									label: true,
-									value: true
-								}
-							}
-						}
-					},
-					packaging: {
-						select: {
-							id: true,
-							label: true,
-							value: true
-						}
-					},
-					genericName: {
-						select: {
-							id: true,
-							label: true,
-							value: true
-						}
-					}
+					id: true
 				}
 			});
-			return newMedicine;
 		} catch (error) {
 			console.error('Error editing medicine: ', error);
 			throw new Error('Failed to edit medicine');
