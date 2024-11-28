@@ -293,6 +293,27 @@ export default class PrescriptionService{
         } else new Error ("PrescriptionNotFound")
     }
 
+    public async cancelPrescription(prescriptionId: number) {
+        try {
+            const [prescription, prescriptionHasMedicine] = await Promise.all([
+                this.prescriptionRepository.getPrescriptionById(prescriptionId),
+                this.prescriptionHasMedicineRepository.getPrescriptionHasMedicine(prescriptionId)
+            ])
+
+            if (!prescription) {
+                new Error ("Prescription not found")
+            }
+            if (prescription!.status !== Status.UNPROCESSED) {
+                new Error ("Prescription status is ineligible")
+            }
+
+            await this.medicineService.returnReservedStock(prescriptionHasMedicine)
+            return await this.prescriptionRepository.updatePrescriptionStatusAndIsActiveById(prescriptionId)
+        } catch (error) {
+            throw error as string
+        }
+    }
+
     // private async createNewPrescriptionHasMedicine(medicineList: AddPrescribedMedicineRequest[], prescriptionId: number){
     //     try {
     //         const newPrescribeMedicineList = await this.updateMedicineStockAndCreatePrescriptionHasMedicine(medicineList, prescriptionId)
