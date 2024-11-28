@@ -2,12 +2,14 @@ import {Prisma} from "@prisma/client"
 
 export default class AddPrescribedMedicineRequest{
     private _medicineId: number
+    private _code: string
     private _price: Prisma.Decimal
     private _quantity: number
     private _instruction: string
 
-    constructor(medicineId: number, price: Prisma.Decimal, quantity: number, instruction: string) {
+    constructor(medicineId: number, code: string, price: Prisma.Decimal, quantity: number, instruction: string) {
         this._medicineId = medicineId;
+        this._code = code
         this._price = price;
         this._quantity = quantity;
         this._instruction = instruction;
@@ -19,6 +21,14 @@ export default class AddPrescribedMedicineRequest{
 
     set medicineId(value: number) {
         this._medicineId = value;
+    }
+
+    get code(): string {
+        return this._code;
+    }
+
+    set code(value: string) {
+        this._code = value;
     }
 
     get price(): Prisma.Decimal {

@@ -44,16 +44,8 @@ export default class PrescriptionHasMedicineRepository{
             //         LIMIT 3
             //     `
             
-            const data = await this.prisma.prescriptionHasMedicine.groupBy({
+            return await this.prisma.prescriptionHasMedicine.groupBy({
                 by: ["medicineId"],
-                where: {
-                    prescription: {
-                        created_at: {
-                            lte: new Date(lastDate).toISOString(),
-                            gte: new Date(startDate).toISOString(),
-                        }
-                    }                    
-                },
                 _sum: {
                     quantity: true
                 },
@@ -63,9 +55,22 @@ export default class PrescriptionHasMedicineRepository{
                     }
                 },
                 take: 3,
+                where: {
+                    AND: [
+                        {
+                            draft: false
+                        },
+                        {
+                            prescription: {
+                                created_at: {
+                                    gte: startDate,
+                                    lte: lastDate,
+                                }
+                            }
+                        }
+                    ]
+                }
             })
-            console.log("data: ", data)
-            return data
         } catch (error) {
             throw error as string
         }

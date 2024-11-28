@@ -8,6 +8,7 @@ export default interface MedicineData {
     merk: string;
     currStock: number;
     minStock: number;
+    reservedStock: number;
     maxStock: number;
     description: string;
     expiredDate: Date;

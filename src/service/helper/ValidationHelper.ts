@@ -2,8 +2,8 @@ import AddDiagnoseRequest from "../../model/request/AddDiagnoseRequest";
 import DoctorService from "../DoctorService";
 import AddPrescriptionRequest from "../../model/request/AddPrescriptionRequest";
 import MedicineService from "../MedicineService";
-import {Medicine} from "@prisma/client";
 import EditPrescriptionRequest from "../../model/request/EditPrescriptionRequest";
+import MedicineData from "../../model/VOs/MedicineDropdownVO";
 import { CustomError } from "../../validator/helper/ErrorHelper";
 
 export default class ValidationHelper {
@@ -29,24 +29,27 @@ export default class ValidationHelper {
     }
 
     public async validatePrescriptionRequest(request: AddPrescriptionRequest | EditPrescriptionRequest) {
-        const medicineListValidation: Medicine[] = await this.medicineService.getMedicineValidationList(request.medicineList
-            .map((medicine) => medicine.medicineId))
-        let indexByMedicineId: Map<number, number> = new Map<number, number>();
+        const medicineListValidation: MedicineData[] = await this.medicineService.getMedicineValidationList(request.medicineList
+            .map((medicine) => medicine.code))
+        let indexByMedicineCode: Map<string, number> = new Map<string, number>();
         for (let i = 0; i < medicineListValidation.length; i++){
-            indexByMedicineId.set(medicineListValidation[i].id, i)
+            indexByMedicineCode.set(medicineListValidation[i].code, i)
         }
-        request.medicineList.forEach((medicineRequest, index) => {
-            if (!indexByMedicineId.has(medicineRequest.medicineId)) {
+        request.medicineList.forEach((medicineRequest) => {
+            if (!indexByMedicineCode.has(medicineRequest.code)) {
                 throw new Error("Medicine is not found")
             }
             if (medicineRequest.quantity < 1) {
                 throw new Error("Quantity must be greater than 0")
             }
-            const medicineValidation: Medicine = medicineListValidation[indexByMedicineId.get(medicineRequest.medicineId)!]
-            console.log("curr stock medicine: ", medicineValidation.currStock)
-            console.log("auntity", medicineRequest.quantity)
-            if (medicineValidation.currStock - medicineRequest.quantity <= 0) {
-                throw new CustomError().formatError("Insufficient medicine stock", `prescription.medicineList.${index}.quantity`);
+            const medicineValidation: MedicineData = medicineListValidation[indexByMedicineCode.get(medicineRequest.code)!]
+            if (medicineValidation.currStock - medicineRequest.quantity < 0) {
+                throw new Error("Insufficient medicine stock")
+            // const medicineValidation: Medicine = medicineListValidation[indexByMedicineId.get(medicineRequest.medicineId)!]
+            // console.log("curr stock medicine: ", medicineValidation.currStock)
+            // console.log("auntity", medicineRequest.quantity)
+            // if (medicineValidation.currStock - medicineRequest.quantity <= 0) {
+            //     throw new CustomError().formatError("Insufficient medicine stock", `prescription.medicineList.${index}.quantity`);
             }
         })
     }

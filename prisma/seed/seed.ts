@@ -1,4 +1,6 @@
-// Command: npm run seed
+// Command:
+// npx @snaplet/seed init prisma/seed
+// npm run seed
 
 import { createSeedClient, SeedClient } from "@snaplet/seed";
 import { faker } from '@faker-js/faker';
@@ -213,11 +215,16 @@ const seedClassification = async (seed: SeedClient, amount: number = 1) => {
 
 const seedMedicine = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding medicine ...")
+    const codePrefix: String[] = [
+        "PARACETAMOL",
+        "IBUPROFEN",
+        "ANALGESIK"
+    ]
     const genericName: GenericName[] = await prisma.genericName.findMany({ where: { is_active: true } });
     const packaging: Packaging[] = await prisma.packaging.findMany({ where: { is_active: true } });
     await seed.medicine((createMany) =>
         createMany(amount, (data) => ({
-            code: `MED${data.index + 1}`,
+            code: `${genericName[Math.floor(Math.random() * codePrefix.length)].value}-${Math.floor(Math.random() * 5 + 1)}`,
             name: `Medicine ${data.index + 1}`,
             merk: `Merk ${data.index + 1}`,
             description: `Description ${data.index + 1}`,
@@ -226,6 +233,7 @@ const seedMedicine = async (seed: SeedClient, amount: number = 1) => {
             price: Math.floor(Math.random() * 500000) + 150000,
             expiredDate: faker.date.future(),
             currStock: Math.floor(Math.random() * STOCK.MAX) + STOCK.MIN,
+            reservedStock: 0,
             minStock: STOCK.MIN,
             maxStock: STOCK.MAX,
             sideEffect: `Side effect ${data.index + 1}`,
@@ -254,9 +262,11 @@ const seedPrescriptionHasMedicine = async (seed: SeedClient, amount: number = 1)
         createMany(amount, (data) => ({
             prescriptionId: data.index + 1,
             medicineId: medicine[data.index].id,
+            medicineCode: medicine[data.index].code,
             quantity: 10,
             instruction: faker.lorem.words({ min: 5, max: 10 }),
             totalPrice: Number(medicine[data.index].price) * 10,
+            draft: Math.random() < 0.5
         }))
     );
     console.log("Prescription has medicine seeded successfully!")
