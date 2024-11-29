@@ -7,7 +7,6 @@ import { faker } from '@faker-js/faker';
 import UserService from "../../src/service/UserService";
 import {
     Classification,
-    Doctor,
     GenericName,
     Medicine,
     MedicineReport,
@@ -19,6 +18,7 @@ import {
     PrismaClient,
     Vendor
 } from "@prisma/client";
+import DoctorVO from "../../src/model/VOs/DoctorVO";
 
 const userService: UserService = new UserService();
 const getDefaultPassword = async () => await userService.encryptPassword("password123");
@@ -37,9 +37,10 @@ const main = async () => {
     console.log("Start seeding database ...")
     const MAX_DATA: number = 50;
 
-    await seedAdmin(seed);
+    await seedAdmin(seed, 1);
     await seedingDoctor(seed, 3);
-    await seedPharmacist(seed, 3);
+    await seedPharmacist(seed,3);
+
     await seedPatient(seed, MAX_DATA);
 
     await seedPrescription(seed, MAX_DATA);
@@ -66,7 +67,7 @@ const main = async () => {
 const seedAdmin = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding admin ...")
     const hashedPassword = await getDefaultPassword();
-    await seed.admin((createMany) =>
+    await seed.user((createMany) =>
         createMany(amount, () => ({
             nik: generateRandomNIK(),
             email: "admin@gmail.com",
@@ -75,6 +76,8 @@ const seedAdmin = async (seed: SeedClient, amount: number = 1) => {
             lastName: "Admin",
             dob: faker.date.past(),
             phoneNum: generateRandomPhoneNum(),
+            specialist: null,
+            sipaNum: null,
             role: "ADMIN",
             is_active: true,
         }))
@@ -85,7 +88,7 @@ const seedAdmin = async (seed: SeedClient, amount: number = 1) => {
 const seedingDoctor = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding doctor ...")
     const hashedPassword = await getDefaultPassword();
-    await seed.doctor((createMany) =>
+    await seed.user((createMany) =>
         createMany(amount, (data) => ({
             nik: generateRandomNIK(),
             email: `doctor${data.index + 1}@gmail.com`,
@@ -95,6 +98,7 @@ const seedingDoctor = async (seed: SeedClient, amount: number = 1) => {
             dob: faker.date.past(),
             phoneNum: generateRandomPhoneNum(),
             specialist: "Dokter Umum",
+            sipaNum: null,
             role: "DOCTOR",
             is_active: true,
         }))
@@ -105,7 +109,7 @@ const seedingDoctor = async (seed: SeedClient, amount: number = 1) => {
 const seedPharmacist = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding pharmacist ...")
     const hashedPassword = await getDefaultPassword();
-    await seed.pharmacist((createMany) =>
+    await seed.user((createMany) =>
         createMany(amount, (data) => ({
             nik: generateRandomNIK(),
             email: `pharmacist${data.index + 1}@gmail.com`,
@@ -114,6 +118,8 @@ const seedPharmacist = async (seed: SeedClient, amount: number = 1) => {
             lastName: faker.person.lastName(),
             dob: faker.date.past(),
             phoneNum: generateRandomPhoneNum(),
+            specialist: null,
+            sipaNum: "SIPA123",
             role: "PHARMACIST",
             is_active: true,
         }))
@@ -274,7 +280,7 @@ const seedPrescriptionHasMedicine = async (seed: SeedClient, amount: number = 1)
 
 const seedDiagnose = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding diagnose ...")
-    const doctor: Doctor[] = await prisma.doctor.findMany({ where: { is_active: true } });
+    const doctor: DoctorVO[] = await prisma.user.findMany({ where: { is_active: true, role: 'DOCTOR' } });
     await seed.diagnose((createMany) =>
         createMany(amount, (data) => ({
             doctorId: doctor[Math.floor(Math.random() * doctor.length)].id,
@@ -336,7 +342,7 @@ const seedOutputMedicine = async (seed: SeedClient, amount: number = 1) => {
 const seedTransaction = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding transaction ...")
     const patient: Patient[] = await prisma.patient.findMany({ where: { is_active: true } });
-    const pharmacist: Doctor[] = await prisma.doctor.findMany({ where: { is_active: true } });
+    const pharmacist: DoctorVO[] = await prisma.user.findMany({ where: { is_active: true, role: 'DOCTOR' } });
     const medicineReport: MedicineReport[] = await prisma.medicineReport.findMany({ where: { is_active: true } });
 
     const prescription: Prescription[] = await prisma.prescription.findMany({ where: { is_active: true } });

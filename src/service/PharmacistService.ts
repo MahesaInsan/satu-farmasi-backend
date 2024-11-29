@@ -1,4 +1,4 @@
-import { Pharmacist, Role } from "@prisma/client";
+import {  Role, User } from "@prisma/client";
 import { Builder } from "builder-pattern";
 import CreateUserHelper from "./helper/CreateUserHelper";
 import UserService from "./UserService";
@@ -11,14 +11,14 @@ import PharmacistVO from "../model/VOs/PharmacistVO";
 export default class PharmacistService {
 	private readonly pharmacistRepository: PharmacistRepository;
 	private readonly userService: UserService;
-	private readonly createUserHelper: CreateUserHelper<AddPharmacistRequest, Pharmacist>;
-	private readonly editUserHelper: EditUserHelper<EditPharmacistRequest, Pharmacist>;
+	private readonly createUserHelper: CreateUserHelper<AddPharmacistRequest, User>;
+	private readonly editUserHelper: EditUserHelper<EditPharmacistRequest, User>;
 
 	constructor() {
 		this.pharmacistRepository = new PharmacistRepository();
 		this.userService = new UserService();
-		this.createUserHelper = new CreateUserHelper<AddPharmacistRequest, Pharmacist>();
-		this.editUserHelper = new EditUserHelper<EditPharmacistRequest, Pharmacist>();
+		this.createUserHelper = new CreateUserHelper<AddPharmacistRequest, User>();
+		this.editUserHelper = new EditUserHelper<EditPharmacistRequest, User>();
 	}
 
 	public async emailIsExist(email: string): Promise<Boolean> {
@@ -30,7 +30,7 @@ export default class PharmacistService {
 			await this.userService.emailIsExist(request.email);
 			await this.userService.nikIsExist(request.nik);
 			request.password = await this.userService.encryptPassword(request.password);
-			const pharmacist: Pharmacist = this.createUserHelper.createBaseUser(request);
+			const pharmacist: User = this.createUserHelper.createBaseUser(request);
 			return await this.pharmacistRepository.addPharmacist(Builder(pharmacist).role(Role.PHARMACIST).build());
 		} catch (error) {
 			throw error as object;
@@ -41,14 +41,14 @@ export default class PharmacistService {
 		try {
 			await this.userService.emailIsExist(request.email, request.oldEmail);
 			await this.userService.nikIsExist(request.nik, request.oldNik);
-			const pharmacist: Pharmacist = this.editUserHelper.editBaseUser(request);
+			const pharmacist: User = this.editUserHelper.editBaseUser(request);
 			return await this.pharmacistRepository.editPharmacist(Builder(pharmacist).role(Role.PHARMACIST).build());
 		} catch (error) {
 			throw error as object;
 		}
 	}
 
-	public async getPharmacistByEmail(email: string): Promise<Pharmacist | null> {
+	public async getPharmacistByEmail(email: string): Promise<User | null> {
 		try {
 			return await this.pharmacistRepository.getPharmacistByEmail(email)
 		} catch (error) {

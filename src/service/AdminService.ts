@@ -1,6 +1,6 @@
 import AddAdminRequest from "../model/request/AddAdminRequest";
 import AdminRepository from "../repository/AdminRepository";
-import { Admin, Doctor, Pharmacist, Role } from "@prisma/client";
+import {  Role } from "@prisma/client";
 import { Builder } from "builder-pattern";
 import CreateUserHelper from "./helper/CreateUserHelper";
 import User from "../entity/User";
@@ -15,25 +15,26 @@ import UserService from "./UserService";
 import AdminVO from "../model/VOs/AdminVO";
 import DoctorVO from "../model/VOs/DoctorVO";
 import PharmacistVO from "../model/VOs/PharmacistVO";
+import Admin from "../entity/Admin";
 
 export default class AdminService {
 	private readonly adminRepository: AdminRepository;
 	private readonly doctorService: DoctorService;
 	private readonly userService: UserService;
 	private readonly pharmacistService: PharmacistService;
-	private readonly createUserHelper: CreateUserHelper<AddAdminRequest, Admin>;
-	private readonly editUserHelper: EditUserHelper<BaseEditUserRequest, Admin>;
+	private readonly createUserHelper: CreateUserHelper<AddAdminRequest, User>;
+	private readonly editUserHelper: EditUserHelper<BaseEditUserRequest, User>;
 
 	constructor() {
 		this.adminRepository = new AdminRepository();
 		this.userService = new UserService();
 		this.doctorService = new DoctorService();
 		this.pharmacistService = new PharmacistService();
-		this.createUserHelper = new CreateUserHelper<AddAdminRequest, Admin>();
-		this.editUserHelper = new EditUserHelper<BaseEditUserRequest, Admin>();
+		this.createUserHelper = new CreateUserHelper<AddAdminRequest, User>();
+		this.editUserHelper = new EditUserHelper<BaseEditUserRequest, User>();
 	}
 
-	public async addAdmin(request: AddAdminRequest): Promise<Admin> {
+	public async addAdmin(request: AddAdminRequest): Promise<User> {
 		try {
 			await this.userService.emailIsExist(request.email);
 			await this.userService.nikIsExist(request.nik);
@@ -49,7 +50,7 @@ export default class AdminService {
 		try {
 			await this.userService.emailIsExist(request.email, request.oldEmail);
 			await this.userService.nikIsExist(request.nik, request.oldNik);
-			const admin: Admin = this.editUserHelper.editBaseUser(request);
+			const admin: User = this.editUserHelper.editBaseUser(request);
 			return await this.adminRepository.editAdmin(Builder(admin).role(Role.ADMIN).build());
 		} catch (error) {
 			throw error as string;

@@ -1,8 +1,8 @@
-// import Admin from "../entity/Admin";
-import { Admin } from "@prisma/client";
 import BaseRepository from "./helper/BaseRepository";
 import AdminVO from "../model/VOs/AdminVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
+import { User } from "@prisma/client";
+import Admin from "../entity/Admin";
 
 export default class AdminRepository extends BaseRepository {
     constructor() {
@@ -15,7 +15,7 @@ export default class AdminRepository extends BaseRepository {
     ): Promise<Boolean> {
         try {
             if (selfNik === nikTarget) return false;
-            const admin = await this.Prisma.admin.findUnique({
+            const admin = await this.Prisma.user.findUnique({
                 where: { nik: nikTarget },
                 select: { nik: true },
             });
@@ -32,7 +32,7 @@ export default class AdminRepository extends BaseRepository {
     ): Promise<Boolean> {
         try {
             if (selfEmail === emailTarget) return false;
-            const admin = await this.Prisma.admin.findUnique({
+            const admin = await this.Prisma.user.findUnique({
                 where: { email: emailTarget },
             });
             return admin !== null;
@@ -42,9 +42,16 @@ export default class AdminRepository extends BaseRepository {
         }
     }
 
-    public async addAdmin(admin: Admin): Promise<Admin> {
+    public async addAdmin(admin: Admin): Promise<User> {
         try {
-            return await this.Prisma.admin.create({ data: admin });
+            return await this.Prisma.user.create({
+                data: {
+                    ...admin,
+                    password: admin.password as string,
+                    specialist: null,
+                    sipaNum: null,
+                },
+            });
         } catch (error) {
             throw new CustomError().handlePrismaError(
                 error,
@@ -53,9 +60,9 @@ export default class AdminRepository extends BaseRepository {
         }
     }
 
-    public async getAdminByEmail(email: string): Promise<Admin | null> {
+    public async getAdminByEmail(email: string): Promise<User | null> {
         try {
-            return await this.Prisma.admin.findUnique({
+            return await this.Prisma.user.findUnique({
                 where: { email: email },
             });
         } catch (error) {
@@ -66,7 +73,7 @@ export default class AdminRepository extends BaseRepository {
 
     public async getTotalAdmin(param?: string): Promise<number> {
         try {
-            return await this.Prisma.admin.count({
+            return await this.Prisma.user.count({
                 where: {
                     AND: [
                         {
@@ -92,25 +99,36 @@ export default class AdminRepository extends BaseRepository {
         param?: string,
     ): Promise<AdminVO[]> {
         try {
-            return await this.Prisma.admin.findMany({
+            return await this.Prisma.user.findMany({
                 omit: { password: true },
                 where: {
-                    OR: [
+                    AND: [
                         {
-                            firstName: {
-                                contains: param,
-                                mode: "insensitive",
-                            },
+                            OR: [
+                                {
+                                    firstName: {
+                                        contains: param,
+                                        mode: "insensitive",
+                                    },
+                                },
+                                {
+                                    lastName: {
+                                        contains: param,
+                                        mode: "insensitive",
+                                    },
+                                },
+                            ],
                         },
                         {
-                            lastName: {
-                                contains: param,
-                                mode: "insensitive",
-                            },
+                            role: "ADMIN",
                         },
                     ],
                 },
-                orderBy: [{ is_active: 'desc' }, { updated_at: "desc" }, { created_at: "desc" }],
+                orderBy: [
+                    { is_active: "desc" },
+                    { updated_at: "desc" },
+                    { created_at: "desc" },
+                ],
                 skip: startIndex,
                 take: limit,
             });
@@ -122,7 +140,7 @@ export default class AdminRepository extends BaseRepository {
 
     public async getAdminById(id: number): Promise<AdminVO | null> {
         try {
-            return await this.Prisma.admin.findUnique({
+            return await this.Prisma.user.findUnique({
                 omit: { password: true },
                 where: { id: id },
             });
@@ -134,7 +152,7 @@ export default class AdminRepository extends BaseRepository {
 
     public async getAdminByNik(nik: string): Promise<AdminVO | null> {
         try {
-            return await this.Prisma.admin.findUnique({
+            return await this.Prisma.user.findUnique({
                 omit: { password: true },
                 where: { nik: nik },
             });
@@ -146,7 +164,7 @@ export default class AdminRepository extends BaseRepository {
 
     public async editAdmin(admin: Admin): Promise<boolean> {
         try {
-            const editedAdmin: AdminVO = await this.Prisma.admin.update({
+            const editedAdmin: AdminVO = await this.Prisma.user.update({
                 omit: { password: true },
                 where: { nik: admin.nik },
                 data: admin,

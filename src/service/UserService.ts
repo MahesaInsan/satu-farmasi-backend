@@ -1,11 +1,10 @@
-import DoctorService from "./DoctorService";
 import AdminRepository from "../repository/AdminRepository";
 import DoctorRepository from "../repository/DoctorRepository";
 import jwt from 'jsonwebtoken';
 import PharmacistRepository from "../repository/PharmacistRepository";
-import { Admin, Doctor, Pharmacist } from "@prisma/client";
 import bcrypt from 'bcrypt';
 import { CustomError } from "../validator/helper/ErrorHelper";
+import { User } from "@prisma/client";
 
 export default class UserService {
 	private readonly adminRepository: AdminRepository;
@@ -24,7 +23,7 @@ export default class UserService {
 		return jwt.sign({ email, role }, secretToken, { expiresIn: '1800s' });
 	}
 
-	public async getUserByEmail(email: string): Promise<Admin | Doctor | Pharmacist | null> {
+	public async getUserByEmail(email: string): Promise<User | null> {
 		return await this.adminRepository.getAdminByEmail(email) ||
 			await this.doctorRepository.getDoctorByEmail(email) ||
 			await this.pharmacistRepository.getPharmacistByEmail(email);

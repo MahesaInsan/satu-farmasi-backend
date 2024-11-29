@@ -1,7 +1,7 @@
-import { Pharmacist } from "@prisma/client";
 import BaseRepository from "./helper/BaseRepository";
 import { CustomError } from "../validator/helper/ErrorHelper";
 import PharmacistVO from "../model/VOs/PharmacistVO";
+import { User } from "@prisma/client";
 
 export default class PharmacistRepository extends BaseRepository {
     constructor() {
@@ -14,7 +14,7 @@ export default class PharmacistRepository extends BaseRepository {
     ): Promise<Boolean> {
         try {
             if (selfEmail === emailTarget) return false;
-            const admin = await this.Prisma.pharmacist.findUnique({
+            const admin = await this.Prisma.user.findUnique({
                 where: { email: emailTarget },
             });
             return admin !== null;
@@ -24,9 +24,9 @@ export default class PharmacistRepository extends BaseRepository {
         }
     }
 
-    public async addPharmacist(pharmacist: Pharmacist): Promise<boolean> {
+    public async addPharmacist(pharmacist: User): Promise<boolean> {
         try {
-            const data: Pharmacist = await this.Prisma.pharmacist.create({
+            const data: User = await this.Prisma.user.create({
                 data: pharmacist,
             });
             return data !== null;
@@ -38,11 +38,9 @@ export default class PharmacistRepository extends BaseRepository {
         }
     }
 
-    public async getPharmacistByEmail(
-        email: string,
-    ): Promise<Pharmacist | null> {
+    public async getPharmacistByEmail(email: string): Promise<User | null> {
         try {
-            return await this.Prisma.pharmacist.findUnique({
+            return await this.Prisma.user.findUnique({
                 where: { email: email },
             });
         } catch (error) {
@@ -53,7 +51,7 @@ export default class PharmacistRepository extends BaseRepository {
 
     public async getTotalPharmacist(param?: string): Promise<number> {
         try {
-            return await this.Prisma.pharmacist.count({
+            return await this.Prisma.user.count({
                 where: {
                     AND: [
                         {
@@ -79,25 +77,36 @@ export default class PharmacistRepository extends BaseRepository {
         param?: string,
     ): Promise<PharmacistVO[]> {
         try {
-            return this.Prisma.pharmacist.findMany({
+            return this.Prisma.user.findMany({
                 omit: { password: true },
                 where: {
-                    OR: [
+                    AND: [
                         {
-                            firstName: {
-                                contains: param,
-                                mode: "insensitive",
-                            },
+                            OR: [
+                                {
+                                    firstName: {
+                                        contains: param,
+                                        mode: "insensitive",
+                                    },
+                                },
+                                {
+                                    lastName: {
+                                        contains: param,
+                                        mode: "insensitive",
+                                    },
+                                },
+                            ],
                         },
                         {
-                            lastName: {
-                                contains: param,
-                                mode: "insensitive",
-                            },
+                            role: "PHARMACIST",
                         },
                     ],
                 },
-                orderBy: [{ is_active: 'desc' }, { updated_at: "desc" }, { created_at: "desc" }],
+                orderBy: [
+                    { is_active: "desc" },
+                    { updated_at: "desc" },
+                    { created_at: "desc" },
+                ],
                 skip: startIndex,
                 take: limit,
             });
@@ -109,7 +118,7 @@ export default class PharmacistRepository extends BaseRepository {
 
     public async getPharmacistById(id: number): Promise<PharmacistVO | null> {
         try {
-            return this.Prisma.pharmacist.findUnique({
+            return this.Prisma.user.findUnique({
                 omit: { password: true },
                 where: { id: id },
             });
@@ -121,7 +130,7 @@ export default class PharmacistRepository extends BaseRepository {
 
     public async getPharmacistByNik(nik: string): Promise<PharmacistVO | null> {
         try {
-            return this.Prisma.pharmacist.findFirst({
+            return this.Prisma.user.findFirst({
                 omit: { password: true },
                 where: { nik: nik },
             });
@@ -131,9 +140,9 @@ export default class PharmacistRepository extends BaseRepository {
         }
     }
 
-    public async editPharmacist(pharmacist: Pharmacist): Promise<boolean> {
+    public async editPharmacist(pharmacist: User): Promise<boolean> {
         try {
-            const editedPharmacist = await this.Prisma.pharmacist.update({
+            const editedPharmacist = await this.Prisma.user.update({
                 omit: { password: true },
                 where: { nik: pharmacist.nik },
                 data: pharmacist,
