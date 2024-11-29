@@ -41,7 +41,7 @@ export default class TransactionService{
                 .created_at(new Date())
                 .updated_at(new Date())
                 .build();
-            await this.prescriptionService.updatePrescriptionStatus(tuple[1].id, Status.WAITING_FOR_PAYMENT);
+            await this.prescriptionService.changeDraftPrescriptionToFinalizedPrescription(tuple[1].id)
             return await this.transactionRepository.addTransaction(newTransaction).then(transaction => true)
         } catch (error) {
             throw error as string
@@ -66,7 +66,30 @@ export default class TransactionService{
 
     public async getTransactionById(transactionId: number){
         try {
-            return await this.transactionRepository.getTransactionById(transactionId)
+            const transactionDetail = await this.transactionRepository.getTransactionById(transactionId)
+            let prescriptionDetail;
+
+            if (transactionDetail) {
+                prescriptionDetail = await this.prescriptionService.getPrescription(transactionDetail.prescription.id) as PrescriptionDetailVO
+            } else {
+                new Error ("Transaction detail not found!")
+            }
+
+            if (prescriptionDetail) {
+                transactionDetail!.prescription.medicineList = prescriptionDetail.medicineList.map(prescribedMedicine => ({
+                    quantity: prescribedMedicine.quantity,
+                    instruction: prescribedMedicine.instruction,
+                    totalPrice: prescribedMedicine.totalPrice,
+                    medicine: {
+                        name: prescribedMedicine.medicine.name,
+                        price: prescribedMedicine.medicine.price
+                    }
+                }))
+            } else {
+                new Error("Prescription not found")
+            }
+            console.log(transactionDetail?.prescription.medicineList)
+            return transactionDetail
         } catch (error) {
             throw error as string
         }

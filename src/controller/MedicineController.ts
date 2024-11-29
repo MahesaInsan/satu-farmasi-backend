@@ -22,9 +22,11 @@ export default class MedicineController extends BaseController {
     async getMedicineList(req: Request, res: Response){
         try{
             console.log("#getMedicineDropdownOption")
-            const medicineDropdownOption: Map<number, MedicineDropdownVO> = await this.medicineService.getAllMedicineList()
-            res.status(200).send(Object.fromEntries(medicineDropdownOption));
+            const medicineDropdownOption: Map<string, MedicineDropdownVO> = await this.medicineService.getAllMedicineList()
+            console.log(medicineDropdownOption)
+            res.status(200).send(new BaseResponse().ok(Object.fromEntries(medicineDropdownOption)));
         } catch (error) {
+            console.error("Error when #getMedicineDropdownOption with error:", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }

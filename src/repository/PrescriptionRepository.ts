@@ -3,6 +3,7 @@ import IdVO from "../model/VOs/IdVO";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
 import PrescriptionDetailVO from "../model/VOs/PrescriptionDetailVO";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
+import DraftPrescriptionVO from "../model/VOs/DraftPrescriptionVO";
 
 export default class PrescriptionRepository{
     private readonly prisma: PrismaClient;
@@ -17,6 +18,19 @@ export default class PrescriptionRepository{
                 data: newPrescription,
                 select: {
                     id:true
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async getPrescriptionById(prescriptionId: number) {
+        try {
+            return this.prisma.prescription.findFirst({
+                where: {
+                    id: prescriptionId,
+                    is_active: true
                 }
             })
         } catch (error) {
@@ -47,6 +61,7 @@ export default class PrescriptionRepository{
                             quantity: true,
                             instruction: true,
                             totalPrice: true,
+                            medicineCode: true,
                             medicine: {
                                 select: {
                                     id: true,
@@ -55,6 +70,7 @@ export default class PrescriptionRepository{
                                     merk: true,
                                     currStock: true,
                                     minStock: true,
+                                    reservedStock: true,
                                     maxStock: true,
                                     description: true,
                                     expiredDate: true,

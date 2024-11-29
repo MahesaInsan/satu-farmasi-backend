@@ -1,4 +1,6 @@
-// Command: npm run seed
+// Command:
+// npx @snaplet/seed init prisma/seed
+// npm run seed
 
 import { createSeedClient, SeedClient } from "@snaplet/seed";
 import { faker } from '@faker-js/faker';
@@ -231,6 +233,7 @@ const seedMedicine = async (seed: SeedClient, amount: number = 1) => {
             price: Math.floor(Math.random() * 500000) + 150000,
             expiredDate: faker.date.future(),
             currStock: Math.floor(Math.random() * STOCK.MAX) + STOCK.MIN,
+            reservedStock: 0,
             minStock: STOCK.MIN,
             maxStock: STOCK.MAX,
             sideEffect: `Side effect ${data.index + 1}`,

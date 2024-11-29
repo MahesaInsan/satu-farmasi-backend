@@ -10,6 +10,9 @@ import MedicineCheckStockVO from "../model/VOs/MedicineCheckStockVO";
 import AddMedicineClassificationRequest from "../model/request/AddMedicineClassificationRequest";
 import MedicineHasClassificationRepository from "../repository/MedicineHasClassificationRepository";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
+import AddPrescribedMedicineRequest from "../model/request/AddPrescribedMedicineRequest";
+import MedicineData from "../model/VOs/MedicineDropdownVO";
+import AddClassificationRequest from "../model/request/AddClassificationRequest";
 import { CustomError } from "../validator/helper/ErrorHelper";
 import PrescriptionHasMedicineRepository from "../repository/PrescriptionHasMedicineRepository";
 
@@ -26,8 +29,35 @@ export default class MedicineService {
 		this.prescriptionHasMedicineRepository = new PrescriptionHasMedicineRepository();
 	}
 
-	public async getAllMedicineList(): Promise<Map<number, MedicineDropdownVO>> {
-		return await this.mapMedicineDropdownList(await this.medicineRepository.fetchMedicineList());
+	public async getAllMedicineList(): Promise<Map<string, MedicineDropdownVO>> {
+		try {
+			const medicineList: MedicineDropdownVO[] = await this.medicineRepository.fetchMedicineList()
+			let medicineByMedicineCode: Map<string, MedicineDropdownVO> = new Map<string, MedicineDropdownVO>();
+			if (medicineList !== null) {
+				medicineByMedicineCode = await this.mapMedicineDropdownList(medicineList)
+			} else {
+				new Error("No Medicine Found")
+			}
+			return medicineByMedicineCode;
+		} catch (error) {
+			throw error as string
+		}
+	}
+
+	public async getAndMapMedicineListByMedicineCode(medicineCodes: string[]) {
+		try {
+			return await this.medicineRepository.getMedicineByCodeInAndIsActiveTrue(medicineCodes)
+				.then(medicines => medicines.reduce<Map<string, MedicineData[]>>((map, medicine) => {
+					if (map.has(medicine.code)) {
+						map.get(medicine.code)?.push(medicine)
+					} else {
+						map.set(medicine.code, [medicine])
+					}
+					return map
+				}, new Map()))
+		} catch (error) {
+			throw error as string
+		}
 	}
 
 	public async getTotalMedicines(): Promise<number> {
@@ -133,6 +163,33 @@ export default class MedicineService {
 		}
 	}
 
+	public async increaseReservedMedicine(medicineId: number, quantity: number) {
+		try {
+			console.log("increase:", medicineId, quantity)
+			await this.medicineRepository.increaseReserveStock(medicineId, quantity)
+		} catch (error) {
+			throw error as string
+		}
+	}
+
+	public async decreaseReservedMedicine(medicineId: number, quantity: number) {
+		try {
+			console.log("decrease:", medicineId, quantity)
+			await this.medicineRepository.decreaseReserveStock(medicineId, quantity)
+		} catch (error) {
+			throw error as string
+		}
+	}
+
+	public async decreaseStockAccordingToReservedUse(medicineId: number, quantity: number) {
+		try {
+			console.log("Decrease stock according to reservedStock:", medicineId, quantity)
+			await this.medicineRepository.decreaseStockAndDecreaseReservedStock(medicineId, quantity)
+		} catch (error) {
+			throw error as string
+		}
+	}
+
 	public async createMedicine(request: AddMedicineRequest): Promise<MedicineDisplayVO> {
 		try {
 			const oldMedicine: MedicineDisplayVO | null = await this.getMedicineByCode(request.code);
@@ -200,18 +257,18 @@ export default class MedicineService {
 		}
 	}
 
-	public isDuplicateClassification(classificationList: AddMedicineClassificationRequest[]): void {
-		try {
-			const classificationSet = new Set<number>();
-			classificationList.forEach((classification: AddMedicineClassificationRequest) => {
-				classificationSet.add(classification.classificationId)
-			})
-			if (classificationSet.size != classificationList.length)
-				throw new CustomError().formatError("Duplicate medicine classification are not allowed", "custom");
-		} catch (error) {
-			throw error as string;
-		}
-	}
+    public isDuplicateClassification(classificationList: AddMedicineClassificationRequest[]): void {
+        try {
+            const classificationSet = new Set<number>();
+            classificationList.forEach((classification: AddMedicineClassificationRequest) => {
+                classificationSet.add(classification.classificationId)
+            })
+            if (classificationSet.size != classificationList.length)
+                throw new CustomError().formatError("Duplicate medicine classification are not allowed", "custom");
+        } catch (error) {
+            throw error as string;
+        }
+    }
 
 	// public async addStock(id: number, currStock: number): Promise<boolean> {
 	// 	try {
@@ -342,19 +399,19 @@ export default class MedicineService {
 		}
 	}
 
-	public async getMedicineValidationList(medicineIdList: number[]) {
+	public async getMedicineValidationList(medicineCodeList: string[]) {
 		try {
-			return this.medicineRepository.getMedicineIdIn(medicineIdList);
+			return this.medicineRepository.getMedicineByCodeIn(medicineCodeList);
 		} catch (error) {
 			throw error as string;
 		}
 	}
 
 	private async mapMedicineDropdownList(medicineList: MedicineDropdownVO[]) {
-		return medicineList.reduce((medicineByMedicineId, medicine) => {
-			medicineByMedicineId.set(medicine.id, medicine)
-			return medicineByMedicineId
-		}, new Map<number, MedicineDropdownVO>)
+		return medicineList.reduce((medicineByMedicineCode, medicine) => {
+			medicineByMedicineCode.set(medicine.code, medicine)
+			return medicineByMedicineCode
+		}, new Map<string, MedicineDropdownVO>)
 	}
 
 	public async updateMedicineStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineId: number) {
@@ -434,5 +491,37 @@ export default class MedicineService {
 
 		console.log(averageSold, "+", bufferStock, "+", leadTimeStock, "-", currentStock)
 		return (averageSold + bufferStock + leadTimeStock) - currentStock
+	}
+
+	public async updateMedicineReservedStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineList: MedicineData[]) {
+		try {
+			let quantityLeftToUpdate = Math.abs(oldPrescriptionQuantity - newPrescriptionQuantity)
+			if (newPrescriptionQuantity < oldPrescriptionQuantity) {
+				console.log(`decrease reserve stock for ${medicineList.map(medicine => medicine.code)}, 
+					with old quantity: ${oldPrescriptionQuantity} and new quantity: ${newPrescriptionQuantity}`)
+				medicineList = medicineList.filter(medicineData => medicineData.reservedStock > 0).reverse()
+				medicineList.every(medicine => {
+					console.log("quantityLeft:", quantityLeftToUpdate)
+					const quantityUpdated = Math.min(quantityLeftToUpdate, medicine.reservedStock)
+					this.decreaseReservedMedicine(medicine.id, quantityUpdated)
+					quantityLeftToUpdate -= quantityUpdated
+					return quantityLeftToUpdate > 0
+				})
+			} else if (newPrescriptionQuantity > oldPrescriptionQuantity) {
+				console.log(`increase reserve stock for ${medicineList.map(medicine => medicine.code)}, 
+					with old quantity: ${oldPrescriptionQuantity} and new quantity: ${newPrescriptionQuantity}`)
+				console.log("quantityLeft:", quantityLeftToUpdate)
+				medicineList.every(medicine => {
+					const quantityUpdated = Math.min(quantityLeftToUpdate, medicine.currStock - medicine.reservedStock)
+					if (medicine.currStock - medicine.reservedStock > 0) {
+						this.increaseReservedMedicine(medicine.id, quantityUpdated)
+						quantityLeftToUpdate -= quantityUpdated
+					}
+					return quantityLeftToUpdate > 0
+				})
+			}
+		} catch (error) {
+			throw error as object;
+		}
 	}
 }
