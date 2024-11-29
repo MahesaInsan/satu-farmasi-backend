@@ -30,13 +30,13 @@ export default class MedicineRepository {
 						MIN(m."expiredDate") as "expiredDate",
 						MIN(m."unitOfMeasure") as "unitOfMeasure",
 						MIN(m."sideEffect") as "sideEffect",
-						json_agg(
-						  json_build_object(
+						jsonb_agg(
+						  DISTINCT jsonb_build_object(
 							 'id', c.id,
 							 'label', c.label,
 							 'value', c.value
 						  )
-					   ) as classifications,
+						) as classifications,
 						json_build_object(
 							'id', MIN(p.id),
 							'label', MIN(p.label)
@@ -44,7 +44,7 @@ export default class MedicineRepository {
 						json_build_object(
 							'id', MIN(g.id),
 							'label', MIN(g.label)
-						) as genericName
+						) as "genericName"
 					FROM "Medicine" m
 					INNER JOIN "Packaging" p
 					ON m."packagingId" = p.id
@@ -460,11 +460,34 @@ export default class MedicineRepository {
 					CAST(SUM("currStock") AS INTEGER) AS "currStock",
 					MAX("minStock") AS "minStock",
 					MAX("maxStock") AS "maxStock",
-					CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+					CASE WHEN COUNT(CASE WHEN m."is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
 					MAX("sideEffect") AS "sideEffect",
-					MAX("created_at") AS "created_at",
-					MAX("updated_at") AS "updated_at"
-				FROM "Medicine"
+					MAX(m."created_at") AS "created_at",
+					MAX(m."updated_at") AS "updated_at",
+					jsonb_agg(
+						  DISTINCT jsonb_build_object(
+							 'id', c.id,
+							 'label', c.label,
+							 'value', c.value
+						  )
+						) as classifications,
+					json_build_object(
+						'id', MAX(p.id),
+						'label', MAX(p.label)
+					) as packaging,
+					json_build_object(
+						'id', MAX(g.id),
+						'label', MAX(g.label)
+					) as "genericName"
+				FROM "Medicine" m
+					INNER JOIN "Packaging" p
+					ON m."packagingId" = p.id
+					INNER JOIN "GenericName" g
+					ON m."genericNameId" = g.id
+					INNER JOIN "MedicineHasClassification" mhc
+					ON m."id" = mhc."medicineId"
+					INNER JOIN "Classification" c
+					ON mhc."classificationId" = c."id"
 				WHERE 
 					"name" ILIKE ${`%${searchQuery}%`} 
 					OR "code" ILIKE ${`%${searchQuery}%`} 
