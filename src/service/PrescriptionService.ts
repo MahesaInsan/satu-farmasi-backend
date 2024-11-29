@@ -7,7 +7,6 @@ import AddPrescribedMedicineRequest from "../model/request/AddPrescribedMedicine
 import PrescriptionHasMedicineRepository from "../repository/PrescriptionHasMedicineRepository";
 import MedicineService from "./MedicineService";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
-import MostSalesMedicineVO from "../model/VOs/MostSalesMedicineVO";
 import PrescriptionSummaryResponse from "../model/response/PrescriptionSummaryResponse";
 import PatientService from "./PatientService";
 import EditPrescriptionRequest from "../model/request/EditPrescriptionRequest";
@@ -160,7 +159,7 @@ export default class PrescriptionService{
         try {
             let tuple: [Map<string, PrescriptionHasMedicine>, Map<number, PrescriptionHasMedicine>]
 
-            // await this.validationHelper.validatePrescriptionRequest(request)
+            await this.validationHelper.validatePrescriptionRequest(request)
             tuple = await this.mapOldPrescriptionHasMedicine(await this.findPrescriptionMedicine(request.prescriptionId))
 
             return await this.compareAndUpdatePrescriptionHasMedicine(tuple[0], request.medicineList,
@@ -291,6 +290,27 @@ export default class PrescriptionService{
                 ])
             }
         } else new Error ("PrescriptionNotFound")
+    }
+
+    public async cancelPrescription(prescriptionId: number) {
+        try {
+            const [prescription, prescriptionHasMedicine] = await Promise.all([
+                this.prescriptionRepository.getPrescriptionById(prescriptionId),
+                this.prescriptionHasMedicineRepository.getPrescriptionHasMedicine(prescriptionId)
+            ])
+
+            if (!prescription) {
+                new Error ("Prescription not found")
+            }
+            if (prescription!.status !== Status.UNPROCESSED) {
+                new Error ("Prescription status is ineligible")
+            }
+
+            await this.medicineService.returnReservedStock(prescriptionHasMedicine)
+            return await this.prescriptionRepository.updatePrescriptionStatusAndIsActiveById(prescriptionId)
+        } catch (error) {
+            throw error as string
+        }
     }
 
     // private async createNewPrescriptionHasMedicine(medicineList: AddPrescribedMedicineRequest[], prescriptionId: number){

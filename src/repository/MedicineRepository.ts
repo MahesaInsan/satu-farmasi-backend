@@ -72,6 +72,17 @@ export default class MedicineRepository {
 		}
 	}
 
+	public async setMedicineIsActiveToFalse(medicineId: number) {
+		try {
+			await this.prisma.medicine.update({
+				where: { id: medicineId },
+				data: { is_active: false }
+			})
+		} catch (error) {
+			throw new Error("Failed to change medicine is_active to false")
+		}
+	}
+
 	public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[]): Promise<MedicineData[]> {
 		return this.prisma.medicine.findMany({
 			where: {
@@ -154,7 +165,7 @@ export default class MedicineRepository {
 		try {
 			await this.validateMedicineId(medicineId, quantity)
 
-			await this.prisma.medicine.update({
+			return await this.prisma.medicine.update({
 				where: {
 					id: medicineId
 				},
@@ -165,6 +176,9 @@ export default class MedicineRepository {
 					reservedStock: {
 						decrement: quantity
 					}
+				},
+				select: {
+					currStock: true
 				}
 			})
 		} catch (error) {
