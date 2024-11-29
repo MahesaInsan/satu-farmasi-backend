@@ -57,7 +57,6 @@ export default class PrescriptionRepository{
             return this.prisma.prescription.findFirst({
                 where: {
                     id: prescriptionId,
-                    is_active: true
                 },
                 select: {
                     id: true,
@@ -132,11 +131,11 @@ export default class PrescriptionRepository{
                 where: {
                     patient: {
                         name: {
-                            contains: patientName
+                            contains: patientName,
+                            mode: "insensitive",
                         }
                     },
                     status: status,
-                    is_active: true
                 },
                 select: {
                     id: true,
@@ -233,7 +232,6 @@ export default class PrescriptionRepository{
                         }
                     },
                     status: status,
-                    is_active: true
                 }
             })
         } catch (error) {

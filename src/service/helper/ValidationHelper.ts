@@ -32,20 +32,22 @@ export default class ValidationHelper {
     }
 
     public async validatePrescriptionRequest(request: AddPrescriptionRequest | EditPrescriptionRequest) {
+        console.log("request: ", request)
         let prescriptionHasMedicine: PrescriptionHasMedicine[] = []
         let indexByMedicineCode: Map<string, number> = new Map<string, number>();
         const medicineListValidation: MedicineData[] = await this.medicineService.getMedicineValidationList(request.medicineList
             .map((medicine) => medicine.code))
         let quantityByMedicineCode: Map<string, number> = new Map<string, number>();
 
-        if (request instanceof EditPrescriptionRequest) {
-           prescriptionHasMedicine = await this.prescriptionHasMedicineRepository.getPrescriptionHasMedicine(request.prescriptionId)
+        if ((request as EditPrescriptionRequest).prescriptionId) {
+           prescriptionHasMedicine = await this.prescriptionHasMedicineRepository.getPrescriptionHasMedicine((request as EditPrescriptionRequest).prescriptionId)
         }
 
         for (let i = 0; i < medicineListValidation.length; i++){
             indexByMedicineCode.set(medicineListValidation[i].code, i)
         }
         for (const phm of prescriptionHasMedicine) {
+            console.log("phm: ", phm)
             if (quantityByMedicineCode.has(phm.medicineCode)) {
                 quantityByMedicineCode.set(phm.medicineCode, quantityByMedicineCode.get(phm.medicineCode)! + phm.quantity)
             } else quantityByMedicineCode.set(phm.medicineCode, phm.quantity)
@@ -63,6 +65,7 @@ export default class ValidationHelper {
                 throw new Error("Insufficient medicine stock")
             }
             if (prescriptionHasMedicine.length > 0) {
+                console.log("quantity: ", quantityByMedicineCode)
                 const quantityAlreadyAssigned =
                     quantityByMedicineCode.get(medicineValidation.code) ? quantityByMedicineCode.get(medicineValidation.code)! : 0
                 if (medicineValidation.currStock + quantityAlreadyAssigned - medicineRequest.quantity < 0) {

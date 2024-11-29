@@ -36,7 +36,7 @@ export default class PrescriptionService{
 
     public async addNewPrescription (request: AddPrescriptionRequest): Promise<number> {
         try {
-            // await this.validationHelper.validatePrescriptionRequest(request)
+             await this.validationHelper.validatePrescriptionRequest(request)
             if (request.patient.patientId === -1) {
                 return await this.patientService.addNewPatient(request.patient)
                     .then(async (idVO) => {
@@ -59,7 +59,7 @@ export default class PrescriptionService{
                 new Error("Not Found")
             }
 
-            if (result && Status.UNPROCESSED == result.status) {
+            if (result && (Status.UNPROCESSED == result.status || Status.CANCELED == result.status)) {
                 let draftPrescription: DraftPrescriptionVO;
                 let draftMedicineList: DraftMedicineListVO[] = [];
 
@@ -67,6 +67,7 @@ export default class PrescriptionService{
 
                 if (result && result.medicineList) {
                     console.log("this is draft")
+                    console.log("rees:", result)
                     draftMedicineList = await Promise.all(
                         result.medicineList.map(async (prescribedMedicine) => {
                             const medicineData = await this.medicineService.getMedicineByCode(prescribedMedicine.medicineCode)
