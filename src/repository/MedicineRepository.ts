@@ -197,24 +197,16 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async getTotalMedicineGroupByCode(code: string): Promise<TotalMedicineGroupByCodeVO[]> {
+	public async getAllMedicineCodeByCode(code: string) {
 		try {
-			const result = await this.prisma.medicine.groupBy({
-				by: ['code'],
+			return await this.prisma.medicine.findMany({
 				where: {
-					code: { contains: code }
+					code: { contains: 'PARACETAMOL' }
 				},
-				_count: {
+				select: {
 					code: true
-				},
-				orderBy: {
-					_count: {
-						code: 'desc'
-					}
-				},
-				take: 1
+				}
 			})
-			return result;
 		} catch (error) {
 			console.error('Error counting medicineList: ', error);
 			throw new Error('Failed to count medicineList');

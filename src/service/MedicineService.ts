@@ -54,10 +54,17 @@ export default class MedicineService {
 		}
 	}
 
-	public async getTotalMedicineByCode(code: string): Promise<number> {
+	public async getTotalMedicineCodeByCode(code: string): Promise<number> {
 		try {
-			const result: TotalMedicineGroupByCodeVO[] = await this.medicineRepository.getTotalMedicineGroupByCode(code);
-			return result.length < 1 ? 0 : result.length;
+			const result = await this.medicineRepository.getAllMedicineCodeByCode(code)
+			if (result && result.length > 0) {
+				result.sort((codeA, codeB) => {
+					const aNumber = parseInt(codeA.code.split('-')[1])
+					const bNumber = parseInt(codeB.code.split('-')[1])
+					return bNumber - aNumber
+				})
+				return parseInt(result[0].code.split('-')[1])
+			} else return 0
 		} catch (error) {
 			throw error as string;
 		}
@@ -261,7 +268,7 @@ export default class MedicineService {
 			if (!genericName) throw new Error("Generic name not found");
 
 			console.log(genericName.value);
-			const totalMedicine: number = await this.getTotalMedicineByCode(genericName.value);
+			const totalMedicine: number = await this.getTotalMedicineCodeByCode(genericName.value);
 			const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
 			console.log("medicine code: ", formatNumber);
 
@@ -301,10 +308,8 @@ export default class MedicineService {
 			.description(request.description)
 			.unitOfMeasure(request.unitOfMeasure)
 			.price(request.price)
-			.expiredDate(request.expiredDate)
 			.packagingId(request.packagingId)
 			.genericNameId(request.genericNameId)
-			.currStock(request.currStock)
 			.minStock(request.minStock)
 			.maxStock(request.maxStock)
 			.sideEffect(request.sideEffect)
