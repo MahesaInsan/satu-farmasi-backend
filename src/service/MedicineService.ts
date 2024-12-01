@@ -44,6 +44,26 @@ export default class MedicineService {
 		}
 	}
 
+	public async getAllMedicineListById(){
+		try {
+			const medicineList = await this.medicineRepository.fetchMedicineListById();
+			return medicineList.reduce((medicineByMedicineId, medicine) => {
+				medicineByMedicineId.set(medicine.id, medicine)
+				return medicineByMedicineId
+			}, new Map<number, MedicineDropdownVO>)
+		} catch (error) {
+			throw error as string
+		}
+	}
+
+	public async getSingleMedicineById(id: number): Promise<Medicine | null> {
+		try {
+			return await this.medicineRepository.getMedicineById(id);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
 	public async getAndMapMedicineListByMedicineCode(medicineCodes: string[]) {
 		try {
 			return await this.medicineRepository.getMedicineByCodeInAndIsActiveTrue(medicineCodes)
@@ -181,10 +201,10 @@ export default class MedicineService {
 		}
 	}
 
-	public async decreaseStockAccordingToReservedUse(medicineId: number, quantity: number) {
+	public async decreaseStockAndReservedStock(medicineId: number, quantityStock: number, quantityReservedStock: number) {
 		try {
-			console.log("Decrease stock according to reservedStock:", medicineId, quantity)
-			const updatedStock = await this.medicineRepository.decreaseStockAndDecreaseReservedStock(medicineId, quantity)
+			console.log("Decrease stock according to reservedStock:", medicineId, quantityStock, quantityReservedStock)
+			const updatedStock = await this.medicineRepository.decreaseStockAndDecreaseReservedStock(medicineId, quantityStock, quantityReservedStock)
 			updatedStock.currStock == 0 && this.medicineRepository.setMedicineIsActiveToFalse(medicineId).catch((error) => {
 				console.error(`Failed to set medicine as inactive for ID ${medicineId}:`, error);
 			});

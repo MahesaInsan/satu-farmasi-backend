@@ -83,6 +83,71 @@ export default class MedicineRepository {
 		}
 	}
 
+	public async fetchMedicineListById(): Promise<MedicineDropdownVO[]> {
+		try {
+			return this.prisma.medicine.findMany({
+				where: {
+					is_active: true,
+					currStock: {
+						gt: 0
+					},
+				},
+				select: {
+					id: true,
+					code: true,
+					name: true,
+					merk: true,
+					currStock: true,
+					minStock: true,
+					reservedStock: true,
+					expiredDate: true,
+					maxStock: true,
+					description: true,
+					unitOfMeasure: true,
+					sideEffect: true,
+					price: true,
+					classifications: {
+						select: {
+							classification: {
+								select: {
+									id: true,
+									label: true,
+									value: true
+								}
+							}
+						}
+					},
+					packaging: {
+						select: {
+							id: true,
+							label: true,
+							value: true
+						}
+					},
+					genericName: {
+						select: {
+							id: true,
+							label: true,
+							value: true
+						}
+					}
+				}
+			});
+		} catch (error) {
+			console.error('Error getting medicineList:', error);
+			throw new Error('Failed to get medicineList');
+		}
+	}
+
+	public async getSingleMedicineById(id: number): Promise<Medicine | null> {
+		try {
+			return this.prisma.medicine.findFirst({ where: { id: id } });
+		} catch (error) {
+			console.error('Error getting medicine by id:', error);
+			throw new Error('Failed to get medicine by id');
+		}
+	}
+
 	public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[]): Promise<MedicineData[]> {
 		return this.prisma.medicine.findMany({
 			where: {
@@ -161,9 +226,9 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async decreaseStockAndDecreaseReservedStock(medicineId: number, quantity: number) {
+	public async decreaseStockAndDecreaseReservedStock(medicineId: number, quantityStock: number, quantityReservedStock: number) {
 		try {
-			await this.validateMedicineId(medicineId, quantity)
+			await this.validateMedicineId(medicineId, quantityStock)
 
 			return await this.prisma.medicine.update({
 				where: {
@@ -171,10 +236,10 @@ export default class MedicineRepository {
 				},
 				data: {
 					currStock: {
-						decrement: quantity
+						decrement: quantityStock
 					},
 					reservedStock: {
-						decrement: quantity
+						decrement: quantityReservedStock
 					}
 				},
 				select: {
@@ -207,8 +272,6 @@ export default class MedicineRepository {
 
 	public async decreaseReserveStock(medicineId: number, quantity: number){
 		try {
-			await this.validateMedicineId(medicineId, quantity)
-
 			await this.prisma.medicine.update({
 				where: {
 					id: medicineId
@@ -226,8 +289,6 @@ export default class MedicineRepository {
 
 	public async increaseStock(medicineId: number, quantity: number) {
 		try {
-			await this.validateMedicineId(medicineId, quantity)
-
 			await this.prisma.medicine.update({
 				where: {
 					id: medicineId,
@@ -864,11 +925,13 @@ export default class MedicineRepository {
 		try {
 			const medicine: Medicine | null = await this.getMedicineById(medicineId);
 			if (!medicine) {
-				new CustomError().formatError("Medicine Not Found", "medicineId");
+				throw new CustomError().formatError("Medicine Not Found", "medicineId");
 			}
 
+			console.log(quantity, medicine!.currStock);
+
 			if (medicine && medicine.currStock - quantity < 0) {
-				new CustomError().formatError("Medicine stock is not enough", "quantity");
+				throw new CustomError().formatError("Medicine stock is not enough", "quantity");
 			}
 		} catch (error) {
 			throw error as string

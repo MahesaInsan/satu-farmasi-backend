@@ -472,7 +472,7 @@ export default class PrescriptionService{
                 medicine.id, medicine.code, quantityToAssign, prescriptionHasMedicine.instruction, medicine.price, prescriptionId)
             finalizedPrescriptionHasMedicine.draft = false
             finalizedPrescriptionHasMedicineList.push(finalizedPrescriptionHasMedicine)
-            await this.medicineService.decreaseStockAccordingToReservedUse(medicine.id, quantityToAssign)
+            await this.medicineService.decreaseStockAndReservedStock(medicine.id, quantityToAssign, quantityToAssign)
             quantityLeftToAssign -= quantityToAssign
         }
     }
