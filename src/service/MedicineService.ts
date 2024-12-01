@@ -1,7 +1,7 @@
 import MedicineRepository from "../repository/MedicineRepository";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
-import { GenericName, Medicine, MedicineHasClassification, UnitOfMeasure } from "@prisma/client";
+import {GenericName, Medicine, MedicineHasClassification, PrescriptionHasMedicine, UnitOfMeasure} from "@prisma/client";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import { Builder } from "builder-pattern";
 import GenericNameService from "./GenericNameService";
@@ -143,7 +143,10 @@ export default class MedicineService {
 	public async decreaseStockAccordingToReservedUse(medicineId: number, quantity: number) {
 		try {
 			console.log("Decrease stock according to reservedStock:", medicineId, quantity)
-			await this.medicineRepository.decreaseStockAndDecreaseReservedStock(medicineId, quantity)
+			const updatedStock = await this.medicineRepository.decreaseStockAndDecreaseReservedStock(medicineId, quantity)
+			updatedStock.currStock == 0 && this.medicineRepository.setMedicineIsActiveToFalse(medicineId).catch((error) => {
+				console.error(`Failed to set medicine as inactive for ID ${medicineId}:`, error);
+			});
 		} catch (error) {
 			throw error as string
 		}
@@ -264,6 +267,33 @@ export default class MedicineService {
             throw error as string;
         }
     }
+
+	public async returnReservedStock (prescriptionHasMedicine: PrescriptionHasMedicine[]){
+		try {
+			const medicineList = await this.getAndMapMedicineListByMedicineCode(
+				prescriptionHasMedicine.map(medicine => medicine.medicineCode))
+
+			await Promise.all(
+				prescriptionHasMedicine.map(async phm => {
+					if (medicineList.has(phm.medicineCode)) {
+						let quantityLeftToRemoved = phm.quantity
+						const medicineToBeUpdated = medicineList.get(phm.medicineCode)
+							?.filter(medicine => medicine.reservedStock > 0).reverse()
+
+						for (const medicine of medicineToBeUpdated!) {
+							if (quantityLeftToRemoved === 0) break
+
+							const quantityRemoved = Math.min(medicine.reservedStock, quantityLeftToRemoved)
+							await this.decreaseReservedMedicine(medicine.id, quantityRemoved)
+							quantityLeftToRemoved -= quantityRemoved
+						}
+					} else new Error ("Medicine doesn't exist")
+				})
+			)
+		} catch (error) {
+			throw error as string
+		}
+	}
 
 	// ganti jadi count all (jangan spesifik per generic name)
 	private async generateMedicineCode(genericNameId: number): Promise<string> {
