@@ -84,10 +84,17 @@ export default class MedicineService {
 		}
 	}
 
-	public async getTotalMedicineByCode(code: string): Promise<number> {
+	public async getTotalMedicineCodeByCode(code: string): Promise<number> {
 		try {
-			const result: TotalMedicineGroupByCodeVO[] = await this.medicineRepository.getTotalMedicineGroupByCode(code);
-			return result.length < 1 ? 0 : result.length;
+			const result = await this.medicineRepository.getAllMedicineCodeByCode(code)
+			if (result && result.length > 0) {
+				result.sort((codeA, codeB) => {
+					const aNumber = parseInt(codeA.code.split('-')[1])
+					const bNumber = parseInt(codeB.code.split('-')[1])
+					return bNumber - aNumber
+				})
+				return parseInt(result[0].code.split('-')[1])
+			} else return 0
 		} catch (error) {
 			throw error as string;
 		}
@@ -118,7 +125,7 @@ export default class MedicineService {
 	}
 
 	public async getMedicineSummaryByCode(startIndex: number, limit: number, searchQuery: string | undefined,
-																				sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
+										  sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
 		try {
 			const validatedQuery = await this.checkIfParamValid(searchQuery, sortBy, sortMode)
 			const medicineSummaryByCode = await this.medicineRepository.getMedicineSummaryByCode(startIndex, limit, validatedQuery[0],
@@ -129,16 +136,8 @@ export default class MedicineService {
 		}
 	}
 
-	public async getAllMedicineSummaryByCode(code: string): Promise<MedicineDisplayVO | null> {
-		try {
-			return await this.medicineRepository.getAllMedicineSummaryByCode(code);
-		} catch (error) {
-			throw error as string;
-		}
-	}
-
 	public async getMedicineSummaryById(startIndex: number, limit: number, searchQuery: string | undefined,
-																			sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
+										sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
 		try {
 			const validatedQuery = await this.checkIfParamValid(searchQuery, sortBy, sortMode)
 			return await this.medicineRepository.getMedicineSummaryById(startIndex, limit, validatedQuery[0],
@@ -191,10 +190,18 @@ export default class MedicineService {
 		}
 	}
 
+	public async activeMedicineById(medicineId: number) {
+		try {
+			await this.medicineRepository.activateMedicineById(medicineId);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
 	public async createMedicine(request: AddMedicineRequest): Promise<MedicineDisplayVO> {
 		try {
 			const oldMedicine: MedicineDisplayVO | null = await this.getMedicineByCode(request.code);
-			
+
 			request.code = !oldMedicine
 				? await this.generateMedicineCode(request.genericNameId)
 				: request.code;
@@ -258,18 +265,18 @@ export default class MedicineService {
 		}
 	}
 
-	public isDuplicateClassification(classificationList: AddMedicineClassificationRequest[]): void {
-		try {
-			const classificationSet = new Set<number>();
-			classificationList.forEach((classification: AddMedicineClassificationRequest) => {
-				classificationSet.add(classification.classificationId)
-			})
-			if (classificationSet.size != classificationList.length)
-				throw new CustomError().formatError("Duplicate medicine classification are not allowed", "custom");
-		} catch (error) {
-			throw error as string;
-		}
-	}
+    public isDuplicateClassification(classificationList: AddMedicineClassificationRequest[]): void {
+        try {
+            const classificationSet = new Set<number>();
+            classificationList.forEach((classification: AddMedicineClassificationRequest) => {
+                classificationSet.add(classification.classificationId)
+            })
+            if (classificationSet.size != classificationList.length)
+                throw new CustomError().formatError("Duplicate medicine classification are not allowed", "custom");
+        } catch (error) {
+            throw error as string;
+        }
+    }
 
 	// public async addStock(id: number, currStock: number): Promise<boolean> {
 	// 	try {
@@ -319,6 +326,14 @@ export default class MedicineService {
 		}
 	}
 
+	public async hardDeleteMedicineById(medicineId: number) {
+		try {
+			return await this.medicineRepository.hardDeleteMedicineById(medicineId);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
 	// ganti jadi count all (jangan spesifik per generic name)
 	private async generateMedicineCode(genericNameId: number): Promise<string> {
 		try {
@@ -326,7 +341,7 @@ export default class MedicineService {
 			if (!genericName) throw new Error("Generic name not found");
 
 			console.log(genericName.value);
-			const totalMedicine: number = await this.getTotalMedicineByCode(genericName.value);
+			const totalMedicine: number = await this.getTotalMedicineCodeByCode(genericName.value);
 			const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
 			console.log("medicine code: ", formatNumber);
 
@@ -366,10 +381,8 @@ export default class MedicineService {
 			.description(request.description)
 			.unitOfMeasure(request.unitOfMeasure)
 			.price(request.price)
-			.expiredDate(request.expiredDate)
 			.packagingId(request.packagingId)
 			.genericNameId(request.genericNameId)
-			.currStock(request.currStock)
 			.minStock(request.minStock)
 			.maxStock(request.maxStock)
 			.sideEffect(request.sideEffect)
@@ -425,38 +438,6 @@ export default class MedicineService {
 			} else if (oldPrescriptionQuantity > newPrescriptionQuantity) {
 				console.log("increase stock")
 				await this.increaseMedicineStock(medicineId, oldPrescriptionQuantity - newPrescriptionQuantity)
-			}
-		} catch (error) {
-			throw error as object;
-		}
-	}
-
-	public async updateMedicineReservedStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineList: MedicineData[]) {
-		try {
-			let quantityLeftToUpdate = Math.abs(oldPrescriptionQuantity - newPrescriptionQuantity)
-			if (newPrescriptionQuantity < oldPrescriptionQuantity) {
-				console.log(`decrease reserve stock for ${medicineList.map(medicine => medicine.code)}, 
-					with old quantity: ${oldPrescriptionQuantity} and new quantity: ${newPrescriptionQuantity}`)
-				medicineList = medicineList.filter(medicineData => medicineData.reservedStock > 0).reverse()
-				medicineList.every(medicine => {
-					console.log("quantityLeft:", quantityLeftToUpdate)
-					const quantityUpdated = Math.min(quantityLeftToUpdate, medicine.reservedStock)
-					this.decreaseReservedMedicine(medicine.id, quantityUpdated)
-					quantityLeftToUpdate -= quantityUpdated
-					return quantityLeftToUpdate > 0
-				})
-			} else if (newPrescriptionQuantity > oldPrescriptionQuantity) {
-				console.log(`increase reserve stock for ${medicineList.map(medicine => medicine.code)}, 
-					with old quantity: ${oldPrescriptionQuantity} and new quantity: ${newPrescriptionQuantity}`)
-				console.log("quantityLeft:", quantityLeftToUpdate)
-				medicineList.every(medicine => {
-					const quantityUpdated = Math.min(quantityLeftToUpdate, medicine.currStock - medicine.reservedStock)
-					if (medicine.currStock - medicine.reservedStock > 0) {
-						this.increaseReservedMedicine(medicine.id, quantityUpdated)
-						quantityLeftToUpdate -= quantityUpdated
-					}
-					return quantityLeftToUpdate > 0
-				})
 			}
 		} catch (error) {
 			throw error as object;
@@ -526,5 +507,37 @@ export default class MedicineService {
 
 		console.log(averageSold, "+", bufferStock, "+", leadTimeStock, "-", currentStock)
 		return (averageSold + bufferStock + leadTimeStock) - currentStock
+	}
+
+	public async updateMedicineReservedStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineList: MedicineData[]) {
+		try {
+			let quantityLeftToUpdate = Math.abs(oldPrescriptionQuantity - newPrescriptionQuantity)
+			if (newPrescriptionQuantity < oldPrescriptionQuantity) {
+				console.log(`decrease reserve stock for ${medicineList.map(medicine => medicine.code)}, 
+					with old quantity: ${oldPrescriptionQuantity} and new quantity: ${newPrescriptionQuantity}`)
+				medicineList = medicineList.filter(medicineData => medicineData.reservedStock > 0).reverse()
+				medicineList.every(medicine => {
+					console.log("quantityLeft:", quantityLeftToUpdate)
+					const quantityUpdated = Math.min(quantityLeftToUpdate, medicine.reservedStock)
+					this.decreaseReservedMedicine(medicine.id, quantityUpdated)
+					quantityLeftToUpdate -= quantityUpdated
+					return quantityLeftToUpdate > 0
+				})
+			} else if (newPrescriptionQuantity > oldPrescriptionQuantity) {
+				console.log(`increase reserve stock for ${medicineList.map(medicine => medicine.code)}, 
+					with old quantity: ${oldPrescriptionQuantity} and new quantity: ${newPrescriptionQuantity}`)
+				console.log("quantityLeft:", quantityLeftToUpdate)
+				medicineList.every(medicine => {
+					const quantityUpdated = Math.min(quantityLeftToUpdate, medicine.currStock - medicine.reservedStock)
+					if (medicine.currStock - medicine.reservedStock > 0) {
+						this.increaseReservedMedicine(medicine.id, quantityUpdated)
+						quantityLeftToUpdate -= quantityUpdated
+					}
+					return quantityLeftToUpdate > 0
+				})
+			}
+		} catch (error) {
+			throw error as object;
+		}
 	}
 }

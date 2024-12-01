@@ -5,6 +5,8 @@ import {Request, Response} from "express";
 import AddReceiveMedicineRequest from "../model/request/AddReceiveMedicineRequest";
 import PaginationRequest from "../model/request/PaginationRequest";
 import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
+import EditReceiveMedicineRequest from "../model/request/EditReceiveMedicineRequest";
+import DeleteReceiveMedicineRequest from "../model/request/DeleteReceiveMedicineRequest";
 
 export default class ReceiveMedicineController extends BaseController {
     private readonly receiveMedicineService: ReceiveMedicineService;
@@ -35,6 +37,18 @@ export default class ReceiveMedicineController extends BaseController {
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
+    
+    public async getReceiveMedicineById(req: Request, res: Response) {
+        try {
+            const id: number = parseInt(req.params.id as string);
+            const data: ReceiveMedicineVO | null = await this.receiveMedicineService.getReceiveMedicineById(id);
+            return res.status(200).send(new BaseResponse().ok(data, "Succeed get receive medicine by id"));
+        } catch (error) {
+            console.log("[src][controller][ReceiveMedicineController][getReceiveMedicineById] : ", error);
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
 
     public async createReceiveMedicine(req: Request, res: Response) {
         try {
@@ -43,6 +57,30 @@ export default class ReceiveMedicineController extends BaseController {
             return res.status(200).send(new BaseResponse().ok(null, "Succeed insert receive medicine"));
         } catch (error) {
             console.log("[src][controller][ReceiveMedicineController][createReceiveMedicine] : ", error);
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+    
+    public async confirmReceiveMedicine(req: Request, res: Response) {
+        try {
+            const request: EditReceiveMedicineRequest = req.body;
+            await this.receiveMedicineService.confirmReceiveMedicine(request);
+            return res.status(200).send(new BaseResponse().ok(null, "Succeed confirm receive medicine"));
+        } catch (error) {
+            console.log("[src][controller][ReceiveMedicineController][confirmReceiveMedicine] : ", error);
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+    
+    public async deleteReceiveMedicine(req: Request, res: Response) {
+        try {
+            const request: DeleteReceiveMedicineRequest = req.body;
+            await this.receiveMedicineService.deleteReceiveMedicine(request.id);
+            return res.status(200).send(new BaseResponse().ok(null, "Succeed delete receive medicine"))
+        } catch (error) {
+            console.log("[src][controller][ReceiveMedicineController][deleteReceiveMedicine] : ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }

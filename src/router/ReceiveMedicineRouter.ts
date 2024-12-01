@@ -12,7 +12,10 @@ class MedicineRouter extends BaseRouter {
 
     private initRoutes() {
         this.router.get( "/", this.receiveMedicineController.getAllReceiveMedicines.bind(this.receiveMedicineController));
+        this.router.get( "/:id", this.receiveMedicineController.getReceiveMedicineById.bind(this.receiveMedicineController));
         this.router.post("/", this.receiveMedicineController.createReceiveMedicine.bind(this.receiveMedicineController));
+        this.router.post("/_confirm", this.receiveMedicineController.confirmReceiveMedicine.bind(this.receiveMedicineController));
+        this.router.post("/_delete", this.receiveMedicineController.deleteReceiveMedicine.bind(this.receiveMedicineController));
     }
 }
 

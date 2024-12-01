@@ -1,10 +1,10 @@
 import { Medicine, Prisma, PrismaClient } from "@prisma/client"
-import TotalMedicineGroupByCode from "../model/VOs/TotalMedicineGroupByCodeVO";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import MedicineData from "../model/VOs/MedicineDropdownVO"
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
 import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
+import TotalMedicineGroupByCode from "../model/VOs/TotalMedicineGroupByCodeVO";
 
 export default class MedicineRepository {
 	private prisma: PrismaClient
@@ -22,7 +22,6 @@ export default class MedicineRepository {
 						MIN(m.id) as id,
 						m.code,
 						MIN(m.name) as name,
-						MIN(m."merk") as merk,
 						CAST(SUM(m."currStock" - m."reservedStock") AS INTEGER) as "currStock",
 						MIN(m."minStock") as "minStock",
 						MIN(m.price) as "price",
@@ -32,12 +31,12 @@ export default class MedicineRepository {
 						MIN(m."unitOfMeasure") as "unitOfMeasure",
 						MIN(m."sideEffect") as "sideEffect",
 						jsonb_agg(
-						  json_build_object(
+						  DISTINCT jsonb_build_object(
 							 'id', c.id,
 							 'label', c.label,
 							 'value', c.value
 						  )
-					   ) as classifications,
+						) as classifications,
 						json_build_object(
 							'id', MIN(p.id),
 							'label', MIN(p.label)
@@ -45,7 +44,7 @@ export default class MedicineRepository {
 						json_build_object(
 							'id', MIN(g.id),
 							'label', MIN(g.label)
-						) as genericName
+						) as "genericName"
 					FROM "Medicine" m
 					INNER JOIN "Packaging" p
 					ON m."packagingId" = p.id
@@ -356,24 +355,16 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async getTotalMedicineGroupByCode(code: string): Promise<TotalMedicineGroupByCodeVO[]> {
+	public async getAllMedicineCodeByCode(code: string) {
 		try {
-			const result = await this.prisma.medicine.groupBy({
-				by: ['code'],
+			return await this.prisma.medicine.findMany({
 				where: {
-					code: { contains: code }
+					code: { contains: 'PARACETAMOL' }
 				},
-				_count: {
+				select: {
 					code: true
-				},
-				orderBy: {
-					_count: {
-						code: 'desc'
-					}
-				},
-				take: 1
+				}
 			})
-			return result;
 		} catch (error) {
 			console.error('Error counting medicineList: ', error);
 			throw new Error('Failed to count medicineList');
@@ -469,11 +460,34 @@ export default class MedicineRepository {
 					CAST(SUM("currStock") AS INTEGER) AS "currStock",
 					MAX("minStock") AS "minStock",
 					MAX("maxStock") AS "maxStock",
-					CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+					CASE WHEN COUNT(CASE WHEN m."is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
 					MAX("sideEffect") AS "sideEffect",
-					MAX("created_at") AS "created_at",
-					MAX("updated_at") AS "updated_at"
-				FROM "Medicine"
+					MAX(m."created_at") AS "created_at",
+					MAX(m."updated_at") AS "updated_at",
+					jsonb_agg(
+						  DISTINCT jsonb_build_object(
+							 'id', c.id,
+							 'label', c.label,
+							 'value', c.value
+						  )
+						) as classifications,
+					json_build_object(
+						'id', MAX(p.id),
+						'label', MAX(p.label)
+					) as packaging,
+					json_build_object(
+						'id', MAX(g.id),
+						'label', MAX(g.label)
+					) as "genericName"
+				FROM "Medicine" m
+					INNER JOIN "Packaging" p
+					ON m."packagingId" = p.id
+					INNER JOIN "GenericName" g
+					ON m."genericNameId" = g.id
+					INNER JOIN "MedicineHasClassification" mhc
+					ON m."id" = mhc."medicineId"
+					INNER JOIN "Classification" c
+					ON mhc."classificationId" = c."id"
 				WHERE 
 					"name" ILIKE ${`%${searchQuery}%`} 
 					OR "code" ILIKE ${`%${searchQuery}%`} 
@@ -481,36 +495,6 @@ export default class MedicineRepository {
 				GROUP BY "code"
 				${Prisma.sql([orderBy])}
 				LIMIT ${limit} OFFSET ${startIndex};
-			`;
-		} catch (error) {
-			throw error as string
-		}
-	}
-
-	public async getAllMedicineSummaryByCode(code: string): Promise<MedicineDisplayVO | null> {
-		try {
-			const orderBy = `ORDER BY "code" ASC, "is_active" DESC`;
-
-			return await this.prisma.$queryRaw`
-				SELECT 
-					"code",
-					MAX("name") AS "name", 
-					MAX("merk") AS "merk",
-					MAX("description") AS "description",
-					MAX("unitOfMeasure") AS "unitOfMeasure",
-					MAX("price") AS "price",
-					MAX("expiredDate") AS "expiredDate",
-					CAST(SUM("currStock") AS INTEGER) AS "currStock",
-					MAX("minStock") AS "minStock",
-					MAX("maxStock") AS "maxStock",
-					CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
-					MAX("sideEffect") AS "sideEffect",
-					MAX("created_at") AS "created_at",
-					MAX("updated_at") AS "updated_at"
-				FROM "Medicine"
-				WHERE "code" ILIKE ${`%${code}%`} 
-				GROUP BY "code"
-				${Prisma.sql([orderBy])}
 			`;
 		} catch (error) {
 			throw error as string
@@ -818,6 +802,22 @@ export default class MedicineRepository {
 		}
 	}
 
+	public async activateMedicineById(medicineId: number) {
+		try {
+			await this.prisma.medicine.update({
+				where: {
+					id: medicineId
+				},
+				data: {
+					is_active: true
+				}
+			})
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
 	public async findAllMedicineIdByMedicineCode(medicineCode: string) {
 		try {
 			return await this.prisma.medicine.findMany({
@@ -861,6 +861,19 @@ export default class MedicineRepository {
             throw new Error('Failed to check expiration');
         }
     }
+
+	public async hardDeleteMedicineById(medicineId: number) {
+		try {
+			return this.prisma.medicine.delete({
+				where: {
+					id: medicineId
+				}
+			})
+		} catch (error) {
+			console.error('Error delete medicine by id: ', error);
+			throw new Error('Failed to delete medicine by id');
+		}
+	}
 
 	private async validateMedicineId(medicineId: number, quantity: number) {
 		try {

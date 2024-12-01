@@ -9,6 +9,7 @@ import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import EditMedicineRequest from "../model/request/EditMedicineRequest";
 import MedicineCheckStockVO from "../model/VOs/MedicineCheckStockVO";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
+import CheckExpirationRequest from "../model/request/CheckExpirationRequest";
 
 export default class MedicineController extends BaseController {
     private readonly medicineService: MedicineService;
@@ -139,7 +140,7 @@ export default class MedicineController extends BaseController {
 
     public async checkExpiration(req: Request, res: Response) {
         try {
-            const request: EditMedicineRequest = req.body;
+            const request: CheckExpirationRequest = req.body;
             const medicine: Medicine[] = await this.medicineService.checkExpiration(request.expiredDate);
             return res.status(200).send(new BaseResponse().ok(medicine, "Succeed Checked Expiration"));
         } catch (error) {

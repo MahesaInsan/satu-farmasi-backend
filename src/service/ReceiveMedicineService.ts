@@ -1,4 +1,4 @@
-import { ReceiveMedicine } from "@prisma/client";
+import { Medicine, ReceiveMedicine } from "@prisma/client";
 import MedicineService from "./MedicineService";
 import ReceiveMedicineRepository from "../repository/ReceiveMedicineRepository";
 import AddReceiveMedicineRequest from "../model/request/AddReceiveMedicineRequest";
@@ -8,6 +8,9 @@ import { Builder } from "builder-pattern";
 import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
 import MedicineReportService from "./MedicineReportService";
 import MedicineReportHelper from "./helper/MedicineReportHelper";
+import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
+import TodayMedicineReportVO from "../model/VOs/TodayMedicineReportVO";
+import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class ReceiveMedicineService {
     private readonly receiveMedicineRepository: ReceiveMedicineRepository;
@@ -54,6 +57,14 @@ export default class ReceiveMedicineService {
         }
     }
 
+    public async getReceiveMedicineById(receiveMedicineId: number): Promise<ReceiveMedicineVO | null> {
+        try {
+            return await this.receiveMedicineRepository.getReceiveMedicineById(receiveMedicineId);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
     public async searchReceiveMedicine(limit: number, startIndex: number, parameter: string): Promise<ReceiveMedicineVO[]> {
         try {
             return await this.receiveMedicineRepository.searchReceiveMedicine(limit, startIndex, parameter);
@@ -64,15 +75,6 @@ export default class ReceiveMedicineService {
 
     public async createReceiveMedicine(data: AddReceiveMedicineRequest) {
         try {
-            // // insert for report id
-            // let todayReport: TodayMedicineReportVO | null = await this.reportService.getTodayUnFinalizedMedicineReport();
-            // if (!todayReport) {
-            //     const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
-            //     todayReport = await this.reportService.addMedicineReport(this.reportHelper.createMedicineReport(reportRequest))
-            // }
-
-            // data.reportId = todayReport.id;
-
             // new medicine
             if (!data.medicineId || data.medicineId == 0) {
                 return await this.medicineService.createMedicine(data.medicineRequest)
@@ -96,9 +98,46 @@ export default class ReceiveMedicineService {
 
     public async confirmReceiveMedicine(data: EditReceiveMedicineRequest) {
         try {
+            // insert for report id
+            let todayReport: TodayMedicineReportVO | null = await this.reportService.getTodayUnFinalizedMedicineReport();
+            if (!todayReport) {
+                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
+                todayReport = await this.reportService.addMedicineReport(this.reportHelper.createMedicineReport(reportRequest))
+            }
+
+            data.reportId = todayReport.id;
+
+            // Get medicine data by medicineid
+            const medicine: Medicine | null = await this.medicineService.getMedicineById(data.medicineId);
+            if (!medicine) {
+                return new CustomError().formatError("Error while get medicine data", "custom");
+            }
+
             // Update is active = true (receiveMedicine & medicine by id)
             const receiveMedicine: ReceiveMedicine = this.constructEditReceiveMedicine(data);
-            return await this.receiveMedicineRepository.updateActivationReceiveMedicine(receiveMedicine)
+            const validation: boolean = await this.isQuantityStockEnable(medicine?.code, receiveMedicine.quantity);
+            if (!validation) {
+                return new CustomError().formatError("Error: Jumlah stok melebih maksimum stok!", "custom")
+            }
+
+            return await this.receiveMedicineRepository.updateReceiveMedicine(receiveMedicine)
+                .then(() => {
+                    this.medicineService.activeMedicineById(receiveMedicine.medicineId);
+                })
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async deleteReceiveMedicine(receiveMedicineId: number) {
+        try {
+            const receiveMedicine: ReceiveMedicineVO | null = await this.getReceiveMedicineById(receiveMedicineId);
+            if (!receiveMedicine) return new CustomError().formatError("Receive medicine data not found!", "custom");
+
+            return await this.receiveMedicineRepository.deleteReceiveMedicine(receiveMedicineId)
+                .then(() => {
+                    this.medicineService.hardDeleteMedicineById(receiveMedicine.medicine.id)
+                });
         } catch (error) {
             throw error as string;
         }
@@ -137,5 +176,19 @@ export default class ReceiveMedicineService {
             .updated_at(new Date)
             .reportId(request.reportId)
             .build();
+    }
+
+    private async isQuantityStockEnable(medicineCode: string, quantity: number): Promise<boolean> {
+        try {
+            const summaryMedicine = await this.medicineService.getMedicineSummaryByCode(1, 1, medicineCode, "code", "asc");
+            summaryMedicine.forEach(medicine => {
+                if (medicine.currStock + quantity > medicine.maxStock) {
+                    return false;
+                }
+            })
+            return true;
+        } catch (error) {
+            throw error as string;
+        }
     }
 }
