@@ -23,19 +23,6 @@ export default class PharmacyController extends BaseController {
         }
     }
 
-    async addPharmacyInformation(req: Request, res: Response) {
-        try {
-            console.error("#addPharmacyInformation with request: ", req.body.data)
-            const request: AddAndEditPharmacyRequest = req.body.data;
-            return res.status(200).send(new BaseResponse().ok(await this.pharmacyService.addNewPharmacyInformation(request),
-                "Successfully Created Pharmacy Information"));
-        } catch (error) {
-            console.error("Error when #addPharmacyInformation with error: ", error)
-            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
-            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
-        }
-    }
-
     async updatePharmacyInformation(req: Request, res: Response) {
         try {
             console.error("#updatePharmacyInformation with request: ", req.body.data)

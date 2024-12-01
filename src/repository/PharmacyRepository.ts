@@ -29,6 +29,7 @@ export default class PharmacyRepository extends BaseRepository {
 
     public async editPharmacyInfo(pharmacy: Pharmacy): Promise<boolean> {
         try {
+            pharmacy.updated_at = new Date()
             await this.Prisma.pharmacy.updateMany({
                 data: pharmacy
             });

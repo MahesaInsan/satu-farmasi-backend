@@ -252,7 +252,7 @@ model MedicineReport {
 
 model Pharmacy {
   id               Int               @id @default(autoincrement())
-  nama             String
+  name             String
   pharmacyNum      String
   address          String
   phoneNum         String

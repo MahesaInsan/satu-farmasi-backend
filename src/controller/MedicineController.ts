@@ -30,6 +30,29 @@ export default class MedicineController extends BaseController {
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
+
+    async getMedicineListById(req: Request, res: Response){
+        try{
+            console.log("#getMedicineDropdownOption")
+            const medicineDropdownOption: Map<number, MedicineDropdownVO> = await this.medicineService.getAllMedicineListById()
+            res.status(200).send(new BaseResponse().ok(Object.fromEntries(medicineDropdownOption)));
+        } catch (error) {
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+
+    async getSingleMedicineById(req: Request, res: Response){
+        try{
+            console.log("#getMedicineDropdownOption")
+            const request = parseInt(req.params.id)
+            const medicine = await this.medicineService.getSingleMedicineById(request)
+            res.status(200).send(new BaseResponse().ok(medicine));
+        } catch (error) {
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
     
     public async getMedicines(req: Request, res: Response) {
         try {

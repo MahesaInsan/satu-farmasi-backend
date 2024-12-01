@@ -12,25 +12,9 @@ export default class PharmacyService{
 
     public async getPharmacyInformation() {
         try {
-            const pharmacyInfo = await this.pharmacyRepository.getPharmacyInfo()
-            if (!pharmacyInfo) {
-                throw new Error("Pharmacy not found");
-            } else return pharmacyInfo;
+            return await this.pharmacyRepository.getPharmacyInfo()
         } catch (error) {
             throw error as string
-        }
-    }
-
-    public async addNewPharmacyInformation(request: AddAndEditPharmacyRequest) {
-        try {
-            this.validatePharmacyInformation(request)
-            if (await this.pharmacyRepository.getPharmacyInfo() !== null) {
-                throw new Error("Pharmacy info already exist")
-            }
-
-            await this.pharmacyRepository.addPharmacyInfo(this.constructPharmacyInformation(request))
-        } catch (error) {
-            throw error as string;
         }
     }
 
@@ -38,10 +22,10 @@ export default class PharmacyService{
         try {
             this.validatePharmacyInformation(request)
             if (await this.pharmacyRepository.getPharmacyInfo() === null) {
-                throw new Error("Pharmacy info not found")
+                await this.pharmacyRepository.addPharmacyInfo(this.constructPharmacyInformation(request))
+            } else {
+                await this.pharmacyRepository.editPharmacyInfo(this.constructPharmacyInformation(request))
             }
-
-            await this.pharmacyRepository.editPharmacyInfo(this.constructPharmacyInformation(request))
         } catch (error) {
             throw error as string;
         }
@@ -76,7 +60,7 @@ export default class PharmacyService{
 
     private constructPharmacyInformation(req: AddAndEditPharmacyRequest) {
         return Builder<Pharmacy>()
-            .nama(req.name)
+            .name(req.name)
             .pharmacyNum(req.pharmacyNum)
             .address(req.address)
             .phoneNum(req.phoneNum)

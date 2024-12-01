@@ -17,7 +17,6 @@ class PharmacyRouter extends BaseRouter {
             (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "ADMIN"),
         )
         this.router.get('/', this.pharmacyController.getPharmacyInformation.bind(this.pharmacyController));
-        this.router.post('/', this.pharmacyController.addPharmacyInformation.bind(this.pharmacyController));
         this.router.put('/', this.pharmacyController.updatePharmacyInformation.bind(this.pharmacyController));
     }
 }

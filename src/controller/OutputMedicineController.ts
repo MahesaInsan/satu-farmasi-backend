@@ -72,7 +72,7 @@ export default class OutputMedicineController extends BaseController {
 			await this.outputMedicineService.deleteOutputMedicine(req.body);
 			return res.status(200).send(new BaseResponse().ok(null, "Succeed Deleted Output Medicine"));
 		} catch (error) {
-			console.log("[src][controller][MedicineController][createMedicine] ", error);
+			console.log("[src][controller][MedicineController][deleteOutputMedicine] ", error);
 			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
 			return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
 		}
