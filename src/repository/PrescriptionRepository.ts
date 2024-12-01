@@ -2,8 +2,6 @@ import {Prescription, PrismaClient, Status} from "@prisma/client";
 import IdVO from "../model/VOs/IdVO";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
 import PrescriptionDetailVO from "../model/VOs/PrescriptionDetailVO";
-import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
-import DraftPrescriptionVO from "../model/VOs/DraftPrescriptionVO";
 
 export default class PrescriptionRepository{
     private readonly prisma: PrismaClient;
@@ -38,12 +36,27 @@ export default class PrescriptionRepository{
         }
     }
 
+    public async updatePrescriptionStatusAndIsActiveById(prescriptionId: number) {
+        try {
+            return this.prisma.prescription.update({
+                where: {
+                    id: prescriptionId
+                },
+                data: {
+                    status: Status.CANCELED,
+                    is_active: false
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
     public async getPrescriptionByPrescriptionId(prescriptionId: number): Promise<PrescriptionDetailVO | null> {
         try {
             return this.prisma.prescription.findFirst({
                 where: {
                     id: prescriptionId,
-                    is_active: true
                 },
                 select: {
                     id: true,
@@ -118,11 +131,11 @@ export default class PrescriptionRepository{
                 where: {
                     patient: {
                         name: {
-                            contains: patientName
+                            contains: patientName,
+                            mode: "insensitive",
                         }
                     },
                     status: status,
-                    is_active: true
                 },
                 select: {
                     id: true,
@@ -141,7 +154,7 @@ export default class PrescriptionRepository{
                         status: "asc"
                     },
                     {
-                        created_at: "asc"
+                        updated_at: "asc"
                     }
                 ]
             })
@@ -219,7 +232,6 @@ export default class PrescriptionRepository{
                         }
                     },
                     status: status,
-                    is_active: true
                 }
             })
         } catch (error) {
@@ -235,7 +247,8 @@ export default class PrescriptionRepository{
                     id: id
                 },
                 data: {
-                    status: status
+                    status: status,
+                    updated_at: new Date()
                 }
             })
         } catch (error) {
