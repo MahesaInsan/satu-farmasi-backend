@@ -31,19 +31,6 @@ export default class PrescriptionHasMedicineRepository{
 
     public async getMostSalesMedicineByPrescription(startDate: Date, lastDate: Date) {
         try {
-            // const data = await this.prisma.$queryRaw
-            //     `
-            //         SELECT
-            //             a."medicineId",
-            //             SUM(a."quantity") as "total_quantity"
-            //         FROM "public"."PrescriptionHasMedicine" a
-            //         JOIN "public"."Prescription" b ON a."prescriptionId" = b."id"
-            //         WHERE b."created_at" >= ${new Date(startDate)} AND b."created_at" <= ${new Date(lastDate)}
-            //         GROUP BY a."medicineId"
-            //         ORDER BY "total_quantity" DESC
-            //         LIMIT 3
-            //     `
-            
             return await this.prisma.prescriptionHasMedicine.groupBy({
                 by: ["medicineId"],
                 _sum: {

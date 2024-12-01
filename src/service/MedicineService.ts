@@ -117,6 +117,37 @@ export default class MedicineService {
 		}
 	}
 
+	public async getMedicineSummaryByCode(startIndex: number, limit: number, searchQuery: string | undefined,
+																				sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
+		try {
+			const validatedQuery = await this.checkIfParamValid(searchQuery, sortBy, sortMode)
+			const medicineSummaryByCode = await this.medicineRepository.getMedicineSummaryByCode(startIndex, limit, validatedQuery[0],
+				validatedQuery[1], validatedQuery[2]);
+			return this.constructMedicineByCodeSummary(medicineSummaryByCode)
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
+	public async getAllMedicineSummaryByCode(code: string): Promise<MedicineDisplayVO | null> {
+		try {
+			return await this.medicineRepository.getAllMedicineSummaryByCode(code);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
+	public async getMedicineSummaryById(startIndex: number, limit: number, searchQuery: string | undefined,
+																			sortBy: string | undefined, sortMode: string | undefined): Promise<MedicineDisplayVO[]> {
+		try {
+			const validatedQuery = await this.checkIfParamValid(searchQuery, sortBy, sortMode)
+			return await this.medicineRepository.getMedicineSummaryById(startIndex, limit, validatedQuery[0],
+				validatedQuery[1], validatedQuery[2]);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
 	public async getMedicineByCode(code: string): Promise<MedicineDisplayVO | null> {
 		try {
 			return await this.medicineRepository.getMedicineByCode(code);
@@ -163,7 +194,7 @@ export default class MedicineService {
 	public async createMedicine(request: AddMedicineRequest): Promise<MedicineDisplayVO> {
 		try {
 			const oldMedicine: MedicineDisplayVO | null = await this.getMedicineByCode(request.code);
-
+			
 			request.code = !oldMedicine
 				? await this.generateMedicineCode(request.genericNameId)
 				: request.code;
@@ -307,7 +338,7 @@ export default class MedicineService {
 
 	private constructMedicine(request: AddMedicineRequest): Medicine {
 		return Builder<Medicine>()
-			.is_active(true)
+			.is_active(false)
 			.created_at(new Date())
 			.updated_at(new Date())
 			.code(request.code)

@@ -286,4 +286,19 @@ export default class ReceiveMedicineRepository {
             throw error as string;
         }
     }
+
+    public async updateActivationReceiveMedicine(data: ReceiveMedicine) {
+        try {
+            return await this.prisma.receiveMedicine.update({
+                where: {
+                    id: data.id
+                },
+                data: {
+                    is_active: data.is_active
+                }
+            })
+        } catch (error) {
+            throw error as string;
+        }
+    }
 }

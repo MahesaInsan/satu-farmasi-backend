@@ -1,14 +1,12 @@
 import { ReceiveMedicine } from "@prisma/client";
 import MedicineService from "./MedicineService";
 import ReceiveMedicineRepository from "../repository/ReceiveMedicineRepository";
-import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import AddReceiveMedicineRequest from "../model/request/AddReceiveMedicineRequest";
+import EditReceiveMedicineRequest from "../model/request/EditReceiveMedicineRequest";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
-import TodayMedicineReportVO from "../model/VOs/TodayMedicineReportVO";
 import { Builder } from "builder-pattern";
 import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
 import MedicineReportService from "./MedicineReportService";
-import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
 import MedicineReportHelper from "./helper/MedicineReportHelper";
 
 export default class ReceiveMedicineService {
@@ -66,15 +64,14 @@ export default class ReceiveMedicineService {
 
     public async createReceiveMedicine(data: AddReceiveMedicineRequest) {
         try {
-            // insert for report id
-            let todayReport: TodayMedicineReportVO | null = await this.reportService.getTodayUnFinalizedMedicineReport();
-            if (!todayReport) {
-                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
-                todayReport = await this.reportService.addMedicineReport(this.reportHelper.createMedicineReport(reportRequest))
-            }
+            // // insert for report id
+            // let todayReport: TodayMedicineReportVO | null = await this.reportService.getTodayUnFinalizedMedicineReport();
+            // if (!todayReport) {
+            //     const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
+            //     todayReport = await this.reportService.addMedicineReport(this.reportHelper.createMedicineReport(reportRequest))
+            // }
 
-            data.reportId = todayReport.id;
-            console.log("data: ", data);
+            // data.reportId = todayReport.id;
 
             // new medicine
             if (!data.medicineId || data.medicineId == 0) {
@@ -91,6 +88,17 @@ export default class ReceiveMedicineService {
                         return await this.medicineService.createMedicine(data.medicineRequest)
                     })
             }
+
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async confirmReceiveMedicine(data: EditReceiveMedicineRequest) {
+        try {
+            // Update is active = true (receiveMedicine & medicine by id)
+            const receiveMedicine: ReceiveMedicine = this.constructEditReceiveMedicine(data);
+            return await this.receiveMedicineRepository.updateActivationReceiveMedicine(receiveMedicine)
         } catch (error) {
             throw error as string;
         }
@@ -107,8 +115,25 @@ export default class ReceiveMedicineService {
             .paymentMethod(request.paymentMethod)
             .deadline(request.deadline)
             .isPaid(request.isPaid)
-            .is_active(true)
+            .is_active(false)
             .created_at(new Date)
+            .updated_at(new Date)
+            .reportId(request.reportId)
+            .build();
+    }
+
+    private constructEditReceiveMedicine(request: EditReceiveMedicineRequest): ReceiveMedicine {
+        return Builder<ReceiveMedicine>()
+            .documentNumber(request.documentNumber)
+            .batchCode(request.batchCode)
+            .medicineId(request.medicineId)
+            .quantity(request.quantity)
+            .vendorId(request.vendorId)
+            .buyingPrice(request.buyingPrice)
+            .paymentMethod(request.paymentMethod)
+            .deadline(request.deadline)
+            .isPaid(request.isPaid)
+            .is_active(request.is_active)
             .updated_at(new Date)
             .reportId(request.reportId)
             .build();

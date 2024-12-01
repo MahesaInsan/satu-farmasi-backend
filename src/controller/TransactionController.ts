@@ -3,11 +3,10 @@ import TransactionService from "../service/TransactionService";
 import BaseResponse from "../model/response/BaseResponse";
 import BaseController from "./BaseController";
 import AddTransactionRequest from "../model/request/AddTransactionRequest";
-import PaginationRequest from "../model/request/PaginationRequest";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
 import ChangeTransactionStatusVO from "../model/VOs/ChangeTransactionStatusVO";
-import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
+import TransactionAnnualRecapRequest from "../model/request/TransactionAnnualRecapRequest";
 import { Prisma } from "@prisma/client";
 import RangeMonthRequest from "../model/request/RangeMonthRequest";
 
@@ -77,6 +76,19 @@ export default class TransactionController extends BaseController{
             res.status(200).send(new BaseResponse().ok(result))
         } catch (error) {
             console.error("error when #getTransasctionByDate with error: ", error)
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            return res.status(200).send(new BaseResponse().badRequest(errorMessage));
+        }
+    }
+
+    public async getAnnualTransactionRecap(req: Request, res: Response) {
+        try {
+            console.log("#getAnnualTransactionRecap with body: ", req.body);
+            const request: TransactionAnnualRecapRequest = req.body;
+            const result = await this.transactionService.getAnnualTransactionRecap(request.year);
+            res.status(200).send(new BaseResponse().ok(result))
+        } catch (error) {
+            console.error("error when #getAnnualTransactionRecap with error: ", error);
             const errorMessage = error instanceof Error ? error.message : String(error);
             return res.status(200).send(new BaseResponse().badRequest(errorMessage));
         }

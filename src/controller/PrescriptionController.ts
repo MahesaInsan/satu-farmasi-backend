@@ -48,7 +48,7 @@ export default class PrescriptionController extends BaseController{
         try {
             console.log("#getMostSalesMedicineByPrescription with request:", req.body)
             const request: RangeMonthRequest = req.body;
-            const result = await this.prescriptionService.getMostSalesMedicineByPrescription(request.startDate, request.startDate);
+            const result = await this.prescriptionService.getMostSalesMedicineByPrescription(request.startDate, request.lastDate);
             return res.status(200).send(new BaseResponse().ok(result, "Succeed get most sales medicine by prescription"));
         } catch (error) {
             console.log(error);

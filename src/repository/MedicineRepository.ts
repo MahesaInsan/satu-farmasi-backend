@@ -31,7 +31,7 @@ export default class MedicineRepository {
 						MIN(m."expiredDate") as "expiredDate",
 						MIN(m."unitOfMeasure") as "unitOfMeasure",
 						MIN(m."sideEffect") as "sideEffect",
-						json_agg(
+						jsonb_agg(
 						  json_build_object(
 							 'id', c.id,
 							 'label', c.label,
@@ -481,6 +481,36 @@ export default class MedicineRepository {
 				GROUP BY "code"
 				${Prisma.sql([orderBy])}
 				LIMIT ${limit} OFFSET ${startIndex};
+			`;
+		} catch (error) {
+			throw error as string
+		}
+	}
+
+	public async getAllMedicineSummaryByCode(code: string): Promise<MedicineDisplayVO | null> {
+		try {
+			const orderBy = `ORDER BY "code" ASC, "is_active" DESC`;
+
+			return await this.prisma.$queryRaw`
+				SELECT 
+					"code",
+					MAX("name") AS "name", 
+					MAX("merk") AS "merk",
+					MAX("description") AS "description",
+					MAX("unitOfMeasure") AS "unitOfMeasure",
+					MAX("price") AS "price",
+					MAX("expiredDate") AS "expiredDate",
+					CAST(SUM("currStock") AS INTEGER) AS "currStock",
+					MAX("minStock") AS "minStock",
+					MAX("maxStock") AS "maxStock",
+					CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+					MAX("sideEffect") AS "sideEffect",
+					MAX("created_at") AS "created_at",
+					MAX("updated_at") AS "updated_at"
+				FROM "Medicine"
+				WHERE "code" ILIKE ${`%${code}%`} 
+				GROUP BY "code"
+				${Prisma.sql([orderBy])}
 			`;
 		} catch (error) {
 			throw error as string

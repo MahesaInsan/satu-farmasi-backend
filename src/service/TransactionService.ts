@@ -15,6 +15,7 @@ import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
 import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
 import ReceiveMedicineService from "./ReceiveMedicineService";
 import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
+import TransactionAnnualRecapVO from "../model/VOs/TransactionAnnualRecapVO";
 
 export default class TransactionService{
     private readonly patientService: PatientService;
@@ -105,6 +106,14 @@ export default class TransactionService{
             return await this.transactionRepository.getTransactionByDate(new Date(startDate), new Date(lastDate))
         } catch (error) {
             throw error as string
+        }
+    }
+
+    public async getAnnualTransactionRecap(year: number): Promise<TransactionAnnualRecapVO[]> {
+        try {
+            return await this.transactionRepository.getAnnualTransactionRecap(year);
+        } catch (error) {
+            throw error as string;
         }
     }
 
