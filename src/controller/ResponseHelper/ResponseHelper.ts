@@ -1,9 +1,7 @@
 import BadRequest from "../../model/request/BadRequest";
-import LoginRequest from "../../model/request/LoginRequest";
 import AddAdminResponse from "../../model/response/AddAdminResponse";
 import AddDoctorResponse from "../../model/response/AddDoctorResponse";
 import AddPharmacistResponse from "../../model/response/AddPharmacistResponse";
-import { Admin, Doctor, Pharmacist } from "@prisma/client";
 import { Builder } from "builder-pattern";
 import LoginResponse from "../../model/response/LoginResponse";
 import Unauthorized from "../../model/request/UnauthorizedRequest";
@@ -22,7 +20,7 @@ export default class ResponseHelper {
         };
     }
 
-    public constructLoginResponse(user: Admin | Doctor | Pharmacist, token: string): LoginResponse {
+    public constructLoginResponse(user: User, token: string): LoginResponse {
         return Builder<LoginResponse>()
             .firstName(user.firstName)
             .lastName(user.lastName)
@@ -79,7 +77,7 @@ export default class ResponseHelper {
     }
 
     public constructAddPharmacistResponse(
-        pharmacist: Pharmacist
+        pharmacist: User
     ): AddPharmacistResponse {
         return Builder<AddPharmacistResponse>()
             .nik(pharmacist.nik)
@@ -92,7 +90,7 @@ export default class ResponseHelper {
             .build();
     }
 
-    public constructAddDoctorResponse(doctor: Doctor): AddDoctorResponse {
+    public constructAddDoctorResponse(doctor: User): AddDoctorResponse {
         return Builder<AddDoctorResponse>()
             .nik(doctor.nik)
             .email(doctor.email)
@@ -104,7 +102,7 @@ export default class ResponseHelper {
             .build();
     }
 
-    public constructAddAdminResponse(admin: Admin): AddAdminResponse {
+    public constructAddAdminResponse(admin: User): AddAdminResponse {
         return Builder<AddAdminResponse>()
             .nik(admin.nik)
             .email(admin.email)

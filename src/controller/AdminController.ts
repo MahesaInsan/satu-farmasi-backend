@@ -1,7 +1,6 @@
 import AdminService from "../service/AdminService";
 import {Request, Response} from "express";
 import AddAdminRequest from "../model/request/AddAdminRequest";
-import {Admin, Doctor} from "@prisma/client";
 import User from "../entity/User";
 import NikVO from "../model/VOs/nikVO";
 import BaseResponse from "../model/response/BaseResponse";
@@ -23,7 +22,7 @@ export default class AdminController extends BaseController{
         try{
             this.validateData(req);
             const request: AddAdminRequest = req.body;
-            const createdAdmin: Admin = await this.adminService.addAdmin(request)
+            const createdAdmin: User = await this.adminService.addAdmin(request)
             res.status(200).send(new BaseResponse().ok(createdAdmin));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

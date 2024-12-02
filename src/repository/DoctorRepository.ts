@@ -1,8 +1,7 @@
-import { Doctor } from "@prisma/client";
 import BaseRepository from "./helper/BaseRepository";
 import DoctorVO from "../model/VOs/DoctorVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
-// import Doctor from "../entity/Doctor";
+import { User } from "@prisma/client";
 
 export default class DoctorRepository extends BaseRepository {
     constructor() {
@@ -15,7 +14,7 @@ export default class DoctorRepository extends BaseRepository {
     ): Promise<Boolean> {
         try {
             if (emailTarget === selfEmail) return false;
-            const doctor = await this.Prisma.doctor.findUnique({
+            const doctor = await this.Prisma.user.findUnique({
                 where: { email: emailTarget },
             });
             return doctor !== null;
@@ -25,9 +24,9 @@ export default class DoctorRepository extends BaseRepository {
         }
     }
 
-    public async addDoctor(doctor: Doctor): Promise<Doctor> {
+    public async addDoctor(doctor: User): Promise<User> {
         try {
-            return await this.Prisma.doctor.create({ data: doctor });
+            return await this.Prisma.user.create({ data: doctor });
         } catch (error) {
             throw new CustomError().handlePrismaError(
                 error,
@@ -36,9 +35,9 @@ export default class DoctorRepository extends BaseRepository {
         }
     }
 
-    public async getDoctorByEmail(email: string): Promise<Doctor | null> {
+    public async getDoctorByEmail(email: string): Promise<User | null> {
         try {
-            return await this.Prisma.doctor.findUnique({
+            return await this.Prisma.user.findUnique({
                 where: { email: email },
             });
         } catch (error) {
@@ -49,7 +48,7 @@ export default class DoctorRepository extends BaseRepository {
 
     public async getTotalDoctor(param?: string): Promise<number> {
         try {
-            return await this.Prisma.doctor.count({
+            return await this.Prisma.user.count({
                 where: {
                     AND: [
                         {
@@ -75,25 +74,36 @@ export default class DoctorRepository extends BaseRepository {
         param?: string,
     ): Promise<DoctorVO[]> {
         try {
-            return await this.Prisma.doctor.findMany({
+            return await this.Prisma.user.findMany({
                 omit: { password: true },
                 where: {
-                    OR: [
+                    AND: [
                         {
-                            firstName: {
-                                contains: param,
-                                mode: "insensitive",
-                            },
+                            OR: [
+                                {
+                                    firstName: {
+                                        contains: param,
+                                        mode: "insensitive",
+                                    },
+                                },
+                                {
+                                    lastName: {
+                                        contains: param,
+                                        mode: "insensitive",
+                                    },
+                                },
+                            ],
                         },
                         {
-                            lastName: {
-                                contains: param,
-                                mode: "insensitive",
-                            },
+                            role: "DOCTOR",
                         },
                     ],
                 },
-                orderBy: [{ is_active: 'desc' }, { updated_at: "desc" }, { created_at: "desc" }],
+                orderBy: [
+                    { is_active: "desc" },
+                    { updated_at: "desc" },
+                    { created_at: "desc" },
+                ],
                 skip: startIndex,
                 take: limit,
             });
@@ -105,7 +115,7 @@ export default class DoctorRepository extends BaseRepository {
 
     public async getDoctorById(id: number): Promise<DoctorVO | null> {
         try {
-            return await this.Prisma.doctor.findUnique({
+            return await this.Prisma.user.findUnique({
                 omit: { password: true },
                 where: { id: id },
             });
@@ -117,7 +127,7 @@ export default class DoctorRepository extends BaseRepository {
 
     public async getDoctorByNik(nik: string): Promise<DoctorVO | null> {
         try {
-            return await this.Prisma.doctor.findUnique({
+            return await this.Prisma.user.findUnique({
                 omit: { password: true },
                 where: { nik: nik },
             });
@@ -127,9 +137,9 @@ export default class DoctorRepository extends BaseRepository {
         }
     }
 
-    public async editDoctor(doctor: Doctor): Promise<boolean> {
+    public async editDoctor(doctor: User): Promise<boolean> {
         try {
-            const editedDoctor: DoctorVO = await this.Prisma.doctor.update({
+            const editedDoctor: DoctorVO = await this.Prisma.user.update({
                 omit: { password: true },
                 where: { nik: doctor.nik },
                 data: doctor,
