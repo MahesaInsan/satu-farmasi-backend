@@ -12,11 +12,17 @@ import PaginationRequest from "../model/request/PaginationRequest";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import ChangeTransactionStatusVO from "../model/VOs/ChangeTransactionStatusVO";
 import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
+import MedicineReportService from "./MedicineReportService";
+import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
+import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
+import MedicineReportHelper from "./helper/MedicineReportHelper";
 
 export default class TransactionService{
     private readonly patientService: PatientService;
     private readonly prescriptionService: PrescriptionService;
     private readonly pharmacistService: PharmacistService;
+    private readonly medicineReportService:MedicineReportService;
+    private readonly medicineReportHelper: MedicineReportHelper;
     private readonly transactionRepository: TransactionRepository;
 
     private transactionSSE: SSEConnection[] = [];
@@ -25,7 +31,9 @@ export default class TransactionService{
         this.patientService = new PatientService();
         this.prescriptionService = new PrescriptionService();
         this.pharmacistService = new PharmacistService();
+        this.medicineReportService = new MedicineReportService();
         this.transactionRepository = new TransactionRepository();
+        this.medicineReportHelper = new MedicineReportHelper();
     }
 
     public async createNewTransaction(request: AddTransactionRequest) {
@@ -42,6 +50,17 @@ export default class TransactionService{
                 .updated_at(new Date())
                 .build();
             await this.prescriptionService.changeDraftPrescriptionToFinalizedPrescription(tuple[1].id)
+
+            let todayReport: TodayMedicineReportVOs | null =
+                await this.medicineReportService.getTodayUnFinalizedMedicineReport();
+
+            if (!todayReport) {
+                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
+                todayReport = await this.medicineReportService.
+                    addMedicineReport(this.medicineReportHelper.createMedicineReport(reportRequest))
+            }
+            newTransaction.reportId = todayReport.id
+
             return await this.transactionRepository.addTransaction(newTransaction).then(transaction => true)
         } catch (error) {
             throw error as string
