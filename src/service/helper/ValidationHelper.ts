@@ -6,6 +6,7 @@ import EditPrescriptionRequest from "../../model/request/EditPrescriptionRequest
 import MedicineData from "../../model/VOs/MedicineDropdownVO";
 import PrescriptionHasMedicineRepository from "../../repository/PrescriptionHasMedicineRepository";
 import {PrescriptionHasMedicine} from "@prisma/client";
+import { CustomError } from "../../validator/helper/ErrorHelper";
 
 export default class ValidationHelper {
     private readonly doctorService: DoctorService;
@@ -53,9 +54,9 @@ export default class ValidationHelper {
             } else quantityByMedicineCode.set(phm.medicineCode, phm.quantity)
         }
 
-        let medicineRequestList: string[]
+        let medicineRequestList: string[] = []
 
-        request.medicineList.forEach((medicineRequest) => {
+        request.medicineList.forEach((medicineRequest, index) => {
             if (!indexByMedicineCode.has(medicineRequest.code)) {
                 throw new Error("Medicine is not found")
             }
@@ -64,20 +65,20 @@ export default class ValidationHelper {
             }
 
             const medicineValidation: MedicineData = medicineListValidation[indexByMedicineCode.get(medicineRequest.code)!]
-            const medicineStockLeft = medicineValidation.currStock - medicineValidation.reservedStock
+            /// const medicineStockLeft = medicineValidation.currStock - medicineValidation.reservedStock
+            const medicineStockLeft = medicineValidation.currStock
 
             if (medicineRequestList.includes(medicineRequest.code)) {
-                throw new Error("Medicine chosen cannot be duplicate")
+			    throw new CustomError().formatError("Obat tidak boleh duplikat",`prescription.medicineList.${index}.code`);
             } else medicineRequestList.push(medicineRequest.code)
             if (prescriptionHasMedicine.length === 0 && (medicineStockLeft - medicineRequest.quantity < 0)) {
-                throw new Error("Insufficient medicine stock")
+			    throw new CustomError().formatError("Stok obat tidak mencukupi",`prescription.medicineList.${index}.quantity`);
             }
             if (prescriptionHasMedicine.length > 0) {
-                console.log("quantity: ", quantityByMedicineCode)
                 const quantityAlreadyAssigned =
                     quantityByMedicineCode.get(medicineValidation.code) ? quantityByMedicineCode.get(medicineValidation.code)! : 0
                 if (medicineValidation.currStock + quantityAlreadyAssigned - medicineRequest.quantity < 0) {
-                    throw new Error("Insufficient medicine stock")
+			        throw new CustomError().formatError("Stok obat tidak mencukupi",`prescription.medicineList.${index}.quantity`);
                 }
             }
         })

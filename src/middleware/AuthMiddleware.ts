@@ -38,6 +38,7 @@ export default class AuthMiddleware extends BaseMiddleware {
             req.user = decoded;
             next();
         } catch (err) {
+            console.error("error when authenticate token", err);
             res.status(400).send('Invalid Token.');
         }
     }

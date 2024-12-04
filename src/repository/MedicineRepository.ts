@@ -16,6 +16,7 @@ export default class MedicineRepository {
 	public async fetchMedicineList(): Promise<MedicineDropdownVO[]> {
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+            // findAllMedicineIdByMedicineCode
 			return await this.prisma.$queryRaw<MedicineDropdownVO[]>(
 				Prisma.sql`
 					SELECT 
@@ -434,7 +435,7 @@ export default class MedicineRepository {
 		try {
 			return await this.prisma.medicine.findMany({
 				where: {
-					code: { contains: 'PARACETAMOL' }
+					code: { contains: code}
 				},
 				select: {
 					code: true

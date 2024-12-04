@@ -38,6 +38,7 @@ export default class MedicineService {
 			} else {
 				new Error("No Medicine Found")
 			}
+            console.log("medicineByMedicineCode: ", medicineByMedicineCode)
 			return medicineByMedicineCode;
 		} catch (error) {
 			throw error as string
@@ -369,7 +370,7 @@ export default class MedicineService {
 	}
 
 	// ganti jadi count all (jangan spesifik per generic name)
-	private async generateMedicineCode(genericNameId: number): Promise<string> {
+	public async generateMedicineCode(genericNameId: number): Promise<string> {
 		try {
 			const genericName: GenericName | null = await this.genericNameService.getGenericNameById(genericNameId);
 			if (!genericName) throw new Error("Generic name not found");
