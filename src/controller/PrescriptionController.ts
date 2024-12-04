@@ -81,4 +81,16 @@ export default class PrescriptionController extends BaseController{
         }
     }
 
+    public async cancelPrescription(req: Request, res: Response){
+        try {
+            const request = parseInt(req.params.id)
+            console.log("#cancelPrescription with request:", request);
+            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.cancelPrescription(request), "Successfully canceled prescription"))
+        } catch (error) {
+            console.error("error when #cancelPrescription with error: ", error)
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+
 }

@@ -85,9 +85,14 @@ export default class ReceiveMedicineService {
                     })
             } else { // existing medicine
                 const request: ReceiveMedicine = this.constructAddReceiveMedicine(data)
-                return await this.receiveMedicineRepository.createReceiveMedicine(request)
-                    .then(async () => {
-                        return await this.medicineService.createMedicine(data.medicineRequest)
+                const validation: boolean = await this.isQuantityStockEnable(data.medicineRequest.code, data.quantity);
+                if (!validation) {
+                    throw new Error("Error: Jumlah stok melebih maksimum stok!");
+                }
+                return this.medicineService.createMedicine(data.medicineRequest)
+                    .then(async (newMedicine: MedicineDisplayVO) => {
+                        request.medicineId = newMedicine.id;
+                        return await this.receiveMedicineRepository.createReceiveMedicine(request)
                     })
             }
 
@@ -104,26 +109,28 @@ export default class ReceiveMedicineService {
                 const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
                 todayReport = await this.reportService.addMedicineReport(this.reportHelper.createMedicineReport(reportRequest))
             }
-
             data.reportId = todayReport.id;
 
             // Get medicine data by medicineid
+            console.log("data edit receive: ", data);
             const medicine: Medicine | null = await this.medicineService.getMedicineById(data.medicineId);
-            if (!medicine) {
-                return new CustomError().formatError("Error while get medicine data", "custom");
-            }
-
+            console.log("medicine data from receive: ", medicine);
+            if (!medicine) throw new Error("Data obat tidak ditemukan!");
+            
             // Update is active = true (receiveMedicine & medicine by id)
             const receiveMedicine: ReceiveMedicine = this.constructEditReceiveMedicine(data);
-            const validation: boolean = await this.isQuantityStockEnable(medicine?.code, receiveMedicine.quantity);
-            if (!validation) {
-                return new CustomError().formatError("Error: Jumlah stok melebih maksimum stok!", "custom")
-            }
 
-            return await this.receiveMedicineRepository.updateReceiveMedicine(receiveMedicine)
-                .then(() => {
-                    this.medicineService.activeMedicineById(receiveMedicine.medicineId);
-                })
+            // Ensure receive medicine is paid & validation quantity
+            if (!receiveMedicine.isPaid) throw new Error("Error: penerimaan obat wajib lunas!");
+            const validation: boolean = await this.isConfirmQuantityStockEnable(receiveMedicine.id, medicine?.code, receiveMedicine.quantity);
+            if (!validation) throw new Error("Error: Jumlah stok melebihi maksimum Stok!");
+
+            medicine.currStock = data.quantity;
+            medicine.expiredDate = data.expiredDate;
+            medicine.is_active = data.is_active;
+            console.log("medicine request for edit: ", medicine)
+            await this.receiveMedicineRepository.updateReceiveMedicine(receiveMedicine)
+            await this.medicineService.editMedicineForReceiveById(medicine);
         } catch (error) {
             throw error as string;
         }
@@ -132,7 +139,7 @@ export default class ReceiveMedicineService {
     public async deleteReceiveMedicine(receiveMedicineId: number) {
         try {
             const receiveMedicine: ReceiveMedicineVO | null = await this.getReceiveMedicineById(receiveMedicineId);
-            if (!receiveMedicine) return new CustomError().formatError("Receive medicine data not found!", "custom");
+            if (!receiveMedicine) throw new CustomError().formatError("Data tidak ditemukan!", "custom");
 
             return await this.receiveMedicineRepository.deleteReceiveMedicine(receiveMedicineId)
                 .then(() => {
@@ -157,12 +164,13 @@ export default class ReceiveMedicineService {
             .is_active(false)
             .created_at(new Date)
             .updated_at(new Date)
-            .reportId(request.reportId)
+            .reportId(null)
             .build();
     }
 
     private constructEditReceiveMedicine(request: EditReceiveMedicineRequest): ReceiveMedicine {
         return Builder<ReceiveMedicine>()
+            .id(request.id)
             .documentNumber(request.documentNumber)
             .batchCode(request.batchCode)
             .medicineId(request.medicineId)
@@ -180,12 +188,32 @@ export default class ReceiveMedicineService {
 
     private async isQuantityStockEnable(medicineCode: string, quantity: number): Promise<boolean> {
         try {
-            const summaryMedicine = await this.medicineService.getMedicineSummaryByCode(1, 1, medicineCode, "code", "asc");
-            summaryMedicine.forEach(medicine => {
-                if (medicine.currStock + quantity > medicine.maxStock) {
+            const summaryMedicine = await this.medicineService.getMedicineSummaryByCode(0, 1, medicineCode, "code", "asc");
+            console.log("summaryMedicine: ", summaryMedicine);
+            for (let i = 0; i < summaryMedicine.length; i++) {
+                if (summaryMedicine[i].currStock + quantity > summaryMedicine[i].maxStock 
+                    || quantity > summaryMedicine[i].maxStock) {
                     return false;
                 }
-            })
+            }
+            return true;
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    private async isConfirmQuantityStockEnable(receiveMedicineId: number, medicineCode: string, quantity: number): Promise<boolean> {
+        try {
+            const receiveMedicine = await this.getReceiveMedicineById(receiveMedicineId);
+            if (!receiveMedicine) throw new Error("Error: Data not found!");
+            const summaryMedicine = await this.medicineService.getMedicineSummaryByCode(0, 1, medicineCode, "code", "asc");
+            console.log("summaryMedicine: ", summaryMedicine);
+            for (const obj of summaryMedicine) {
+                if (!obj.is_active && (quantity > obj.maxStock || (obj.currStock - receiveMedicine.quantity + quantity > obj.maxStock))) {
+                    return false;
+                }
+            }
+            console.log("masuk true");
             return true;
         } catch (error) {
             throw error as string;

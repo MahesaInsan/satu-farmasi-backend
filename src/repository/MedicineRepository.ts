@@ -19,9 +19,10 @@ export default class MedicineRepository {
 			return await this.prisma.$queryRaw<MedicineDropdownVO[]>(
 				Prisma.sql`
 					SELECT 
-						MIN(m.id) as id,
+						MAX(m.id) as id,
 						m.code,
 						MIN(m.name) as name,
+						MIN(m."merk") as "merk",
 						CAST(SUM(m."currStock" - m."reservedStock") AS INTEGER) as "currStock",
 						MIN(m."minStock") as "minStock",
 						MIN(m.price) as "price",
@@ -55,7 +56,7 @@ export default class MedicineRepository {
 					INNER JOIN "Classification" c
 					ON mhc."classificationId" = c."id"
 					WHERE 
-						m.is_active = true
+						m."is_active" = true
 						AND m."currStock" > 0
 						AND m."expiredDate" > ${futureDate}
 					GROUP BY 
@@ -69,6 +70,82 @@ export default class MedicineRepository {
 		} catch (error) {
 			console.error('Error getting medicineList:', error);
 			throw new Error('Failed to get medicineList');
+		}
+	}
+
+	public async setMedicineIsActiveToFalse(medicineId: number) {
+		try {
+			await this.prisma.medicine.update({
+				where: { id: medicineId },
+				data: { is_active: false }
+			})
+		} catch (error) {
+			throw new Error("Failed to change medicine is_active to false")
+		}
+	}
+
+	public async fetchMedicineListById(): Promise<MedicineDropdownVO[]> {
+		try {
+			return this.prisma.medicine.findMany({
+				where: {
+					is_active: true,
+					currStock: {
+						gt: 0
+					},
+				},
+				select: {
+					id: true,
+					code: true,
+					name: true,
+					merk: true,
+					currStock: true,
+					minStock: true,
+					reservedStock: true,
+					expiredDate: true,
+					maxStock: true,
+					description: true,
+					unitOfMeasure: true,
+					sideEffect: true,
+					price: true,
+					classifications: {
+						select: {
+							classification: {
+								select: {
+									id: true,
+									label: true,
+									value: true
+								}
+							}
+						}
+					},
+					packaging: {
+						select: {
+							id: true,
+							label: true,
+							value: true
+						}
+					},
+					genericName: {
+						select: {
+							id: true,
+							label: true,
+							value: true
+						}
+					}
+				}
+			});
+		} catch (error) {
+			console.error('Error getting medicineList:', error);
+			throw new Error('Failed to get medicineList');
+		}
+	}
+
+	public async getSingleMedicineById(id: number): Promise<Medicine | null> {
+		try {
+			return this.prisma.medicine.findFirst({ where: { id: id } });
+		} catch (error) {
+			console.error('Error getting medicine by id:', error);
+			throw new Error('Failed to get medicine by id');
 		}
 	}
 
@@ -150,21 +227,24 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async decreaseStockAndDecreaseReservedStock(medicineId: number, quantity: number) {
+	public async decreaseStockAndDecreaseReservedStock(medicineId: number, quantityStock: number, quantityReservedStock: number) {
 		try {
-			await this.validateMedicineId(medicineId, quantity)
+			await this.validateMedicineId(medicineId, quantityStock)
 
-			await this.prisma.medicine.update({
+			return await this.prisma.medicine.update({
 				where: {
 					id: medicineId
 				},
 				data: {
 					currStock: {
-						decrement: quantity
+						decrement: quantityStock
 					},
 					reservedStock: {
-						decrement: quantity
+						decrement: quantityReservedStock
 					}
+				},
+				select: {
+					currStock: true
 				}
 			})
 		} catch (error) {
@@ -193,8 +273,6 @@ export default class MedicineRepository {
 
 	public async decreaseReserveStock(medicineId: number, quantity: number){
 		try {
-			await this.validateMedicineId(medicineId, quantity)
-
 			await this.prisma.medicine.update({
 				where: {
 					id: medicineId
@@ -212,8 +290,6 @@ export default class MedicineRepository {
 
 	public async increaseStock(medicineId: number, quantity: number) {
 		try {
-			await this.validateMedicineId(medicineId, quantity)
-
 			await this.prisma.medicine.update({
 				where: {
 					id: medicineId,
@@ -359,7 +435,7 @@ export default class MedicineRepository {
 		try {
 			return await this.prisma.medicine.findMany({
 				where: {
-					code: { contains: 'PARACETAMOL' }
+					code: { contains: code }
 				},
 				select: {
 					code: true
@@ -846,6 +922,18 @@ export default class MedicineRepository {
 		}
 	}
 
+	public async editMedicineById(dataMedicine: Medicine) {
+		try {
+			return await this.prisma.medicine.update({
+				where: { id: dataMedicine.id },
+				data: dataMedicine
+			});
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
     public async checkExpiration(startDay: Date, lastDay: Date): Promise<Medicine[]> {
         try {
             return this.prisma.medicine.findMany({
@@ -879,11 +967,13 @@ export default class MedicineRepository {
 		try {
 			const medicine: Medicine | null = await this.getMedicineById(medicineId);
 			if (!medicine) {
-				new CustomError().formatError("Medicine Not Found", "medicineId");
+				throw new CustomError().formatError("Medicine Not Found", "medicineId");
 			}
 
+			console.log(quantity, medicine!.currStock);
+
 			if (medicine && medicine.currStock - quantity < 0) {
-				new CustomError().formatError("Medicine stock is not enough", "quantity");
+				throw new CustomError().formatError("Medicine stock is not enough", "quantity");
 			}
 		} catch (error) {
 			throw error as string

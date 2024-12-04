@@ -40,7 +40,7 @@ export default class ReceiveMedicineController extends BaseController {
     
     public async getReceiveMedicineById(req: Request, res: Response) {
         try {
-            const id: number = parseInt(req.params.id as string);
+            const id: number = parseInt(req.params.id);
             const data: ReceiveMedicineVO | null = await this.receiveMedicineService.getReceiveMedicineById(id);
             return res.status(200).send(new BaseResponse().ok(data, "Succeed get receive medicine by id"));
         } catch (error) {
@@ -77,6 +77,8 @@ export default class ReceiveMedicineController extends BaseController {
     public async deleteReceiveMedicine(req: Request, res: Response) {
         try {
             const request: DeleteReceiveMedicineRequest = req.body;
+            console.log("red body: ", req.body);
+            console.log("request: ", request);
             await this.receiveMedicineService.deleteReceiveMedicine(request.id);
             return res.status(200).send(new BaseResponse().ok(null, "Succeed delete receive medicine"))
         } catch (error) {

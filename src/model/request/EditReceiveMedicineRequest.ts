@@ -13,6 +13,7 @@ export default class EditReceiveMedicineRequest {
     private _isPaid: boolean;
     private _is_active: boolean;
     private _reportId: number;
+    private _expiredDate: Date;
 
     constructor(
         id: number,
@@ -26,7 +27,8 @@ export default class EditReceiveMedicineRequest {
         deadline: Date,
         isPaid: boolean,
         is_active: boolean,
-        reportId: number
+        reportId: number,
+        expiredDate: Date,
     ) {
         this._id = id;
         this._documentNumber = documentNumber;
@@ -40,6 +42,7 @@ export default class EditReceiveMedicineRequest {
         this._isPaid = isPaid;
         this._is_active = is_active;
         this._reportId = reportId;
+        this._expiredDate = expiredDate;
     }
 
     // Getter and Setter for _id
@@ -148,5 +151,14 @@ export default class EditReceiveMedicineRequest {
 
     public set reportId(value: number) {
         this._reportId = value;
+    }
+
+    // Getter and Setter for _expiredDate
+    public get expiredDate(): Date {
+        return this._expiredDate;
+    }
+
+    public set expiredDate(value: Date) {
+        this._expiredDate = value;
     }
 }

@@ -250,6 +250,17 @@ model MedicineReport {
   updated_at       DateTime          @default(now())
 }
 
+model Pharmacy {
+  id               Int               @id @default(autoincrement())
+  name             String
+  pharmacyNum      String
+  address          String
+  phoneNum         String
+  email            String
+  created_at       DateTime
+  updated_at       DateTime          @default(now())
+}
+
 enum Role {
   ADMIN
   DOCTOR
@@ -272,6 +283,7 @@ enum Status {
   WAITING_FOR_PAYMENT
   ON_PROGRESS
   DONE
+  CANCELED
 }
 
 enum PaymentMethod {
