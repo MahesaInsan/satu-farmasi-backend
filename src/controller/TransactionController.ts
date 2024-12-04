@@ -3,10 +3,10 @@ import TransactionService from "../service/TransactionService";
 import BaseResponse from "../model/response/BaseResponse";
 import BaseController from "./BaseController";
 import AddTransactionRequest from "../model/request/AddTransactionRequest";
-import PaginationRequest from "../model/request/PaginationRequest";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
 import ChangeTransactionStatusVO from "../model/VOs/ChangeTransactionStatusVO";
+import {Status} from "@prisma/client";
 
 export default class TransactionController extends BaseController{
     private readonly transactionService: TransactionService
@@ -31,9 +31,10 @@ export default class TransactionController extends BaseController{
         try {
             console.log("#getTransactionSummary with request: ", req.query)
             const patientName = req.query.name as string | undefined
-            const totalData = await this.transactionService.countTransaction(patientName)
+            const status = Object.values(Status).includes(req.query.status as Status) ? req.query.status as Status : undefined;
+            const totalData = await this.transactionService.countTransaction(patientName, status)
             const pagination = this.getPagination(totalData, req)
-            pagination.results = await this.transactionService.getTransactionSummary(pagination, patientName)
+            pagination.results = await this.transactionService.getTransactionSummary(pagination, patientName, status)
             pagination.total = totalData
             res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)))
         } catch (error) {

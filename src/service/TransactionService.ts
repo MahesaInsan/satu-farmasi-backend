@@ -48,17 +48,18 @@ export default class TransactionService{
         }
     }
 
-    public async countTransaction(patientName: string | undefined) {
+    public async countTransaction(patientName: string | undefined, status: Status | undefined) {
         try {
-            return await this.transactionRepository.countTransaction(patientName);
+            return await this.transactionRepository.countTransaction(patientName, status);
         } catch (error) {
             throw error as string;
         }
     }
 
-    public async getTransactionSummary(pagination: PaginationRequest, patientName: string | undefined) {
+    public async getTransactionSummary(pagination: PaginationRequest, patientName: string | undefined, status: Status | undefined) {
         try {
-            return await this.transactionRepository.getAllTransaction(patientName, pagination.startIndex, pagination.limit);
+            return await this.transactionRepository.getAllTransaction(patientName, status,
+                pagination.startIndex, pagination.limit);
         } catch (error) {
             throw error as string
         }
