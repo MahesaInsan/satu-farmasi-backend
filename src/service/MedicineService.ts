@@ -286,6 +286,8 @@ export default class MedicineService {
 			);
 
 			this.medicineRepository.updateInactiveMedicine(medicine)
+				.then(() => { return true })
+				.catch(() => { console.warn("No inactive medicines were updated") })
 			return true
 		} catch (error) {
 			throw error as string;

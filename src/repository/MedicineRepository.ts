@@ -861,9 +861,9 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async updateInactiveMedicine(dataMedicine: Medicine) {
+	public async updateInactiveMedicine(dataMedicine: Medicine): Promise<number> {
 		try {
-			await this.prisma.medicine.updateMany({
+			const result = await this.prisma.medicine.updateMany({
 				where: {
 					AND: [
 						{ code: dataMedicine.code },
@@ -872,6 +872,7 @@ export default class MedicineRepository {
 				},
 				data: dataMedicine
 			});
+			return result.count;
 		} catch (error) {
 			console.error('Error editing medicine: ', error);
 			throw new Error('Failed to edit medicine');
