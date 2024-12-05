@@ -32,6 +32,7 @@ export default class MedicineService {
 	public async getAllMedicineList(): Promise<Map<string, MedicineDropdownVO>> {
 		try {
 			const medicineList: MedicineDropdownVO[] = await this.medicineRepository.fetchMedicineList()
+            console.log("dropdown: ", medicineList)
 			let medicineByMedicineCode: Map<string, MedicineDropdownVO> = new Map<string, MedicineDropdownVO>();
 			if (medicineList !== null) {
 				medicineByMedicineCode = await this.mapMedicineDropdownList(medicineList)

@@ -9,10 +9,8 @@ export default class GenericNameRepository extends BaseRepository {
 	public async getTotalGenericName(): Promise<number> {
 		try {
 			return await this.Prisma.genericName.count({
-				where: {
-					is_active: true,
-				},
 				orderBy: [
+                    { is_active: "desc" },
 					{ updated_at: "desc" },
 					{ created_at: "desc" }
 				],
@@ -31,9 +29,9 @@ export default class GenericNameRepository extends BaseRepository {
 						contains: label,
 						mode: 'insensitive'
 					},
-					is_active: true,
 				},
 				orderBy: [
+                    { is_active: "desc" },
 					{ updated_at: 'desc' },
 					{ created_at: 'desc' },
 				],
@@ -47,8 +45,8 @@ export default class GenericNameRepository extends BaseRepository {
 	public async getAllGenericName(limit: number, startIndex: number): Promise<GenericName[]> {
 		try {
 			return await this.Prisma.genericName.findMany({
-				where: { is_active: true },
 				orderBy: [
+                    { is_active: "desc" },
 					{ updated_at: "desc" },
 					{ created_at: "desc" }
 				],
@@ -120,9 +118,9 @@ export default class GenericNameRepository extends BaseRepository {
 						contains: label,
 						mode: 'insensitive'
 					},
-					is_active: true,
 				},
 				orderBy: [
+                    { is_active: "desc" },
 					{ updated_at: "desc" },
 					{ created_at: "desc" }
 				],

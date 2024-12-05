@@ -52,7 +52,7 @@ export default class GenericNameController  extends BaseController {
             this.validateData(req);
             const request: AddGenericNameRequest = req.body;
             const createdGenericName: boolean = await this.genericNameService.addGenericName(request)
-            return res.status(200).send(new BaseResponse().ok(createdGenericName, "Successfully Created Generic Name"));
+            return res.status(200).send(new BaseResponse().ok(createdGenericName, "Nama Generik Berhasil Ditambahkan"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -78,7 +78,7 @@ export default class GenericNameController  extends BaseController {
             data.id = id;
             const request: EditGenericNameRequest = data;
             await this.genericNameService.editGenericName(request);
-            return res.status(200).send(new BaseResponse().ok(null, "Successfully Edited Generic Name"));
+            return res.status(200).send(new BaseResponse().ok(null, "Nama Generik Berhasil Diubah"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -89,7 +89,11 @@ export default class GenericNameController  extends BaseController {
         try {
             this.validateData(req);
              await this.genericNameService.deleteGenericName(req.body);
-            return res.status(200).send(new BaseResponse().ok(null, "Successfully Deleted Generic Name"));
+            const successMsg: string = 
+                req.body.isActive
+                ? "Nama Generik Berhasil Diaktifkan"
+                : "Nama Generik  Berhasil Dinonaktifkan";
+            return res.status(200).send(new BaseResponse().ok(null, successMsg));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));

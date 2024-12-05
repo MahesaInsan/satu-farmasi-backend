@@ -10,13 +10,13 @@ export default class ClassificationRepository extends BaseRepository {
 		try {
 			return await this.Prisma.classification.findMany({
 				where: {
-					is_active: true,
 					label: {
 						contains: label,
 						mode: 'insensitive',
 					},
 				},
 				orderBy: [
+                    { is_active: 'desc' },
 					{ updated_at: 'desc' },
 					{ created_at: 'desc' },
 				],
@@ -33,13 +33,13 @@ export default class ClassificationRepository extends BaseRepository {
 		try {
 			return await this.Prisma.classification.count({
 				where: {
-					is_active: true,
 					label: { 
 						contains: label,
 						mode: 'insensitive',
 					},
 				},
 				orderBy: [
+                    { is_active: 'desc' },
 					{ updated_at: 'desc' },
 					{ created_at: 'desc' },
 				],
@@ -53,7 +53,11 @@ export default class ClassificationRepository extends BaseRepository {
 	public async getTotalClassifications(): Promise<number> {
 		try {
 			return await this.Prisma.classification.count({
-				where: { is_active: true }
+                orderBy: [
+                    { is_active: 'desc' },
+					{ updated_at: 'desc' },
+					{ created_at: 'desc' },
+                ]
 			});
 		} catch (error) {
 			console.error("Error getting total classifications:", error);
@@ -64,8 +68,8 @@ export default class ClassificationRepository extends BaseRepository {
 	public async getAllClassifications(limit: number, startIndex: number): Promise<Classification[]> {
 		try {
 			return await this.Prisma.classification.findMany({
-				where: { is_active: true },
 				orderBy: [
+                    { is_active: 'desc' },
 					{ updated_at: 'desc' },
 					{ created_at: 'desc' },
 				],

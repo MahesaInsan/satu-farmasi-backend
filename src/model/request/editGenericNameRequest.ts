@@ -2,15 +2,21 @@ export default class EditGenericNameRequest {
     private _id: number;
     private _label: string;
     private _value: string;
+    private _isActive: boolean;
 
-    constructor(id: number, label: string, value: string) {
+    constructor(id: number, label: string, value: string, isActive: boolean) {
         this._id = id;
         this._label = label;
         this._value = value;
+        this._isActive = isActive;
     }
 
     get label(): string {
         return this._label;
+    }
+
+    get isActive(): boolean {
+        return this._isActive;
     }
 
     set label(value: string) {
@@ -31,5 +37,9 @@ export default class EditGenericNameRequest {
 
     set id(value: number) {
         this._id = value;
+    }
+
+    set isActive(value: boolean) {
+        this._isActive = value;
     }
 }

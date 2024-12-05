@@ -19,53 +19,80 @@ export default class MedicineRepository {
             // findAllMedicineIdByMedicineCode
 			return await this.prisma.$queryRaw<MedicineDropdownVO[]>(
 				Prisma.sql`
-					SELECT 
-						MIN(m.id) as id,
-						m.code,
-						MIN(m.name) as name,
-						CAST(SUM(m."currStock" - m."reservedStock") AS INTEGER) as "currStock",
-						MIN(m."minStock") as "minStock",
-						MIN(m.price) as "price",
-						MIN(m."maxStock") as "maxStock",
-						MIN(m.description) as "description",
-						MIN(m."expiredDate") as "expiredDate",
-						MIN(m."unitOfMeasure") as "unitOfMeasure",
-						MIN(m."sideEffect") as "sideEffect",
-						jsonb_agg(
-						  DISTINCT jsonb_build_object(
-							 'id', c.id,
-							 'label', c.label,
-							 'value', c.value
-						  )
-						) as classifications,
-						json_build_object(
-							'id', MIN(p.id),
-							'label', MIN(p.label)
-						) as packaging,
-						json_build_object(
-							'id', MIN(g.id),
-							'label', MIN(g.label)
-						) as "genericName"
-					FROM "Medicine" m
-					INNER JOIN "Packaging" p
-					ON m."packagingId" = p.id
-					INNER JOIN "GenericName" g
-					ON m."genericNameId" = g.id
-					INNER JOIN "MedicineHasClassification" mhc
-					ON m."id" = mhc."medicineId"
-					INNER JOIN "Classification" c
-					ON mhc."classificationId" = c."id"
-					WHERE 
-						m.is_active = true
-						AND m."currStock" > 0
-						AND m."expiredDate" > ${futureDate}
-					GROUP BY 
-						m.code
-					HAVING 
-						SUM(m."currStock") > 0
-					ORDER BY
-						m.code ASC
-            `
+                    WITH flattened_classifications AS (
+                        SELECT
+                            MIN(id) as id,
+                            code,
+                            MIN("name") as "name",
+                            SUM("currStock") as "currStock",
+                            MIN("price") as "price",
+                            MIN("minStock") as "minStock",
+                            MIN("maxStock") as "maxStock",
+                            MIN("expiredDate") as "expiredDate",
+                            MIN("unitOfMeasure") as "unitOfMeasure",
+                            MIN("sideEffect") as "sideEffect",
+                            jsonb_array_elements(classifications) AS classification,
+                            packaging,
+                            "genericName"
+                        FROM (
+                            SELECT
+                                MIN(m.id) as id,
+                                m.code,
+                                MIN(m.name) as "name",
+                                SUM(m."currStock" - m."reservedStock") AS "currStock",
+                                MIN(m.price) AS "price",
+                                MIN(m."minStock") AS "minStock",
+                                MIN(m.description) as "description",
+                                MIN(m."maxStock") AS "maxStock",
+                                MIN(m."expiredDate") AS "expiredDate",
+                                MIN(m."unitOfMeasure") AS "unitOfMeasure",
+                                MIN(m."sideEffect") AS "sideEffect",
+                                jsonb_agg(
+                                    DISTINCT jsonb_build_object(
+                                        'id', c.id,
+                                        'label', c.label,
+                                        'value', c.value
+                                    )
+                                ) AS classifications,
+                                jsonb_build_object(
+                                    'id', MIN(p.id),
+                                    'label', MIN(p.label)
+                                ) AS packaging,
+                                jsonb_build_object(
+                                    'id', MIN(g.id),
+                                    'label', MIN(g.label)
+                                ) AS "genericName"
+                            FROM "Medicine" m
+                            INNER JOIN "Packaging" p ON m."packagingId" = p.id
+                            INNER JOIN "GenericName" g ON m."genericNameId" = g.id
+                            INNER JOIN "MedicineHasClassification" mhc ON m.id = mhc."medicineId"
+                            INNER JOIN "Classification" c ON mhc."classificationId" = c.id
+                            WHERE 
+                                m.is_active = true
+                                AND m."currStock" > 0
+                                AND m."expiredDate" > ${futureDate}
+                            GROUP BY m.code, m.id, mhc."classificationId"
+                        ) subquery
+                        GROUP BY
+                            code, packaging, "genericName", classification
+                    )
+                    SELECT
+                        MIN(id) as id,
+                        code,
+                        MIN("name") as "name",
+                        "currStock",
+                        MIN("price") as "price",
+                        MIN("minStock") as "minStock",
+                        MIN("maxStock") as "maxStock",
+                        MIN("expiredDate") as "expiredDate",
+                        MIN("unitOfMeasure") as "unitOfMeasure",
+                        MIN("sideEffect") as "sideEffect",
+                        jsonb_agg(DISTINCT classification) AS classifications,
+                        packaging,
+                        "genericName"
+                    FROM flattened_classifications
+                    GROUP BY code, packaging, "genericName", "currStock"
+`
 			);
 		} catch (error) {
 			console.error('Error getting medicineList:', error);

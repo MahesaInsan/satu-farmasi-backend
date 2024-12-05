@@ -32,7 +32,7 @@ export default class UserController {
                     return res .status(400).send(this.responseHelper.constructBadRequest(error as object));
                 }
             }
-			throw new CustomError().formatError("Invalid email or password!", "custom");
+			throw new CustomError().formatError("Email atau password tidak valid!", "custom");
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));

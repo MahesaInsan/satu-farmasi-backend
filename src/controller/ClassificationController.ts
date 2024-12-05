@@ -38,7 +38,7 @@ export default class ClassificationController extends BaseController {
             this.validateData(req);
             const request: AddClassificationRequest = req.body;
             const result = await this.classificationService.addClassification(request);
-            res.status(200).send(new BaseResponse().ok(result, "Successfully Created Classification"));
+            res.status(200).send(new BaseResponse().ok(result, "Klasifikasi Berhasil Ditambahkan"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -49,7 +49,7 @@ export default class ClassificationController extends BaseController {
         try {
             this.validateData(req);
             const result: Classification = await this.classificationService.editClassification(req.body);
-            res.status(200).send(new BaseResponse().ok(result, "Successfully Edited Classification"));
+            res.status(200).send(new BaseResponse().ok(result, "Klasifikasi Berhasil Diubah"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -60,7 +60,11 @@ export default class ClassificationController extends BaseController {
         try {
             this.validateData(req);
             const result: Classification = await this.classificationService.deleteClassification(req.body);
-            res.status(200).send(new BaseResponse().ok(result, "Successfully Deleted Classification"));
+            const successMsg: string = 
+                req.body.isActive
+                ? "Klasifikasi Berhasil Diaktifkan"
+                : "Klasifikasi Berhasil Dinonaktifkan";
+            res.status(200).send(new BaseResponse().ok(result, successMsg));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));

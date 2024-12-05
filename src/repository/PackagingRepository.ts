@@ -19,7 +19,13 @@ export default class PackagingRepository {
 
 	public async getTotalPackagings(): Promise<number> {
 		try {
-			return await this.prisma.packaging.count({ where: { is_active: true } });
+			return await this.prisma.packaging.count({
+				orderBy: [
+                    { is_active: 'desc' },
+					{ updated_at: 'desc' },
+					{ created_at: 'desc' },
+				],
+            });
 		} catch (error) {
 			throw error as string;
 		}
@@ -29,13 +35,13 @@ export default class PackagingRepository {
 		try {
 			return await this.prisma.packaging.count({
 				where: {
-					is_active: true,
 					label: {
 						contains: label,
 						mode: 'insensitive',
 					},
 				},
 				orderBy: [
+                    { is_active: 'desc' },
 					{ updated_at: 'desc' },
 					{ created_at: 'desc' },
 				],
@@ -48,8 +54,8 @@ export default class PackagingRepository {
 	public async getAllPackagings(limit: number, startIndex: number): Promise<Packaging[]> {
 		try {
 			return await this.prisma.packaging.findMany({
-				where: { is_active: true },
 				orderBy: [
+                    { is_active: 'desc' },
 					{ updated_at: 'desc' },
 					{ created_at: 'desc' },
 				],
@@ -90,13 +96,13 @@ export default class PackagingRepository {
 				skip: startIndex,
 				take: limit,
 				where: {
-					is_active: true,
 					label: {
 						contains: label,
 						mode: 'insensitive',
 					},
 				},
 				orderBy: [
+                    { is_active: 'desc' },
 					{ updated_at: 'desc' },
 					{ created_at: 'desc' },
 				],

@@ -89,6 +89,8 @@ export default class PackagingService {
     public async deletePackaging(request: EditPackagingRequest): Promise<boolean> {
         try {
             const packaging: Packaging = this.constructEditPackaging(request);
+            console.log("request: ", request);
+            console.log("packaging: ", packaging);
             return await this.packagingRepository.editPackaging(packaging);
         } catch (error) {
             throw error as string;

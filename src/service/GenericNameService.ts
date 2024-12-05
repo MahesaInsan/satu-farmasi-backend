@@ -87,7 +87,7 @@ export default class GenericNameService {
     public async deleteGenericName(request: EditGenericNameRequest): Promise<boolean>{
         try {
             const genericName: GenericName = this.editGenericNameHelper.editGenericName(request);
-            return await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).is_active(false).build())
+            return await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).is_active(request.isActive).build())
         } catch (error) {
             throw new Error(error as string);
         }
