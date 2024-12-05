@@ -2,15 +2,20 @@ import AddDiagnoseRequest from "../../model/request/AddDiagnoseRequest";
 import DoctorService from "../DoctorService";
 import AddPrescriptionRequest from "../../model/request/AddPrescriptionRequest";
 import MedicineService from "../MedicineService";
-import {Medicine} from "@prisma/client";
+import EditPrescriptionRequest from "../../model/request/EditPrescriptionRequest";
+import MedicineData from "../../model/VOs/MedicineDropdownVO";
+import PrescriptionHasMedicineRepository from "../../repository/PrescriptionHasMedicineRepository";
+import {PrescriptionHasMedicine} from "@prisma/client";
 
 export default class ValidationHelper {
     private readonly doctorService: DoctorService;
     private readonly medicineService: MedicineService;
+    private readonly prescriptionHasMedicineRepository: PrescriptionHasMedicineRepository;
 
     constructor() {
         this.doctorService = new DoctorService();
         this.medicineService = new MedicineService();
+        this.prescriptionHasMedicineRepository = new PrescriptionHasMedicineRepository();
     }
 
     public async validateDiagnoseRequest(request: AddDiagnoseRequest) {
@@ -26,24 +31,46 @@ export default class ValidationHelper {
         await this.validatePrescriptionRequest(request.prescription)
     }
 
-    public async validatePrescriptionRequest(request: AddPrescriptionRequest) {
-        const medicineListValidation: Medicine[] = await this.medicineService.getMedicineValidationList(request.medicineList
-            .map((medicine) => medicine.medicineId))
-        let indexByMedicineId: Map<number, number> = new Map<number, number>();
-        for (let i = 0; i < medicineListValidation.length; i++){
-            indexByMedicineId.set(medicineListValidation[i].id, i)
+    public async validatePrescriptionRequest(request: AddPrescriptionRequest | EditPrescriptionRequest) {
+        console.log("request: ", request)
+        let prescriptionHasMedicine: PrescriptionHasMedicine[] = []
+        let indexByMedicineCode: Map<string, number> = new Map<string, number>();
+        const medicineListValidation: MedicineData[] = await this.medicineService.getMedicineValidationList(request.medicineList
+            .map((medicine) => medicine.code))
+        let quantityByMedicineCode: Map<string, number> = new Map<string, number>();
+
+        if ((request as EditPrescriptionRequest).prescriptionId) {
+           prescriptionHasMedicine = await this.prescriptionHasMedicineRepository.getPrescriptionHasMedicine((request as EditPrescriptionRequest).prescriptionId)
         }
+
+        for (let i = 0; i < medicineListValidation.length; i++){
+            indexByMedicineCode.set(medicineListValidation[i].code, i)
+        }
+        for (const phm of prescriptionHasMedicine) {
+            console.log("phm: ", phm)
+            if (quantityByMedicineCode.has(phm.medicineCode)) {
+                quantityByMedicineCode.set(phm.medicineCode, quantityByMedicineCode.get(phm.medicineCode)! + phm.quantity)
+            } else quantityByMedicineCode.set(phm.medicineCode, phm.quantity)
+        }
+
         request.medicineList.forEach((medicineRequest) => {
-            if (!indexByMedicineId.has(medicineRequest.medicineId)) {
+            if (!indexByMedicineCode.has(medicineRequest.code)) {
                 throw new Error("Medicine is not found")
             }
             if (medicineRequest.quantity < 1) {
                 throw new Error("Quantity must be greater than 0")
             }
-            const medicineValidation: Medicine = medicineListValidation[indexByMedicineId.get(medicineRequest.medicineId)!]
-            console.log(medicineValidation.currStock - medicineRequest.quantity)
-            if (medicineValidation.currStock - medicineRequest.quantity < medicineValidation.minStock) {
+            const medicineValidation: MedicineData = medicineListValidation[indexByMedicineCode.get(medicineRequest.code)!]
+            if (prescriptionHasMedicine.length === 0 && medicineValidation.currStock - medicineRequest.quantity < 0) {
                 throw new Error("Insufficient medicine stock")
+            }
+            if (prescriptionHasMedicine.length > 0) {
+                console.log("quantity: ", quantityByMedicineCode)
+                const quantityAlreadyAssigned =
+                    quantityByMedicineCode.get(medicineValidation.code) ? quantityByMedicineCode.get(medicineValidation.code)! : 0
+                if (medicineValidation.currStock + quantityAlreadyAssigned - medicineRequest.quantity < 0) {
+                    throw new Error("Insufficient medicine stock")
+                }
             }
         })
     }

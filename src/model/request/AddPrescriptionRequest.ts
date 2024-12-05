@@ -1,4 +1,3 @@
-import {Prisma} from "@prisma/client"
 import AddPrescribedMedicineRequest from "./AddPrescribedMedicineRequest";
 import PatientRequestDTO from "./PatientRequestDTO";
 

@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import adminRouter from "../router/AdminRouter";
+import outputMedicineRouter from "../router/OutputMedicineRouter";
 import doctorRouter from "../router/DoctorRouter";
 import pharmacistRouter from "../router/PharmacistRouter";
 import dotenv from "dotenv";
@@ -14,6 +15,9 @@ import GenericNameRoute from "../router/GenericNameRoute";
 import cookieParser from "cookie-parser";
 import VendorRouter from "../router/VendorRouter";
 import ClassificationRouter from "../router/ClassificationRouter";
+import TransactionRouter from "../router/TransactionRouter";
+import ReceiveMedicineRouter from "../router/ReceiveMedicineRouter";
+import MedicineReportRouter from "../router/MedicineReportRouter";
 
 export default class App {
     private readonly app: Application;
@@ -41,11 +45,12 @@ export default class App {
     }
 
     private initRouter() {
-        this.app.use("/api/v1/admins", adminRouter);
+        this.app.use("/api/v2/admins", adminRouter);
         this.app.use("/api/v1/doctors", doctorRouter);
         this.app.use("/api/v1/pharmacists", pharmacistRouter);
         this.app.use("/api/v1/users", UserRouter);
         this.app.use("/api/v1/medicines", medicineRouter);
+        this.app.use("/api/v1/outputMedicines", outputMedicineRouter);
         this.app.use("/api/v1/patients", patientRouter);
         this.app.use("/api/v1/diagnose", diagnoseRouter);
         this.app.use("/api/v1/packagings", packagingRouter);
@@ -53,6 +58,9 @@ export default class App {
         this.app.use("/api/v1/prescriptions", prescriptionRouter);
         this.app.use("/api/v1/vendors", VendorRouter);
         this.app.use("/api/v1/classifications", ClassificationRouter);
+        this.app.use("/api/v1/transactions", TransactionRouter);
+        this.app.use("/api/v1/receiveMedicines", ReceiveMedicineRouter);
+        this.app.use("/api/v1/reports", MedicineReportRouter);
     }
 
     public listen() {

@@ -4,6 +4,7 @@ import {Builder} from "builder-pattern";
 import AddPatientRequest from "../model/request/AddPatientRequest";
 import IdVO from "../model/VOs/IdVO";
 import PatientRequestDTO from "../model/request/PatientRequestDTO";
+import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class PatientService{
     private patientRepository: PatientRepository;
@@ -17,7 +18,7 @@ export default class PatientService{
             return await this.patientRepository.findIfExist(newPatientRequest.credentialNum)
                 .then(async (exist) => {
                     if (exist?.id) {
-                        throw new Error("Patient already exist")
+                        throw new CustomError().formatError("Patient already exist", "prescription.patient.credentialNum");
                     } else {
                         const newPatient: Patient = Builder<Patient>()
                             .name(newPatientRequest.patientName)
@@ -35,12 +36,34 @@ export default class PatientService{
         }
     }
 
-    public async fetchPatient(): Promise<Patient[]>{
+    public async fetchPatient() {
         try {
-            return this.patientRepository.findPatientDropdownOptions()
+            return await this.mapPatientById(await this.patientRepository.findPatientDropdownOptions())
         } catch(error) {
             throw error as string
         }
+    }
 
+    public async findIfExistById(id: number) {
+        try {
+            return await this.patientRepository.findIfExistById(id)
+        } catch(error) {
+            throw error as string
+        }
+    }
+
+    public async getTotalPatient(): Promise<number> {
+        try {
+            return await this.patientRepository.getTotalPatient()
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    private async mapPatientById(patientList: Patient[]) {
+        return patientList.reduce((patientByPatientId, patient) => {
+            patientByPatientId.set(patient.id, patient);
+            return patientByPatientId;
+        }, new Map<number, Patient>)
     }
 }

@@ -4,8 +4,8 @@ import GenericNameService from "../service/GenericNameService";
 import {Request, Response} from "express";
 import EditGenericNameRequest from "../model/request/editGenericNameRequest";
 import BaseController from "./BaseController";
-import PaginationRequest from "../model/request/PaginationRequest";
 import BaseResponse from "../model/response/BaseResponse";
+import GenericDropdownVO from "../model/VOs/GenericDropdownVO";
 
 export default class GenericNameController  extends BaseController {
     private readonly genericNameService: GenericNameService;
@@ -32,17 +32,30 @@ export default class GenericNameController  extends BaseController {
 
             return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+
+    async getGenericNameDropdown(req: Request, res: Response) {
+        try {
+            const genericName: GenericDropdownVO[] = await this.genericNameService.getGenericNameDropdown();
+            return res.status(200).send(new BaseResponse().ok(genericName));
+        } catch (error) {
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     async addGenericName(req: Request, res: Response){
         try{
+            this.validateData(req);
             const request: AddGenericNameRequest = req.body;
-            const createdGenericName: GenericName = await this.genericNameService.addGenericName(request)
-            res.status(200).send(new BaseResponse().ok(createdGenericName));
+            const createdGenericName: boolean = await this.genericNameService.addGenericName(request)
+            return res.status(200).send(new BaseResponse().ok(createdGenericName, "Successfully Created Generic Name"));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -50,32 +63,36 @@ export default class GenericNameController  extends BaseController {
         try {
             const id: number = Number(req.params.id);
             const genericName: GenericName | null = await this.genericNameService.getGenericNameById(id);
-            res.status(200).send(new BaseResponse().ok(genericName));
+            return res.status(200).send(new BaseResponse().ok(genericName));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     async editGenericName(req: Request, res: Response){
         try {
+            this.validateData(req);
             const id: number = Number(req.params.id);
             const data = req.body;
             data.id = id;
             const request: EditGenericNameRequest = data;
-            const editedGenericName: boolean = await this.genericNameService.editGenericName(request);
-            res.status(200).send(new BaseResponse().ok(editedGenericName));
+            await this.genericNameService.editGenericName(request);
+            return res.status(200).send(new BaseResponse().ok(null, "Successfully Edited Generic Name"));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     async deleteGenericName(req: Request, res: Response){
         try {
-            const id: number = Number(req.params.id);
-            const isDeleted: boolean = await this.genericNameService.deleteGenericName(id);
-            res.status(200).send(new BaseResponse().ok(isDeleted));
+            this.validateData(req);
+             await this.genericNameService.deleteGenericName(req.body);
+            return res.status(200).send(new BaseResponse().ok(null, "Successfully Deleted Generic Name"));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 }

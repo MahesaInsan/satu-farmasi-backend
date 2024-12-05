@@ -4,6 +4,8 @@ import UserService from "../service/UserService";
 import LoginRequest from "../model/request/LoginRequest";
 import { Admin, Doctor, Pharmacist } from "@prisma/client";
 import jwt from 'jsonwebtoken';
+import BaseResponse from "../model/response/BaseResponse";
+import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class UserController {
     private readonly userService: UserService;
@@ -25,16 +27,15 @@ export default class UserController {
                     request.isRemember 
                         ? res.cookie( "token", token, this.responseHelper.constructCookieRequest(1000 * 60 * 60 * 24 * 30)) // 30 days
                         : res.cookie( "token", token, this.responseHelper.constructCookieRequest(1000 * 60 * 60 * 24 * 7)) // 7 days 
-                    return res .status(200).send( this.responseHelper.constructLoginResponse( user, token));
+                    return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructLoginResponse( user, token)));
                 } catch (error) {
                     return res .status(400).send(this.responseHelper.constructBadRequest(error as object));
                 }
             }
-            throw new Error("Invalid username or password!");
+			throw new CustomError().formatError("Invalid email or password!", "custom");
         } catch (error) {
-            res.status(400).send(
-                this.responseHelper.constructBadRequest(error as object)
-            );
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 

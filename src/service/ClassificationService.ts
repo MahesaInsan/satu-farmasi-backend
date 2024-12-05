@@ -80,4 +80,12 @@ export default class ClassificationService {
     }
   }
 
+  public async getClassificationsDropdown(): Promise<Classification[]> {
+	  try {
+		  return await this.classificationRepository.getClassificationsDropdown();
+	  } catch (error) {
+		  throw new Error(error as string);
+	  }
+  }
+
 }

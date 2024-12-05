@@ -8,10 +8,12 @@ import EditVendorRequest from "../model/request/EditVendorRequest";
 
 export default class VendorController extends BaseController {
     private readonly vendorService: VendorService;
+
     constructor() {
         super();
         this.vendorService = new VendorService();
     }
+
     async getAllVendor(req: Request, res: Response) {
         try {
             const name: string = req.query.label as string;
@@ -29,17 +31,30 @@ export default class VendorController extends BaseController {
 
             return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+
+    async getAllActiveVendor(req: Request, res: Response) {
+        try {
+            const vendors = await this.vendorService.getAllActiveVendor();
+            return res.status(200).send(new BaseResponse().ok(vendors, "Successfully Get All Active Vendor"));
+        } catch (error) {
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     async addVendor(req: Request, res: Response) {
         try {
+            this.validateData(req);
             const request: AddVendorRequest = req.body;
             const createdVendor: Vendor = await this.vendorService.addVendor(request)
-            res.status(200).send(new BaseResponse().ok(createdVendor));
+            res.status(200).send(new BaseResponse().ok(createdVendor, "Successfully Created Vendor"));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -53,7 +68,8 @@ export default class VendorController extends BaseController {
             pagination.total = totalData;
             return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
@@ -63,33 +79,38 @@ export default class VendorController extends BaseController {
             const vendor: Vendor | null = await this.vendorService.getVendorById(id);
             res.status(200).send(new BaseResponse().ok(vendor));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     async editVendor(req: Request, res: Response) {
         try {
+            this.validateData(req);
             const id: number = Number(req.params.id);
             const data = req.body;
             data.id = id;
             const request: EditVendorRequest = data;
-            const editVendor: Vendor = await this.vendorService.editVendor(request);
-            res.status(200).send(new BaseResponse().ok(editVendor));
+            const editVendor: boolean = await this.vendorService.editVendor(request);
+            res.status(200).send(new BaseResponse().ok(editVendor, "Successfully Edited Vendor"));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 
     async deleteVendor(req: Request, res: Response) {
         try {
+            this.validateData(req);
             const id: number = Number(req.params.id);
             const data = req.body;
             data.id = id;
             const request: EditVendorRequest = data;
-            const vendor: Vendor = await this.vendorService.deleteVendor(request);
-            return res.status(200).send(new BaseResponse().ok(vendor));
+            const vendor: boolean = await this.vendorService.deleteVendor(request);
+            return res.status(200).send(new BaseResponse().ok(vendor, "Successfully Deleted Vendor"));
         } catch (error) {
-            res.status(400).send(this.responseHelper.constructBadRequest(error as object))
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
 }

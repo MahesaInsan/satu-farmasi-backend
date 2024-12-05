@@ -31,7 +31,7 @@ export default class PatientRepository {
                 }
             );
         } catch (error) {
-            throw error as string
+            throw new Error("failed to create Patient")
         }
     }
 
@@ -43,6 +43,33 @@ export default class PatientRepository {
                 },
                 select: {
                     id: true
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async findIfExistById(id: number): Promise<IdVO | null>{
+        try {
+            return this.prisma.patient.findUnique({
+                where: {
+                    id: id
+                },
+                select: {
+                    id: true
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async getTotalPatient(): Promise<number> {
+        try {
+            return this.prisma.patient.count({
+                where: {
+                    is_active: true
                 }
             })
         } catch (error) {

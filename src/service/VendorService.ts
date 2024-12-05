@@ -37,6 +37,14 @@ export default class VendorService {
         }
     }
 
+    public async getAllActiveVendor(): Promise<Vendor[]> {
+        try {
+            return await this.vendorRepository.getAllActiveVendors();
+        } catch (error) {
+            throw new Error(error as string);
+        }
+    }
+
     public async getVendorById(id: number): Promise<Vendor | null> {
         try {
             return await this.vendorRepository.getVendorById(id);
@@ -62,7 +70,7 @@ export default class VendorService {
         }
     }
 
-    public async editVendor(request: EditVendorRequest): Promise<Vendor> {
+    public async editVendor(request: EditVendorRequest): Promise<boolean> {
         try {
             const vendor: Vendor = this.vendorHelper.editVendor(request);
             return await this.vendorRepository.editVendor(vendor);
@@ -71,7 +79,7 @@ export default class VendorService {
         }
     }
 
-    public async deleteVendor(request: EditVendorRequest): Promise<Vendor> {
+    public async deleteVendor(request: EditVendorRequest): Promise<boolean> {
         try {
             const vendor: Vendor = this.vendorHelper.editVendor(request);
             return await this.vendorRepository.editVendor(vendor);
