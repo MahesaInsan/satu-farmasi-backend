@@ -1,0 +1,1514 @@
+[
+    {
+        "data": {
+            "id": 1,
+            "patient": {
+                "patientId": -1,
+                "patientName": "Setyo Ridwan",
+                "credentialNum": "3172010101010001",
+                "phoneNum": "6281234567890"
+            },
+            "medicineList": [
+                {
+                    "code": "Amoxicillin-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi 1",
+                    "price": 1000000
+                },
+                {
+                    "code": "Parasetamol-000002",
+                    "quantity": 3,
+                    "instruction": "Instruksi 2",
+                    "price": 300000
+                },
+                {
+                    "code": "Amoxicillin-000002",
+                    "quantity": 4,
+                    "instruction": "instruksi 3",
+                    "price": 400000
+                }
+            ],
+            "created_at": "2024-01-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 2,
+            "patient": {
+                "patientId": -1,
+                "patientName": "Ridwan Hidayat",
+                "credentialNum": "3172020202020002",
+                "phoneNum": "6281234567891"
+            },
+            "medicineList": [
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                }
+            ],
+            "created_at": "2024-01-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 3,
+            "patient": {
+                "patientId": -1,
+                "patientName": "Anisa Safitri",
+                "credentialNum": "3172080808080008",
+                "phoneNum": "6283123456789"
+            },
+            "medicineList": [
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                },
+                {
+                    "code": "Ibuprofen-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                },
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                }
+            ],
+            "created_at": "2024-01-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 4,
+            "patient": {
+                "patientId": 1,
+                "patientName": "Budi Santoso",
+                "credentialNum": "1234567890123456",
+                "phoneNum": "6239652035510"
+            },
+            "medicineList": [
+                {
+                    "code": "Cefalosporin-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                }
+            ],
+            "created_at": "2024-01-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 5,
+            "patient": {
+                "patientId": 1,
+                "patientName": "Budi Santoso",
+                "credentialNum": "1234567890123456",
+                "phoneNum": "6239652035510"
+            },
+            "medicineList": [
+                {
+                    "code": "Cefalosporin-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                }
+            ],
+            "created_at": "2024-01-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 6,
+            "patient": {
+                "patientId": 2,
+                "patientName": "Siti Nurhaliza",
+                "credentialNum": "2345678901234567",
+                "phoneNum": "6245636934158"
+            },
+            "medicineList": [
+                {
+                    "code": "Loperamide-000001",
+                    "quantity": 5,
+                    "instruction": "instruksi 1",
+                    "price": 500000
+                },
+                {
+                    "code": "Valproat-000001",
+                    "quantity": 8,
+                    "instruction": "Instruksi 2",
+                    "price": 800000
+                }
+            ],
+            "created_at": "2024-02-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 7,
+            "patient": {
+                "patientId": -1,
+                "patientName": "Rizky Kurniawan",
+                "credentialNum": "3172070707070007",
+                "phoneNum": "6282345678912"
+            },
+            "medicineList": [
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 16,
+                    "instruction": "instruksi",
+                    "price": 1600000
+                },
+                {
+                    "code": "Analgesik-000001",
+                    "quantity": 4,
+                    "instruction": "instruksi",
+                    "price": 400000
+                }
+            ],
+            "created_at": "2024-02-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 8,
+            "patient": {
+                "patientId": 2,
+                "patientName": "Siti Nurhaliza",
+                "credentialNum": "2345678901234567",
+                "phoneNum": "6218344923464"
+            },
+            "medicineList": [
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 16,
+                    "instruction": "instruksi",
+                    "price": 1600000
+                },
+                {
+                    "code": "Analgesik-000001",
+                    "quantity": 4,
+                    "instruction": "instruksi",
+                    "price": 400000
+                },
+                {
+                    "code": "Ibuprofen-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-02-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 9,
+            "patient": {
+                "patientId": 6,
+                "patientName": "Fitri Handayani",
+                "credentialNum": "6789012345678901",
+                "phoneNum": "6254512770373"
+            },
+            "medicineList": [
+                {
+                    "code": "Analgesik-000001",
+                    "quantity": 4,
+                    "instruction": "instruksi",
+                    "price": 400000
+                }
+            ],
+            "created_at": "2024-02-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 10,
+            "patient": {
+                "patientId": 4,
+                "patientName": "Dewi Kartika",
+                "credentialNum": "4567890123456789",
+                "phoneNum": "6218158269469"
+            },
+            "medicineList": [
+                {
+                    "code": "Analgesik-000001",
+                    "quantity": 4,
+                    "instruction": "instruksi",
+                    "price": 400000
+                },
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-02-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 11,
+            "patient": {
+                "patientId": 2,
+                "patientName": "Siti Nurhaliza",
+                "credentialNum": "2345678901234567",
+                "phoneNum": "6245636934158"
+            },
+            "medicineList": [
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi 1",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-03-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 12,
+            "patient": {
+                "patientId": 5,
+                "patientName": "Ahmad Fauzan",
+                "credentialNum": "5678901234567890",
+                "phoneNum": "6262588225306"
+            },
+            "medicineList": [
+                {
+                    "code": "Loperamide-000001",
+                    "quantity": 6,
+                    "instruction": "instruksi",
+                    "price": 600000
+                }
+            ],
+            "created_at": "2024-03-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 13,
+            "patient": {
+                "patientId": 6,
+                "patientName": "Fitri Handayani",
+                "credentialNum": "6789012345678901",
+                "phoneNum": "6225499643921"
+            },
+            "medicineList": [
+                {
+                    "code": "Parasetamol-000002",
+                    "quantity": 12,
+                    "instruction": "instruksi",
+                    "price": 1200000
+                },
+                {
+                    "code": "Kafein-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                }
+            ],
+            "created_at": "2024-03-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 14,
+            "patient": {
+                "patientId": 6,
+                "patientName": "Fitri Handayani",
+                "credentialNum": "6789012345678901",
+                "phoneNum": "6225499643921"
+            },
+            "medicineList": [
+                {
+                    "code": "Kafein-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                }
+            ],
+            "created_at": "2024-03-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 15,
+            "patient": {
+                "patientId": 7,
+                "patientName": "Joko Widodo",
+                "credentialNum": "7890123456789012",
+                "phoneNum": "6228930998539"
+            },
+            "medicineList": [
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 1,
+                    "instruction": "instruksi",
+                    "price": 100000
+                }
+            ],
+            "created_at": "2024-03-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 16,
+            "patient": {
+                "patientId": 10,
+                "patientName": "Maya Anggraini",
+                "credentialNum": "0123456789012345",
+                "phoneNum": "6223979972358"
+            },
+            "medicineList": [
+                {
+                    "code": "Amoxicillin-000002",
+                    "quantity": 13,
+                    "instruction": "instruksi",
+                    "price": 1300000
+                },
+                {
+                    "code": "Loperamide-000001",
+                    "quantity": 12,
+                    "instruction": "test instruksi",
+                    "price": 1200000
+                }
+            ],
+            "created_at": "2024-04-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 17,
+            "patient": {
+                "patientId": 8,
+                "patientName": "Intan Permatasari",
+                "credentialNum": "8901234567890123",
+                "phoneNum": "6227895132114"
+            },
+            "medicineList": [
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 1,
+                    "instruction": "instruksi",
+                    "price": 100000
+                },
+                {
+                    "code": "Kafein-000001",
+                    "quantity": 12,
+                    "instruction": "instruksi",
+                    "price": 1200000
+                },
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                }
+            ],
+            "created_at": "2024-04-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 18,
+            "patient": {
+                "patientId": 12,
+                "patientName": "Ridwan Hidayat",
+                "credentialNum": "3172020202020002",
+                "phoneNum": "6281234567891"
+            },
+            "medicineList": [
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 1,
+                    "instruction": "instruksi",
+                    "price": 100000
+                },
+                {
+                    "code": "Kafein-000001",
+                    "quantity": 12,
+                    "instruction": "instruksi",
+                    "price": 1200000
+                },
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                },
+                {
+                    "code": "Parasetamol-000002",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-04-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 19,
+            "patient": {
+                "patientId": 2,
+                "patientName": "Siti Nurhaliza",
+                "credentialNum": "2345678901234567",
+                "phoneNum": "6271152254031"
+            },
+            "medicineList": [
+                {
+                    "code": "Kafein-000001",
+                    "quantity": 12,
+                    "instruction": "instruksi",
+                    "price": 1200000
+                },
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                }
+            ],
+            "created_at": "2024-04-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 20,
+            "patient": {
+                "patientId": 1,
+                "patientName": "Budi Santoso",
+                "credentialNum": "1234567890123456",
+                "phoneNum": "6208156680617"
+            },
+            "medicineList": [
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                }
+            ],
+            "created_at": "2024-04-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 21,
+            "patient": {
+                "patientId": 10,
+                "patientName": "Maya Anggraini",
+                "credentialNum": "0123456789012345",
+                "phoneNum": "6283712340601"
+            },
+            "medicineList": [
+                {
+                    "code": "Ibuprofen-000001",
+                    "quantity": 12,
+                    "instruction": "instruksi",
+                    "price": 1200000
+                },
+                {
+                    "code": "Parasetamol-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                },
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                },
+                {
+                    "code": "kortikosteroid-000001",
+                    "quantity": 3,
+                    "instruction": "test",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-05-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 22,
+            "patient": {
+                "patientId": 10,
+                "patientName": "Maya Anggraini",
+                "credentialNum": "0123456789012345",
+                "phoneNum": "6222094595037"
+            },
+            "medicineList": [
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                },
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                }
+            ],
+            "created_at": "2024-05-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 23,
+            "patient": {
+                "patientId": 11,
+                "patientName": "Setyo Ridwan",
+                "credentialNum": "3172010101010001",
+                "phoneNum": "6281234567890"
+            },
+            "medicineList": [
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                },
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                }
+            ],
+            "created_at": "2024-05-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 24,
+            "patient": {
+                "patientId": 11,
+                "patientName": "Setyo Ridwan",
+                "credentialNum": "3172010101010001",
+                "phoneNum": "6281234567890"
+            },
+            "medicineList": [
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 4,
+                    "instruction": "instruksi",
+                    "price": 400000
+                }
+            ],
+            "created_at": "2024-05-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 25,
+            "patient": {
+                "patientId": 13,
+                "patientName": "Anisa Safitri",
+                "credentialNum": "3172080808080008",
+                "phoneNum": "6283123456789"
+            },
+            "medicineList": [
+                {
+                    "code": "Propyphenazone-000001",
+                    "quantity": 7,
+                    "instruction": "instruksi",
+                    "price": 700000
+                },
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 9,
+                    "instruction": "instruksi",
+                    "price": 900000
+                }
+            ],
+            "created_at": "2024-05-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 26,
+            "patient": {
+                "patientId": 10,
+                "patientName": "Maya Anggraini",
+                "credentialNum": "0123456789012345",
+                "phoneNum": "6283712340601"
+            },
+            "medicineList": [
+                {
+                    "code": "Ibuprofen-000001",
+                    "quantity": 12,
+                    "instruction": "instruksi",
+                    "price": 1200000
+                },
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                },
+                {
+                    "code": "kortikosteroid-000001",
+                    "quantity": 3,
+                    "instruction": "test",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-06-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 27,
+            "patient": {
+                "patientId": -1,
+                "patientName": "Hendra Wijaya",
+                "credentialNum": "3172050505050005",
+                "phoneNum": "081512345678"
+            },
+            "medicineList": [
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 12,
+                    "instruction": "instruksi",
+                    "price": 1200000
+                },
+                {
+                    "code": "Valproat-000001",
+                    "quantity": 15,
+                    "instruction": "instruksi",
+                    "price": 1500000
+                }
+            ],
+            "created_at": "2024-06-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 28,
+            "patient": {
+                "patientId": 11,
+                "patientName": "Setyo Ridwan",
+                "credentialNum": "3172010101010001",
+                "phoneNum": "6281234567890"
+            },
+            "medicineList": [
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                },
+                {
+                    "code": "Valproat-000001",
+                    "quantity": 15,
+                    "instruction": "instruksi",
+                    "price": 1500000
+                },
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 2,
+                    "instruction": "instruksi",
+                    "price": 200000
+                }
+            ],
+            "created_at": "2024-06-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 29,
+            "patient": {
+                "patientId": 11,
+                "patientName": "Setyo Ridwan",
+                "credentialNum": "3172010101010001",
+                "phoneNum": "6281234567890"
+            },
+            "medicineList": [
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                },
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 2,
+                    "instruction": "instruksi",
+                    "price": 200000
+                }
+            ],
+            "created_at": "2024-06-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 30,
+            "patient": {
+                "patientId": 7,
+                "patientName": "Joko Widodo",
+                "credentialNum": "7890123456789012",
+                "phoneNum": "6209337720058"
+            },
+            "medicineList": [
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 2,
+                    "instruction": "instruksi",
+                    "price": 200000
+                },
+                {
+                    "code": "Parasetamol-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                }
+            ],
+            "created_at": "2024-06-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 31,
+            "patient": {
+                "patientId": 1,
+                "patientName": "Budi Santoso",
+                "credentialNum": "1234567890123456",
+                "phoneNum": "6239652035510"
+            },
+            "medicineList": [
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                }
+            ],
+            "created_at": "2024-07-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 32,
+            "patient": {
+                "patientId": 1,
+                "patientName": "Budi Santoso",
+                "credentialNum": "1234567890123456",
+                "phoneNum": "6259201476318"
+            },
+            "medicineList": [
+                {
+                    "code": "Amoxicillin-000002",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-07-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 33,
+            "patient": {
+                "patientId": 11,
+                "patientName": "Setyo Ridwan",
+                "credentialNum": "3172010101010001",
+                "phoneNum": "6281234567890"
+            },
+            "medicineList": [
+                {
+                    "code": "Valproat-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 1500000
+                }
+            ],
+            "created_at": "2024-07-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 34,
+            "patient": {
+                "patientId": 1,
+                "patientName": "Budi Santoso",
+                "credentialNum": "1234567890123456",
+                "phoneNum": "6239652035510"
+            },
+            "medicineList": [
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 13,
+                    "instruction": "instruksi",
+                    "price": 1300000
+                }
+            ],
+            "created_at": "2024-07-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 35,
+            "patient": {
+                "patientId": 1,
+                "patientName": "Budi Santoso",
+                "credentialNum": "1234567890123456",
+                "phoneNum": "6239652035510"
+            },
+            "medicineList": [
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 13,
+                    "instruction": "instruksi",
+                    "price": 1300000
+                }
+            ],
+            "created_at": "2024-07-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 36,
+            "patient": {
+                "patientId": 1,
+                "patientName": "Budi Santoso",
+                "credentialNum": "1234567890123456",
+                "phoneNum": "6239652035510"
+            },
+            "medicineList": [
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 13,
+                    "instruction": "instruksi",
+                    "price": 1300000
+                },
+                {
+                    "code": "Domperidone-000001",
+                    "quantity": 7,
+                    "instruction": "instruksi",
+                    "price": 700000
+                }
+            ],
+            "created_at": "2024-08-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 37,
+            "patient": {
+                "patientId": 9,
+                "patientName": "Rahmat Hidayat",
+                "credentialNum": "9012345678901234",
+                "phoneNum": "6280310681138"
+            },
+            "medicineList": [
+                {
+                    "code": "Antihistamin-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                }
+            ],
+            "created_at": "2024-08-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 38,
+            "patient": {
+                "patientId": 10,
+                "patientName": "Maya Anggraini",
+                "credentialNum": "0123456789012345",
+                "phoneNum": "6251560765707"
+            },
+            "medicineList": [
+                {
+                    "code": "imunostimulan-000001",
+                    "quantity": 6,
+                    "instruction": "instruksi",
+                    "price": 600000
+                },
+                {
+                    "code": "Ibuprofen-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-08-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 39,
+            "patient": {
+                "patientId": 11,
+                "patientName": "Setyo Ridwan",
+                "credentialNum": "3172010101010001",
+                "phoneNum": "6281234567890"
+            },
+            "medicineList": [
+                {
+                    "code": "Domperidone-000001",
+                    "quantity": 5,
+                    "instruction": "instruksi",
+                    "price": 500000
+                },
+                {
+                    "code": "Ibuprofen-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-08-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 40,
+            "patient": {
+                "patientId": 8,
+                "patientName": "Intan Permatasari",
+                "credentialNum": "8901234567890123",
+                "phoneNum": "6223036576369"
+            },
+            "medicineList": [
+                {
+                    "code": "Domperidone-000001",
+                    "quantity": 5,
+                    "instruction": "instruksi",
+                    "price": 500000
+                },
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 6,
+                    "instruction": "instruksi",
+                    "price": 600000
+                }
+            ],
+            "created_at": "2024-08-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 41,
+            "patient": {
+                "patientId": -1,
+                "patientName": "Dewi Anggraini",
+                "credentialNum": "3172040404040004",
+                "phoneNum": "6285712345678"
+            },
+            "medicineList": [
+                {
+                    "code": "Domperidone-000001",
+                    "quantity": 20,
+                    "instruction": "instruksi baru",
+                    "price": 2000000
+                },
+                {
+                    "code": "Prokain-000001",
+                    "quantity": 16,
+                    "instruction": "instruksi baru",
+                    "price": 1600000
+                }
+            ],
+            "created_at": "2024-09-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 42,
+            "patient": {
+                "patientId": 10,
+                "patientName": "Maya Anggraini",
+                "credentialNum": "0123456789012345",
+                "phoneNum": "6283712340601"
+            },
+            "medicineList": [
+                {
+                    "code": "Domperidone-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi baru",
+                    "price": 2000000
+                },
+                {
+                    "code": "Prokain-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi baru",
+                    "price": 1600000
+                }
+            ],
+            "created_at": "2024-09-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 43,
+            "patient": {
+                "patientId": 11,
+                "patientName": "Setyo Ridwan",
+                "credentialNum": "3172010101010001",
+                "phoneNum": "6281234567890"
+            },
+            "medicineList": [
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 6,
+                    "instruction": "instruksi",
+                    "price": 600000
+                }
+            ],
+            "created_at": "2024-09-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 44,
+            "patient": {
+                "patientId": 15,
+                "patientName": "Hendra Wijaya",
+                "credentialNum": "3172050505050005",
+                "phoneNum": "081512345678"
+            },
+            "medicineList": [
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 6,
+                    "instruction": "instruksi",
+                    "price": 600000
+                },
+                {
+                    "code": "Valproat-000001",
+                    "quantity": 7,
+                    "instruction": "instruksi",
+                    "price": 700000
+                },
+                {
+                    "code": "Prokain-000001",
+                    "quantity": 1,
+                    "instruction": "instruksi",
+                    "price": 100000
+                }
+            ],
+            "created_at": "2024-09-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 45,
+            "patient": {
+                "patientId": -1,
+                "patientName": "Lia Putri",
+                "credentialNum": "3172060606060006",
+                "phoneNum": "6281987654321"
+            },
+            "medicineList": [
+                {
+                    "code": "Prokain-000001",
+                    "quantity": 2,
+                    "instruction": "instruksi",
+                    "price": 200000
+                },
+                {
+                    "code": "Loperamide-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-09-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 46,
+            "patient": {
+                "patientId": 10,
+                "patientName": "Maya Anggraini",
+                "credentialNum": "0123456789012345",
+                "phoneNum": "6283712340601"
+            },
+            "medicineList": [
+                {
+                    "code": "Valproat-000001",
+                    "quantity": 5,
+                    "instruction": "instruksi baru",
+                    "price": 500000
+                },
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi baru",
+                    "price": 1000000
+                },
+                {
+                    "code": "Amoxicillin-000002",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                },
+                {
+                    "code": "Propyphenazone-000001",
+                    "quantity": 7,
+                    "instruction": "insturksi",
+                    "price": 700000
+                }
+            ],
+            "created_at": "2024-10-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 47,
+            "patient": {
+                "patientId": 17,
+                "patientName": "Lia Putri",
+                "credentialNum": "3172060606060006",
+                "phoneNum": "6281987654321"
+            },
+            "medicineList": [
+                {
+                    "code": "Amoxicillin-000002",
+                    "quantity": 2,
+                    "instruction": "instruksi",
+                    "price": 300000
+                },
+                {
+                    "code": "Propyphenazone-000001",
+                    "quantity": 1,
+                    "instruction": "insturksi",
+                    "price": 700000
+                }
+            ],
+            "created_at": "2024-10-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 48,
+            "patient": {
+                "patientId": 15,
+                "patientName": "Hendra Wijaya",
+                "credentialNum": "3172050505050005",
+                "phoneNum": "081512345678"
+            },
+            "medicineList": [
+                {
+                    "code": "Valproat-000001",
+                    "quantity": 7,
+                    "instruction": "instruksi",
+                    "price": 700000
+                }
+            ],
+            "created_at": "2024-10-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 49,
+            "patient": {
+                "patientId": 13,
+                "patientName": "Anisa Safitri",
+                "credentialNum": "3172080808080008",
+                "phoneNum": "6283123456789"
+            },
+            "medicineList": [
+                {
+                    "code": "Suplemen vitamin-000001",
+                    "quantity": 5,
+                    "instruction": "instruksi",
+                    "price": 500000
+                }
+            ],
+            "created_at": "2024-10-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 50,
+            "patient": {
+                "patientId": 8,
+                "patientName": "Intan Permatasari",
+                "credentialNum": "8901234567890123",
+                "phoneNum": "6223036576369"
+            },
+            "medicineList": [
+                {
+                    "code": "kortikosteroid-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                },
+                {
+                    "code": "Prokain-000001",
+                    "quantity": 6,
+                    "instruction": "instruksi",
+                    "price": 600000
+                }
+            ],
+            "created_at": "2024-10-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 51,
+            "patient": {
+                "patientId": 17,
+                "patientName": "Lia Putri",
+                "credentialNum": "3172060606060006",
+                "phoneNum": "6281987654321"
+            },
+            "medicineList": [
+                {
+                    "code": "Valproat-000001",
+                    "quantity": 5,
+                    "instruction": "instruksi baru",
+                    "price": 500000
+                },
+                {
+                    "code": "Amoxicillin-000002",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                },
+                {
+                    "code": "Propyphenazone-000001",
+                    "quantity": 7,
+                    "instruction": "insturksi",
+                    "price": 700000
+                }
+            ],
+            "created_at": "2024-11-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 52,
+            "patient": {
+                "patientId": 5,
+                "patientName": "Ahmad Fauzan",
+                "credentialNum": "5678901234567890",
+                "phoneNum": "6292098866284"
+            },
+            "medicineList": [
+                {
+                    "code": "Amoxicillin-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                },
+                {
+                    "code": "Prokain-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                }
+            ],
+            "created_at": "2024-11-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 53,
+            "patient": {
+                "patientId": 10,
+                "patientName": "Maya Anggraini",
+                "credentialNum": "0123456789012345",
+                "phoneNum": "6251560765707"
+            },
+            "medicineList": [
+                {
+                    "code": "Domperidone-000001",
+                    "quantity": 5,
+                    "instruction": "instruksi",
+                    "price": 500000
+                }
+            ],
+            "created_at": "2024-11-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 54,
+            "patient": {
+                "patientId": 8,
+                "patientName": "Intan Permatasari",
+                "credentialNum": "8901234567890123",
+                "phoneNum": "6223036576369"
+            },
+            "medicineList": [
+                {
+                    "code": "Antihistamin-000001",
+                    "quantity": 15,
+                    "instruction": "instruksi",
+                    "price": 1500000
+                },
+                {
+                    "code": "Cefalosporin-000001",
+                    "quantity": 8,
+                    "instruction": "instruksi",
+                    "price": 800000
+                },
+                {
+                    "code": "Amoxicillin-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-11-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 55,
+            "patient": {
+                "patientId": 2,
+                "patientName": "Siti Nurhaliza",
+                "credentialNum": "2345678901234567",
+                "phoneNum": "6218344923464"
+            },
+            "medicineList": [
+                {
+                    "code": "Propyphenazone-000001",
+                    "quantity": 7,
+                    "instruction": "insturksi",
+                    "price": 700000
+                }
+            ],
+            "created_at": "2024-11-05T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 56,
+            "patient": {
+                "patientId": 2,
+                "patientName": "Siti Nurhaliza",
+                "credentialNum": "2345678901234567",
+                "phoneNum": "6218344923464"
+            },
+            "medicineList": [
+                {
+                    "code": "Amoxicillin-000002",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                },
+                {
+                    "code": "Propyphenazone-000001",
+                    "quantity": 7,
+                    "instruction": "insturksi",
+                    "price": 700000
+                }
+            ],
+            "created_at": "2024-12-01T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 57,
+            "patient": {
+                "patientId": 7,
+                "patientName": "Joko Widodo",
+                "credentialNum": "7890123456789012",
+                "phoneNum": "6221805423034"
+            },
+            "medicineList": [
+                {
+                    "code": "Amoxicillin-000002",
+                    "quantity": 18,
+                    "instruction": "instruksi",
+                    "price": 1800000
+                },
+                {
+                    "code": "phenylpropanolamine-000001",
+                    "quantity": 10,
+                    "instruction": "instruksi",
+                    "price": 1000000
+                }
+            ],
+            "created_at": "2024-12-02T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 58,
+            "patient": {
+                "patientId": 1,
+                "patientName": "Budi Santoso",
+                "credentialNum": "1234567890123456",
+                "phoneNum": "6274448987811"
+            },
+            "medicineList": [
+                {
+                    "code": "Loperamide-000001",
+                    "quantity": 3,
+                    "instruction": "instruksi",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-12-03T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 59,
+            "patient": {
+                "patientId": 2,
+                "patientName": "Siti Nurhaliza",
+                "credentialNum": "2345678901234567",
+                "phoneNum": "6218344923464"
+            },
+            "medicineList": [
+                {
+                    "code": "Loperamide-000001",
+                    "quantity": 5,
+                    "instruction": "instruksi",
+                    "price": 300000
+                }
+            ],
+            "created_at": "2024-12-04T03:28:18.411Z"
+        }
+    },
+    {
+        "data": {
+            "id": 60,
+            "patient": {
+                "patientId": 1,
+                "patientName": "Budi Santoso",
+                "credentialNum": "1234567890123456",
+                "phoneNum": "6239652035510"
+            },
+            "medicineList": [
+                {
+                    "code": "Parasetamol-000002",
+                    "quantity": 12,
+                    "instruction": "instruksi",
+                    "price": 1200000
+                },
+                {
+                    "code": "Ibuprofen-000001",
+                    "quantity": 6,
+                    "instruction": "insturksi",
+                    "price": 600000
+                }
+            ],
+            "created_at": "2024-12-05T03:28:18.411Z"
+        }
+    }
+]
