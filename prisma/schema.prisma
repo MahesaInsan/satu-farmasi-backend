@@ -118,6 +118,7 @@ model Medicine {
   id               Int                         @id @default(autoincrement())
   code             String
   name             String
+  batchCode        String
   genericName      GenericName                 @relation(fields: [genericNameId], references: [id])
   genericNameId    Int
   merk             String
@@ -204,6 +205,8 @@ model Transaction {
   updated_at     DateTime        @default(now())
   report         MedicineReport? @relation(fields: [reportId], references: [id])
   reportId       Int?
+  physicalReport  PhysicalReport  @relation(fields: [physicalReportId], references: [id])
+  physicalReportId Int           @unique
 }
 
 model ReceiveMedicine {
@@ -237,6 +240,8 @@ model OutputMedicine {
   updated_at      DateTime        @default(now())
   report          MedicineReport? @relation(fields: [reportId], references: [id])
   reportId        Int?
+  physicalReport  PhysicalReport  @relation(fields: [physicalReportId], references: [id])
+  physicalReportId Int            @unique
 }
 
 model MedicineReport {
@@ -259,6 +264,14 @@ model Pharmacy {
   email            String
   created_at       DateTime
   updated_at       DateTime          @default(now())
+}
+
+model PhysicalReport {
+  id               Int               @id @default(autoincrement())
+  data             Json
+  created_at       DateTime
+  transaction      Transaction?
+  outputMedicine   OutputMedicine?
 }
 
 enum Role {

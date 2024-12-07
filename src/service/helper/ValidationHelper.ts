@@ -53,7 +53,7 @@ export default class ValidationHelper {
             } else quantityByMedicineCode.set(phm.medicineCode, phm.quantity)
         }
 
-        let medicineRequestList: string[]
+        let medicineRequestList: string[] = []
 
         request.medicineList.forEach((medicineRequest) => {
             if (!indexByMedicineCode.has(medicineRequest.code)) {

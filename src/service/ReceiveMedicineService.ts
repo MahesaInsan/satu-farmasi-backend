@@ -75,6 +75,8 @@ export default class ReceiveMedicineService {
 
     public async createReceiveMedicine(data: AddReceiveMedicineRequest) {
         try {
+            // assing medicine batchCode from data.batchCode
+            data.medicineRequest.batchCode = data.batchCode;
             // new medicine
             if (!data.medicineId || data.medicineId == 0) {
                 return await this.medicineService.createMedicine(data.medicineRequest)

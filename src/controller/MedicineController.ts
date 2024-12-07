@@ -79,7 +79,7 @@ export default class MedicineController extends BaseController {
 
     public async getTotalMedicine(req: Request, res: Response) {
         try {
-            const total: number = await this.medicineService.getTotalMedicines();
+            const total: number = await this.medicineService.getTotalActiveMedicineByCode();
             return res.status(200).send(new BaseResponse().ok(total, "Succeed get total medicine"));
         } catch (error) {
             console.log("[src][controller][MedicineController][getTotalMedicine] ", error);

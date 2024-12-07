@@ -80,6 +80,15 @@ export default class MedicineService {
 		}
 	}
 
+	public async getTotalActiveMedicineByCode(): Promise<number> {
+		try {
+			const medicineList: MedicineDropdownVO[] = await this.medicineRepository.fetchMedicineList()
+			return medicineList.length;
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
 	public async getTotalMedicines(): Promise<number> {
 		try {
 			return await this.medicineRepository.getTotalMedicines();
@@ -432,6 +441,7 @@ export default class MedicineService {
 			.updated_at(new Date())
 			.code(request.code)
 			.name(request.name)
+			.batchCode(request.batchCode)
 			.genericNameId(request.genericNameId)
 			.merk(request.merk)
 			.description(request.description)
@@ -452,6 +462,7 @@ export default class MedicineService {
 			.code(request.code)
 			.name(request.name)
 			.merk(request.merk)
+			.batchCode(request.batchCode)
 			.description(request.description)
 			.unitOfMeasure(request.unitOfMeasure)
 			.price(request.price)
