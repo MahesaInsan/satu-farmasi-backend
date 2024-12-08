@@ -86,30 +86,31 @@ model Vendor {
 }
 
 model Medicine {
-    id               Int                         @id @default(autoincrement())
-    code             String
-    name             String
-    genericName      GenericName                 @relation(fields: [genericNameId], references: [id])
-    genericNameId    Int
-    merk             String
-    description      String
-    unitOfMeasure    UnitOfMeasure
-    classifications  MedicineHasClassification[]
-    price            Decimal
-    expiredDate      DateTime
-    packaging        Packaging                   @relation(fields: [packagingId], references: [id])
-    packagingId      Int
-    currStock        Int
-    minStock         Int
-    maxStock         Int
-    reservedStock    Int                         @default(0)
-    sideEffect       String
-    is_active        Boolean
-    created_at       DateTime
-    updated_at       DateTime                    @default(now())
-    receiveMedicines ReceiveMedicine[]
-    outputMedicines  OutputMedicine[]
-    prescriptions    PrescriptionHasMedicine[]
+  id               Int                         @id @default(autoincrement())
+  code             String
+  name             String
+  batchCode        String
+  genericName      GenericName                 @relation(fields: [genericNameId], references: [id])
+  genericNameId    Int
+  merk             String
+  description      String
+  unitOfMeasure    UnitOfMeasure
+  classifications  MedicineHasClassification[]
+  price            Decimal
+  expiredDate      DateTime
+  packaging        Packaging                   @relation(fields: [packagingId], references: [id])
+  packagingId      Int
+  currStock        Int
+  minStock         Int
+  maxStock         Int
+  reservedStock    Int                         @default(0)
+  sideEffect       String
+  is_active        Boolean
+  created_at       DateTime
+  updated_at       DateTime                    @default(now())
+  receiveMedicines ReceiveMedicine[]
+  outputMedicines  OutputMedicine[]
+  prescriptions    PrescriptionHasMedicine[]
 }
 
 model MedicineHasClassification {
@@ -161,20 +162,22 @@ model Diagnose {
 }
 
 model Transaction {
-    id             Int             @id @default(autoincrement())
-    patient        Patient         @relation(fields: [patientId], references: [id])
-    patientId      Int
-    prescription   Prescription    @relation(fields: [prescriptionId], references: [id])
-    prescriptionId Int             @unique
-    pharmacist     User            @relation(fields: [pharmacistId], references: [id])
-    pharmacistId   Int
-    paymentMethod  PaymentMethod?
-    totalPrice     Decimal
-    is_active      Boolean
-    created_at     DateTime
-    updated_at     DateTime        @default(now())
-    report         MedicineReport? @relation(fields: [reportId], references: [id])
-    reportId       Int?
+  id             Int             @id @default(autoincrement())
+  patient        Patient         @relation(fields: [patientId], references: [id])
+  patientId      Int
+  prescription   Prescription    @relation(fields: [prescriptionId], references: [id])
+  prescriptionId Int             @unique
+  pharmacist     Pharmacist      @relation(fields: [pharmacistId], references: [id])
+  pharmacistId   Int
+  paymentMethod  PaymentMethod?
+  totalPrice     Decimal
+  is_active      Boolean
+  created_at     DateTime
+  updated_at     DateTime        @default(now())
+  report         MedicineReport? @relation(fields: [reportId], references: [id])
+  reportId       Int?
+  physicalReport  PhysicalReport  @relation(fields: [physicalReportId], references: [id])
+  physicalReportId Int           @unique
 }
 
 model ReceiveMedicine {
@@ -198,16 +201,18 @@ model ReceiveMedicine {
 }
 
 model OutputMedicine {
-    id              Int             @id @default(autoincrement())
-    medicine        Medicine        @relation(fields: [medicineId], references: [id])
-    medicineId      Int
-    quantity        Int
-    reasonOfDispose ReasonOfDispose
-    is_active       Boolean
-    created_at      DateTime
-    updated_at      DateTime        @default(now())
-    report          MedicineReport? @relation(fields: [reportId], references: [id])
-    reportId        Int?
+  id              Int             @id @default(autoincrement())
+  medicine        Medicine        @relation(fields: [medicineId], references: [id])
+  medicineId      Int
+  quantity        Int
+  reasonOfDispose ReasonOfDispose
+  is_active       Boolean
+  created_at      DateTime
+  updated_at      DateTime        @default(now())
+  report          MedicineReport? @relation(fields: [reportId], references: [id])
+  reportId        Int?
+  physicalReport  PhysicalReport  @relation(fields: [physicalReportId], references: [id])
+  physicalReportId Int            @unique
 }
 
 model MedicineReport {
@@ -230,6 +235,14 @@ model Pharmacy {
   email            String
   created_at       DateTime
   updated_at       DateTime          @default(now())
+}
+
+model PhysicalReport {
+  id               Int               @id @default(autoincrement())
+  data             Json
+  created_at       DateTime
+  transaction      Transaction?
+  outputMedicine   OutputMedicine?
 }
 
 enum Role {

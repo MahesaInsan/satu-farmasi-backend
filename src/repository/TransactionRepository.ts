@@ -1,6 +1,8 @@
 import {Transaction, PrismaClient, $Enums, PaymentMethod, Status} from "@prisma/client";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import TransactionDetailVO from "../model/VOs/TransactionDetailVO";
+import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
+import TransactionAnnualRecapVO from "../model/VOs/TransactionAnnualRecapVO";
 
 export default class TransactionRepository{
     private readonly prisma: PrismaClient;
@@ -211,6 +213,45 @@ export default class TransactionRepository{
             })
         } catch (error){
             throw error as string
+        }
+    }
+
+    public async getTransactionByDate(startDate: Date, lastDate: Date): Promise<TransactionByDateVO[]> {
+        try {
+            return this.prisma.$queryRaw
+                `SELECT 
+                    a."id",
+                    a."prescriptionId",
+                    d."id" as "medicineId",
+                    d."name" as "medicineName",
+                    c."quantity",
+                    d."price" as "sellingPrice",
+                    a."totalPrice"
+                FROM "public"."Transaction" a
+                LEFT JOIN "public"."Prescription" b ON a."prescriptionId" = b."id" 
+                LEFT JOIN "public"."PrescriptionHasMedicine" c ON b."id" = c."prescriptionId"
+                LEFT JOIN "public"."Medicine" d ON c."medicineId" = d."id"
+                WHERE a."created_at" >= ${startDate} AND a."created_at" <= ${lastDate};`
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async getAnnualTransactionRecap(year: number): Promise<TransactionAnnualRecapVO[]> {
+        try {
+            return this.prisma.$queryRaw
+                `SELECT 
+                    EXTRACT(MONTH FROM a."created_at") AS "month",
+                    SUM(b."quantity") as "sales",
+                    SUM(b."totalPrice") as "revenue"
+                FROM "public"."Transaction" a
+                JOIN "public"."PrescriptionHasMedicine" b ON a."prescriptionId" = b."prescriptionId"
+                WHERE EXTRACT(YEAR FROM a."created_at") = ${year} AND b."draft" = false
+                GROUP BY EXTRACT(MONTH FROM a."created_at")
+                ORDER BY "month";
+                `
+        } catch (error) {
+            throw error as string;
         }
     }
 }

@@ -12,11 +12,16 @@ import PaginationRequest from "../model/request/PaginationRequest";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import ChangeTransactionStatusVO from "../model/VOs/ChangeTransactionStatusVO";
 import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
+import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
+import ReceiveMedicineService from "./ReceiveMedicineService";
+import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
+import TransactionAnnualRecapVO from "../model/VOs/TransactionAnnualRecapVO";
 
 export default class TransactionService{
     private readonly patientService: PatientService;
     private readonly prescriptionService: PrescriptionService;
     private readonly pharmacistService: PharmacistService;
+    private readonly receiveMedicineService: ReceiveMedicineService;
     private readonly transactionRepository: TransactionRepository;
 
     private transactionSSE: SSEConnection[] = [];
@@ -25,6 +30,7 @@ export default class TransactionService{
         this.patientService = new PatientService();
         this.prescriptionService = new PrescriptionService();
         this.pharmacistService = new PharmacistService();
+        this.receiveMedicineService = new ReceiveMedicineService();
         this.transactionRepository = new TransactionRepository();
     }
 
@@ -95,6 +101,22 @@ export default class TransactionService{
         }
     }
 
+    public async getTransactionByDate(startDate: Date, lastDate: Date): Promise<TransactionByDateVO[]> {
+        try {
+            return await this.transactionRepository.getTransactionByDate(new Date(startDate), new Date(lastDate))
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async getAnnualTransactionRecap(year: number): Promise<TransactionAnnualRecapVO[]> {
+        try {
+            return await this.transactionRepository.getAnnualTransactionRecap(year);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
     public async getOnGoingAndWaitingPaymentTransaction(patientName: string | undefined) {
         try {
             const onGoing: TransactionSummaryVO[] = await this.transactionRepository.getTransactionByStatus(patientName, "ON_PROGRESS", 5)
@@ -102,6 +124,36 @@ export default class TransactionService{
             return onGoing.concat(waitingPayment);
         } catch (error) {
             throw error as string
+        }
+    }
+
+    public async getTransactionProfitByDate(startDate: Date, lastDate: Date): Promise<Prisma.Decimal> {
+        try {
+            const transactions: TransactionByDateVO[] = await this.getTransactionByDate(startDate, lastDate);
+            const profits: Prisma.Decimal[] = await Promise.all(
+                transactions.map(async transaction => {
+                    const receiveMedicine: ReceiveMedicineVO | null = await this.receiveMedicineService.getReceiveMedicineByMedicineId(transaction.id);
+                    
+                    // get buying price
+                    const buyingQty: Prisma.Decimal = new Prisma.Decimal(receiveMedicine?.quantity ?? 1);
+                    const buyingPrice: Prisma.Decimal = receiveMedicine
+                    ? receiveMedicine.buyingPrice.div(buyingQty)
+                    : new Prisma.Decimal(0)
+                    
+                    // get profit
+                    return new Prisma.Decimal(transaction.totalPrice)
+                    .sub(new Prisma.Decimal(transaction.quantity).mul(buyingPrice))
+                })
+            )
+            
+            // add profit to total
+            const total: Prisma.Decimal = profits.reduce((accumulator, currentValue) => {
+                return new Prisma.Decimal(accumulator).add(currentValue)
+            }, new Prisma.Decimal(0));
+
+            return total
+        } catch (error) {
+            throw error as string;
         }
     }
 

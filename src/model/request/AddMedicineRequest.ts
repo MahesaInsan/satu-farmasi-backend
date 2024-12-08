@@ -5,6 +5,7 @@ import AddMedicineClassificationRequest from "./AddMedicineClassificationRequest
 export default class AddMedicineRequest {
     private _code: string;
     private _name: string;
+    private _batchCode: string;
     private _genericNameId: number;
     private _merk: string;
     private _description: string;
@@ -21,6 +22,7 @@ export default class AddMedicineRequest {
     constructor(
         code: string,
         name: string,
+        batchCode: string,
         genericNameId: number,
         merk: string,
         description: string,
@@ -36,6 +38,7 @@ export default class AddMedicineRequest {
     ) {
         this._code = code;
         this._name = name;
+        this._batchCode = batchCode;
         this._genericNameId = genericNameId;
         this._merk = merk;
         this._description = description;
@@ -56,6 +59,10 @@ export default class AddMedicineRequest {
 
     get name(): string {
         return this._name;
+    }
+
+    get batchCode(): string {
+        return this._batchCode;
     }
 
     get genericNameId(): number {
@@ -112,6 +119,10 @@ export default class AddMedicineRequest {
 
     set name(name: string) {
         this._name = name;
+    }
+
+    set batchCode(batchCode: string) {
+        this._batchCode = batchCode;
     }
 
     set genericNameId(genericNameId: number) {

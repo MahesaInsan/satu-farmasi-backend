@@ -91,8 +91,7 @@ export default class MedicineRepository {
                         packaging,
                         "genericName"
                     FROM flattened_classifications
-                    GROUP BY code, packaging, "genericName", "currStock"
-`
+                    GROUP BY code, packaging, "genericName", "currStock"`
 			);
 		} catch (error) {
 			console.error('Error getting medicineList:', error);
@@ -125,6 +124,7 @@ export default class MedicineRepository {
 					code: true,
 					name: true,
 					merk: true,
+					batchCode: true,
 					currStock: true,
 					minStock: true,
 					reservedStock: true,
@@ -194,6 +194,7 @@ export default class MedicineRepository {
 				id: true,
 				code: true,
 				name: true,
+				batchCode: true,
 				merk: true,
 				currStock: true,
 				minStock: true,
@@ -355,6 +356,7 @@ export default class MedicineRepository {
 						MIN(m.id) as id,
 						m.code,
 						MIN(m.name) as name,
+						MIN(m."batchCode") as "batchCode",
 						CAST(SUM(m."currStock" - m."reservedStock") AS INTEGER) as "currStock",
 						MIN(m."reservedStock") as "reservedStock",
 						MIN(m."minStock") as "minStock",
@@ -462,7 +464,7 @@ export default class MedicineRepository {
 		try {
 			return await this.prisma.medicine.findMany({
 				where: {
-					code: { contains: code}
+					code: { contains: code }
 				},
 				select: {
 					code: true
@@ -500,6 +502,7 @@ export default class MedicineRepository {
 					code: true,
 					name: true,
 					merk: true,
+					batchCode: true,
 					description: true,
 					unitOfMeasure: true,
 					price: true,
@@ -556,6 +559,7 @@ export default class MedicineRepository {
 					"code",
 					MAX("name") AS "name", 
 					MAX("merk") AS "merk",
+					MIN(m."batchCode") as "batchCode",
 					MAX("description") AS "description",
 					MAX("unitOfMeasure") AS "unitOfMeasure",
 					MAX("price") AS "price",
@@ -636,6 +640,7 @@ export default class MedicineRepository {
 					id: true,
 					code: true,
 					name: true,
+					batchCode: true,
 					merk: true,
 					description: true,
 					unitOfMeasure: true,
@@ -701,6 +706,7 @@ export default class MedicineRepository {
 					id: true,
 					code: true,
 					name: true,
+					batchCode: true,
 					merk: true,
 					description: true,
 					unitOfMeasure: true,
@@ -771,6 +777,7 @@ export default class MedicineRepository {
 					id: true,
 					code: true,
 					name: true,
+					batchCode: true,
 					merk: true,
 					description: true,
 					unitOfMeasure: true,
@@ -824,6 +831,7 @@ export default class MedicineRepository {
 					id: true,
 					code: true,
 					name: true,
+					batchCode: true,
 					merk: true,
 					description: true,
 					unitOfMeasure: true,
@@ -888,9 +896,9 @@ export default class MedicineRepository {
 		}
 	}
 
-	public async updateInactiveMedicine(dataMedicine: Medicine) {
+	public async updateInactiveMedicine(dataMedicine: Medicine): Promise<number> {
 		try {
-			await this.prisma.medicine.updateMany({
+			const result = await this.prisma.medicine.updateMany({
 				where: {
 					AND: [
 						{ code: dataMedicine.code },
@@ -899,6 +907,23 @@ export default class MedicineRepository {
 				},
 				data: dataMedicine
 			});
+			return result.count;
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
+	public async activateMedicineById(medicineId: number) {
+		try {
+			await this.prisma.medicine.update({
+				where: {
+					id: medicineId
+				},
+				data: {
+					is_active: true
+				}
+			})
 		} catch (error) {
 			console.error('Error editing medicine: ', error);
 			throw new Error('Failed to edit medicine');
@@ -933,6 +958,18 @@ export default class MedicineRepository {
 		}
 	}
 
+	public async editMedicineById(dataMedicine: Medicine) {
+		try {
+			return await this.prisma.medicine.update({
+				where: { id: dataMedicine.id },
+				data: dataMedicine
+			});
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
     public async checkExpiration(startDay: Date, lastDay: Date): Promise<Medicine[]> {
         try {
             return this.prisma.medicine.findMany({
@@ -948,6 +985,19 @@ export default class MedicineRepository {
             throw new Error('Failed to check expiration');
         }
     }
+
+	public async hardDeleteMedicineById(medicineId: number) {
+		try {
+			return this.prisma.medicine.delete({
+				where: {
+					id: medicineId
+				}
+			})
+		} catch (error) {
+			console.error('Error delete medicine by id: ', error);
+			throw new Error('Failed to delete medicine by id');
+		}
+	}
 
 	private async validateMedicineId(medicineId: number, quantity: number) {
 		try {

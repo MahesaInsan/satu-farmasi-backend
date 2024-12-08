@@ -30,6 +30,13 @@ export default interface ReceiveMedicineVO {
             label: string;
             value: string;
         };
+        classifications: {
+            classification: {
+                id: number;
+                label: string;
+                value: string;
+            }
+        }[];
     };
     quantity: number;
     vendor: {

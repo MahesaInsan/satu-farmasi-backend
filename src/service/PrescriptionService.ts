@@ -113,12 +113,9 @@ export default class PrescriptionService{
 
     public async getMostSalesMedicineByPrescription(startDate: Date, lastDate: Date) {
         try {
-            // const prescriptions: Prescription[] = await this.prescriptionRepository.getAllPrescriptionPerMonth(startDate, lastDate);
-            // console.log("prescriptions: ", prescriptions);
-            // const result = await this.prescriptionHasMedicineRepository.getMostSalesMedicineByPrescription(
-            //     prescriptions?.map(prescription => prescription.id)
-            // );
-            const result = await this.prescriptionHasMedicineRepository.getMostSalesMedicineByPrescription(startDate, lastDate)
+            const newStartDate: Date = new Date(startDate);
+            const newLastDate: Date = new Date(lastDate);
+            const result = await this.prescriptionHasMedicineRepository.getMostSalesMedicineByPrescription(newStartDate, newLastDate)
             const data = await Promise.all(
                 result.map(async item => {
                     const medicine = await this.medicineService.getMedicineById(item.medicineId!);
@@ -128,8 +125,8 @@ export default class PrescriptionService{
                     }
                 })
             )
-            console.log(data);
             return data
+            // return result
         } catch (error) {
             console.error(error);
             throw error as string;

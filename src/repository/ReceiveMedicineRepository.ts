@@ -90,6 +90,17 @@ export default class ReceiveMedicineRepository {
                                     value: true
                                 }
                             },
+                            classifications: {
+                                select: {
+                                    classification: {
+                                        select: {
+                                            id: true,
+                                            label: true,
+                                            value: true,
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     quantity: true,
@@ -182,6 +193,17 @@ export default class ReceiveMedicineRepository {
                                     value: true
                                 }
                             },
+                            classifications: {
+                                select: {
+                                    classification: {
+                                        select: {
+                                            id: true,
+                                            label: true,
+                                            value: true,
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     quantity: true,
@@ -209,7 +231,7 @@ export default class ReceiveMedicineRepository {
         }
     }
 
-    public async getLatestReceiveMedicineByMedicineId(medicineId: number): Promise<ReceiveMedicineVO | null> {
+    public async getReceiveMedicineByMedicineId(medicineId: number): Promise<ReceiveMedicineVO | null> {
         try {
             return await this.prisma.receiveMedicine.findFirst({
                 where: {
@@ -250,6 +272,96 @@ export default class ReceiveMedicineRepository {
                                     value: true
                                 }
                             },
+                            classifications: {
+                                select: {
+                                    classification: {
+                                        select: {
+                                            id: true,
+                                            label: true,
+                                            value: true,
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    quantity: true,
+                    vendor: {
+                        select: {
+                            id: true,
+                            name: true,
+                            phoneNum: true,
+                            address: true,
+                            city: true
+                        }
+                    },
+                    buyingPrice: true,
+                    paymentMethod: true,
+                    deadline: true,
+                    isPaid: true,
+                    is_active: true,
+                    created_at: true,
+                    updated_at: true,
+                    reportId: true
+                }
+            })
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async getReceiveMedicineById(receiveMedicineId: number): Promise<ReceiveMedicineVO | null> {
+        try {
+            return await this.prisma.receiveMedicine.findFirst({
+                where: {
+                    id: receiveMedicineId
+                },
+                select: {
+                    id: true,
+                    documentNumber: true,
+                    batchCode: true,
+                    medicine: {
+                        select: {
+                            id: true,
+                            code: true,
+                            name: true,
+                            merk: true,
+                            description: true,
+                            unitOfMeasure: true,
+                            price: true,
+                            expiredDate: true,
+                            currStock: true,
+                            minStock: true,
+                            maxStock: true,
+                            sideEffect: true,
+                            is_active: true,
+                            created_at: true,
+                            updated_at: true,
+                            genericName: {
+                                select: {
+                                    id: true,
+                                    label: true,
+                                    value: true
+                                }
+                            },
+                            packaging: {
+                                select: {
+                                    id: true,
+                                    label: true,
+                                    value: true
+                                }
+                            },
+                            classifications: {
+                                select: {
+                                    classification: {
+                                        select: {
+                                            id: true,
+                                            label: true,
+                                            value: true,
+                                        }
+                                    }
+                                }
+                            }
                         }
                     },
                     quantity: true,
@@ -281,6 +393,31 @@ export default class ReceiveMedicineRepository {
         try {
             return await this.prisma.receiveMedicine.create({
                 data: data
+            })
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async updateReceiveMedicine(data: ReceiveMedicine) {
+        try {
+            return await this.prisma.receiveMedicine.update({
+                where: {
+                    id: data.id
+                },
+                data: data
+            })
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async deleteReceiveMedicine(receiveMedicineId: number) {
+        try {
+            return await this.prisma.receiveMedicine.delete({
+                where: {
+                    id: receiveMedicineId
+                }
             })
         } catch (error) {
             throw error as string;
