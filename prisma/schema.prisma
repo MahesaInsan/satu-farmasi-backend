@@ -205,8 +205,8 @@ model Transaction {
   updated_at     DateTime        @default(now())
   report         MedicineReport? @relation(fields: [reportId], references: [id])
   reportId       Int?
-  physicalReport  PhysicalReport  @relation(fields: [physicalReportId], references: [id])
-  physicalReportId Int           @unique
+  physicalReport  PhysicalReport?  @relation(fields: [physicalReportId], references: [id])
+  physicalReportId Int?            @unique
 }
 
 model ReceiveMedicine {
@@ -240,8 +240,8 @@ model OutputMedicine {
   updated_at      DateTime        @default(now())
   report          MedicineReport? @relation(fields: [reportId], references: [id])
   reportId        Int?
-  physicalReport  PhysicalReport  @relation(fields: [physicalReportId], references: [id])
-  physicalReportId Int            @unique
+  physicalReport  PhysicalReport?  @relation(fields: [physicalReportId], references: [id])
+  physicalReportId Int?            @unique
 }
 
 model MedicineReport {

@@ -2,7 +2,8 @@ import { Builder } from "builder-pattern";
 import AddOutputMedicineRequest from "../../model/request/AddOutputMedicineRequest";
 import EditOutputMedicineRequest from "../../model/request/EditOutputMedicineRequest";
 import DeleteOutputMedicineRequest from "../../model/request/DeleteOutputMedicineRequest";
-import OutputMedicine from "../../entity/OutputMedicine";
+import { OutputMedicine } from "@prisma/client";
+// import OutputMedicine from "../../entity/OutputMedicine";
 
 export default class OutputMedicineHelper {
 
@@ -14,6 +15,7 @@ export default class OutputMedicineHelper {
             .reasonOfDispose(request.reasonOfDispose)
             .is_active(true)
             .created_at(new Date())
+            .physicalReportId(request.physicalReportId)
             .build();
     }
 
@@ -26,6 +28,7 @@ export default class OutputMedicineHelper {
             .reportId(request.reportId)
             .is_active(request.is_active || false)
             .updated_at(new Date())
+            .physicalReportId(request.physicalReportId)
             .build();
     }
 

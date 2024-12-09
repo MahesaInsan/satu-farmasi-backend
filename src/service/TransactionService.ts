@@ -16,6 +16,8 @@ import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
 import ReceiveMedicineService from "./ReceiveMedicineService";
 import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
 import TransactionAnnualRecapVO from "../model/VOs/TransactionAnnualRecapVO";
+import PhysicalReportService from "./PhysicalReportService";
+import PhysicalReportVO from "../model/VOs/PhysicalReportVO";
 
 export default class TransactionService{
     private readonly patientService: PatientService;
@@ -23,6 +25,7 @@ export default class TransactionService{
     private readonly pharmacistService: PharmacistService;
     private readonly receiveMedicineService: ReceiveMedicineService;
     private readonly transactionRepository: TransactionRepository;
+    private readonly physicalReportService: PhysicalReportService;
 
     private transactionSSE: SSEConnection[] = [];
 
@@ -32,6 +35,7 @@ export default class TransactionService{
         this.pharmacistService = new PharmacistService();
         this.receiveMedicineService = new ReceiveMedicineService();
         this.transactionRepository = new TransactionRepository();
+        this.physicalReportService = new PhysicalReportService();
     }
 
     public async createNewTransaction(request: AddTransactionRequest) {
@@ -184,6 +188,8 @@ export default class TransactionService{
             if (transaction !== null) {
                 if (Object.values(PaymentMethod).includes(request.paymentMethod) &&
                         Status.WAITING_FOR_PAYMENT === transaction.prescription.status) {
+                    const physicalReport: PhysicalReportVO = await this.physicalReportService.createPhysicalReport(request.physicalReport);
+                    await this.transactionRepository.updatePhysicalReportById(physicalReport.id, request.id);
                     await this.transactionRepository.updatePaymentMethodById(request.paymentMethod, request.id)
                     await this.prescriptionService.updatePrescriptionStatus(transaction.prescriptionId, Status.ON_PROGRESS)
                     return true;

@@ -12,6 +12,8 @@ import MedicineReportHelper from "./helper/MedicineReportHelper";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
 import MedicineData from "../model/VOs/MedicineDropdownVO";
+import PhysicalReportService from "./PhysicalReportService";
+import PhysicalReportVO from "../model/VOs/PhysicalReportVO";
 
 export default class OutputMedicineService {
     private readonly medicineService: MedicineService;
@@ -19,6 +21,7 @@ export default class OutputMedicineService {
     private readonly outputMedicineHelper: OutputMedicineHelper;
     private readonly reportService: MedicineReportService;
     private readonly reportHelper: MedicineReportHelper;
+    private readonly physicalReportService: PhysicalReportService;
 
     constructor() {
         this.outputMedicineRepository = new OutputMedicineRepository();
@@ -26,6 +29,7 @@ export default class OutputMedicineService {
         this.reportService = new MedicineReportService();
         this.outputMedicineHelper = new OutputMedicineHelper();
         this.medicineService = new MedicineService();
+        this.physicalReportService = new PhysicalReportService();
     }
 
     public async getTotalOutputMedicines(): Promise<number> {
@@ -110,6 +114,9 @@ export default class OutputMedicineService {
             }
 
             outputMedicine.reportId = todayReport.id
+
+            const physicalReport: PhysicalReportVO = await this.physicalReportService.createPhysicalReport(request.physicalReport);
+            outputMedicine.physicalReportId = physicalReport.id;
 
             return await this.outputMedicineRepository.addOutputMedicine(outputMedicine);
         } catch (error) {

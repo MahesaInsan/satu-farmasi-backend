@@ -472,6 +472,7 @@ export default class PrescriptionService{
             await this.medicineService.decreaseStockAndReservedStock(medicine.id, quantityToAssign, quantityToAssign)
             quantityLeftToAssign -= quantityToAssign
         }
+        return finalizedPrescriptionHasMedicineList;
     }
 
 }
