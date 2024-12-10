@@ -18,7 +18,6 @@ import ClassificationRouter from "../router/ClassificationRouter";
 import TransactionRouter from "../router/TransactionRouter";
 import ReceiveMedicineRouter from "../router/ReceiveMedicineRouter";
 import MedicineReportRouter from "../router/MedicineReportRouter";
-import pharmacyRouter from "../router/PharmacyRouter";
 
 export default class App {
     private readonly app: Application;
@@ -62,7 +61,6 @@ export default class App {
         this.app.use("/api/v1/transactions", TransactionRouter);
         this.app.use("/api/v1/receiveMedicines", ReceiveMedicineRouter);
         this.app.use("/api/v1/reports", MedicineReportRouter);
-        this.app.use("/api/v1/pharmacy", pharmacyRouter);
     }
 
     public listen() {

@@ -26,7 +26,7 @@ export default class BaseResponse<T> {
     }
 
     public constructErrorHandler(error: any) {
-        let defaultErrorMsg = !error.message ? "Something is wrong" : error.message;
+        let defaultErrorMsg = "Something is wrong";
         let errors: Array<Object | undefined> = [];
 
         if (error instanceof CustomError) {

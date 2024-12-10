@@ -1,4 +1,4 @@
-import {Medicine, OutputMedicine, ReasonOfDispose} from "@prisma/client";
+import { OutputMedicine, ReasonOfDispose } from "@prisma/client";
 import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
 import OutputMedicineRepository from "../repository/OutputMedicineRepository";
 import OutputMedicineHelper from "./helper/OutputMedicineHelper";
@@ -11,7 +11,6 @@ import MedicineReportService from "./MedicineReportService";
 import MedicineReportHelper from "./helper/MedicineReportHelper";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
-import MedicineData from "../model/VOs/MedicineDropdownVO";
 
 export default class OutputMedicineService {
     private readonly medicineService: MedicineService;
@@ -72,30 +71,7 @@ export default class OutputMedicineService {
     public async addOutputMedicine(request: AddOutputMedicineRequest): Promise<Boolean> {
         try {
             console.log("medicineId: ", request.medicineId)
-            // const medicine = await this.medicineService.getMedicineById(request.medicineId);
-            // let medicineToReserve: Map<number, number> = new Map();
-            // let medicineToBeAssign = 0
-            // if (medicine) {
-            //     medicineToBeAssign = medicine.reservedStock - (medicine.currStock - request.quantity)
-            //     console.log(`${medicineToBeAssign} = ${medicine.reservedStock} - (${medicine.currStock} - ${request.quantity})`);
-            //     if (medicineToBeAssign > 0) {
-            //         const medicineList = await this.medicineService.getAndMapMedicineListByMedicineCode([medicine.code])
-            //         medicineToReserve = await this.updateReservedMedicine(request.medicineId, medicineToBeAssign, request.quantity,
-            //             medicine.code, medicineList, false)
-            //     }
-            // } else throw new Error("Medicine not found");
-            //
-            // await this.medicineService.decreaseStockAndReservedStock(request.medicineId, request.quantity,
-            //     medicineToBeAssign > 0 ? medicineToBeAssign : 0);
-            // console.log(Array.from(medicineToReserve.keys()).length > 0)
-            // if (Array.from(medicineToReserve.keys()).length > 0) {
-            //     await Promise.all(
-            //         Array.from(medicineToReserve.entries())?.map(([key, value]) =>
-            //             this.medicineService.increaseReservedMedicine(key, value)
-            //         )
-            //     );
-            // }
-            await this.updateMedicineCurrStockAndReserved(0, request.quantity, request.medicineId)
+            await this.medicineService.decreaseMedicineStock(request.medicineId, request.quantity);
             const outputMedicine: OutputMedicine = this.outputMedicineHelper.createOutputMedicine(request);
             const matchedReason = this.outputMedicineRepository.validReasonOfDispose(request.reasonOfDispose);
             request.reasonOfDispose = matchedReason as ReasonOfDispose
@@ -119,8 +95,7 @@ export default class OutputMedicineService {
 
     public async editOutputMedicine(request: EditOutputMedicineRequest): Promise<Boolean> {
         try {
-            // await this.medicineService.updateMedicineStock(request.oldQuantity, request.quantity, request.medicineId);
-            await this.updateMedicineCurrStockAndReserved(request.oldQuantity, request.quantity, request.medicineId)
+            await this.medicineService.updateMedicineStock(request.oldQuantity, request.quantity, request.medicineId);
             const matchedReason: string | undefined = this.outputMedicineRepository.validReasonOfDispose(request.reasonOfDispose);
             request.reasonOfDispose = matchedReason as ReasonOfDispose
             const outputMedicine: OutputMedicine = this.outputMedicineHelper.editOutputMedicine(request);
@@ -132,120 +107,11 @@ export default class OutputMedicineService {
 
     public async deleteOutputMedicine(request: DeleteOutputMedicineRequest): Promise<Boolean> {
         try {
-            // const medicine = await this.medicineService.getMedicineById(request.medicineId);
-            // let medicineToReserve: Map<number, number> = new Map();
-            // if (medicine) {
-            //     const medicineList = await this.medicineService.getAndMapMedicineListByMedicineCode([medicine.code])
-            //     console.log(medicineList)
-            //     const quantityNotAssign = await this.reassignReservedMedicine(request.quantity, medicine.code, medicineList)
-            //     medicineToReserve = await this.updateReservedMedicine(request.medicineId, request.quantity - quantityNotAssign, request.quantity,
-            //         medicine.code, medicineList, true)
-            // } else throw new Error("Medicine not found");
-            //
-            // await this.medicineService.increaseMedicineStock(request.medicineId, request.quantity);
-            // await Promise.all(
-            //     Array.from(medicineToReserve.entries()).map(([key, value]) =>
-            //         this.medicineService.increaseReservedMedicine(key, value)
-            //     )
-            // );
-            await this.updateMedicineCurrStockAndReserved(request.quantity, 0, request.medicineId)
+            await this.medicineService.increaseMedicineStock(request.medicineId, request.quantity);
             const outputMedicine: OutputMedicine = this.outputMedicineHelper.deleteOutputMedicine(request);
             return await this.outputMedicineRepository.deleteOutputMedicine(outputMedicine.id);
         } catch (error) {
 			throw error as string;
-        }
-    }
-
-    private async updateReservedMedicine(medicineId: number, quantityToBeAssign: number, quantityChange: number, code: string,
-                                         medicinesByMedicineCode: Map<string, MedicineData[]>, isDelete: boolean) {
-        let quantityLeftToUpdate = quantityToBeAssign;
-        let medicineToReserve: Map<number, number> = new Map<number, number>()
-
-        for (const medicine of medicinesByMedicineCode.get(code)!) {
-            console.log(quantityLeftToUpdate)
-            if (quantityLeftToUpdate === 0) {
-                break;
-            }
-            if (medicine.id === medicineId) {
-                if (isDelete) {
-                    medicine.currStock += quantityChange
-                } else medicine.currStock -= quantityChange
-            }
-
-            const medicineStockCanBeAssign = medicine.currStock - medicine.reservedStock
-            if (medicineStockCanBeAssign > 0) {
-                console.log(quantityLeftToUpdate, medicine)
-                const stockAssign = Math.min(medicineStockCanBeAssign, quantityLeftToUpdate)
-                medicineToReserve.set(medicine.id, stockAssign)
-                quantityLeftToUpdate -= stockAssign
-            }
-        }
-
-        if (quantityLeftToUpdate > 0) {
-            throw new Error("Medicine are used by ongoing prescription please edit prescription before deleting")
-        } else return medicineToReserve
-    }
-
-    private async reassignReservedMedicine (quantity: number, code: string,
-                                            medicinesByMedicineCode: Map<string, MedicineData[]>): Promise<number> {
-        let quantityLeftToUpdate = quantity;
-        for (const medicine of [...medicinesByMedicineCode.get(code)!].reverse()) {
-            if (quantityLeftToUpdate === 0) {
-                break;
-            }
-            if (medicine.reservedStock > 0) {
-                const stockAssign = Math.min(medicine.reservedStock, quantityLeftToUpdate)
-                await this.medicineService.decreaseReservedMedicine(medicine.id, stockAssign)
-                medicine.reservedStock -= stockAssign
-                quantityLeftToUpdate -= stockAssign
-            }
-        }
-        return quantityLeftToUpdate
-    }
-
-    public async updateMedicineCurrStockAndReserved(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineId: number) {
-        try {
-            const updatedQuantity = Math.abs(oldPrescriptionQuantity - newPrescriptionQuantity)
-            const medicine = await this.medicineService.getMedicineById(medicineId);
-            let medicineToReserve: Map<number, number> = new Map();
-
-            if (newPrescriptionQuantity > oldPrescriptionQuantity) {
-                console.log(`Higher ${newPrescriptionQuantity} > ${oldPrescriptionQuantity}`)
-                let medicineToBeAssign = 0
-                if (medicine) {
-                    medicineToBeAssign = medicine.reservedStock - (medicine.currStock - updatedQuantity)
-                    console.log(`${medicineToBeAssign} = ${medicine.reservedStock} - (${medicine.currStock} - ${updatedQuantity})`);
-                    if (medicineToBeAssign > 0) {
-                        const medicineList = await this.medicineService.getAndMapMedicineListByMedicineCode([medicine.code])
-                        medicineToReserve = await this.updateReservedMedicine(medicineId, medicineToBeAssign, updatedQuantity,
-                            medicine.code, medicineList, false)
-                    }
-                } else throw new Error("Medicine not found");
-
-                await this.medicineService.decreaseStockAndReservedStock(medicineId, updatedQuantity,
-                    medicineToBeAssign > 0 ? medicineToBeAssign : 0);
-
-            } else if (newPrescriptionQuantity < oldPrescriptionQuantity) {
-                console.log(`Lower ${newPrescriptionQuantity} < ${oldPrescriptionQuantity}`)
-                if (medicine) {
-                    const medicineList = await this.medicineService.getAndMapMedicineListByMedicineCode([medicine.code])
-                    console.log(medicineList)
-                    const quantityNotAssign = await this.reassignReservedMedicine(updatedQuantity, medicine.code, medicineList)
-                    medicineToReserve = await this.updateReservedMedicine(medicineId, updatedQuantity - quantityNotAssign, updatedQuantity,
-                        medicine.code, medicineList, true)
-                } else throw new Error("Medicine not found");
-
-                await this.medicineService.increaseMedicineStock(medicineId, updatedQuantity);
-            }
-
-            console.log(Array.from(medicineToReserve.keys()).length > 0)
-            await Promise.all(
-                Array.from(medicineToReserve.entries()).map(([key, value]) =>
-                    this.medicineService.increaseReservedMedicine(key, value)
-                )
-            );
-        } catch (error) {
-            throw error as object;
         }
     }
 }

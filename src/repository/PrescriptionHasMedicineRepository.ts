@@ -63,40 +63,6 @@ export default class PrescriptionHasMedicineRepository{
         }
     }
 
-    public async getSoldCountMedicineByCode(medicineCodeList: string[], startDate: Date, lastDate: Date) {
-        try {
-            console.log(medicineCodeList, startDate, lastDate)
-            return await this.prisma.prescriptionHasMedicine.groupBy({
-                by: ["medicineCode"],
-                _sum: {
-                    quantity: true,
-                },
-                where: {
-                    AND: [
-                        {
-                          medicineCode: {
-                              in: medicineCodeList
-                          }
-                        },
-                        {
-                            draft: false
-                        },
-                        {
-                            prescription: {
-                                created_at: {
-                                    gte: startDate,
-                                    lte: lastDate,
-                                }
-                            }
-                        }
-                    ]
-                }
-            })
-        } catch (error) {
-            throw error as string
-        }
-    }
-
     public async deleteWherePrescriptionIdAndInId(prescriptionId: number, idList: number[]) {
         try {
             return await this.prisma.prescriptionHasMedicine.deleteMany({
