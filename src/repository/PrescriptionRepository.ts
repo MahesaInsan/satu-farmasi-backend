@@ -118,7 +118,7 @@ export default class PrescriptionRepository{
                         }
                     }
                 }
-            }).then(result => result as PrescriptionDetailVO | null)
+            }) as Promise<PrescriptionDetailVO | null>
         } catch (error){
             throw error as string
         }

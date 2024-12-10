@@ -266,7 +266,7 @@ const seedPrescriptionHasMedicine = async (seed: SeedClient, amount: number = 1)
             quantity: 10,
             instruction: faker.lorem.words({ min: 5, max: 10 }),
             totalPrice: Number(medicine[data.index].price) * 10,
-            draft: Math.random() < 0.5
+            draft: false
         }))
     );
     console.log("Prescription has medicine seeded successfully!")

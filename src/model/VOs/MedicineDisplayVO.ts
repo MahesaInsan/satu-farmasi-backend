@@ -32,5 +32,7 @@ export default interface MedicineDisplayVO {
             label: string;
             value: string;
         }
-    }[];
+    }[]
+    lowStock?: boolean;
+    recommendedRestock?: number;
 }

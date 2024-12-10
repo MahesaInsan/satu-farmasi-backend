@@ -50,13 +50,16 @@ export default class TransactionRepository{
         }
     }
 
-    public async countTransaction(patientName: string | undefined): Promise<number>{
+    public async countTransaction(patientName: string | undefined, status: Status | undefined): Promise<number>{
         try {
             return this.prisma.transaction.count({
                 where: {
                     is_active: true,
                     patient: {
                         name: patientName
+                    },
+                    prescription: {
+                        status: status
                     }
                 }
             })
@@ -65,7 +68,8 @@ export default class TransactionRepository{
         }
     }
 
-    public async getAllTransaction(patientName: string | undefined, startIndex: number, limit: number): Promise<TransactionSummaryVO[]>{
+    public async getAllTransaction(patientName: string | undefined, status: Status | undefined,
+                                   startIndex: number, limit: number): Promise<TransactionSummaryVO[]>{
         try {
             return this.prisma.transaction.findMany({
                 where: {
@@ -75,6 +79,9 @@ export default class TransactionRepository{
                             contains: patientName,
                             mode: 'insensitive'
                         }
+                    },
+                    prescription: {
+                        status: status
                     }
                 },
                 select: {
@@ -156,7 +163,7 @@ export default class TransactionRepository{
                         }
                     },
                 }
-            }).then(result => result as TransactionDetailVO | null)
+            }) as Promise<TransactionDetailVO>
         } catch (error) {
             throw error as string
         }
