@@ -330,7 +330,8 @@ export default class MedicineRepository {
 				data: {
 					currStock: {
 						increment: quantity
-					}
+					},
+                    is_active: true
 				}
 			})
 		} catch (error) {
@@ -515,6 +516,7 @@ export default class MedicineRepository {
 					currStock: true,
 					minStock: true,
 					maxStock: true,
+                    reservedStock: true,
 					sideEffect: true,
 					is_active: true,
 					created_at: true,
@@ -570,7 +572,7 @@ WITH flattened_classifications AS (
           MAX("unitOfMeasure") AS "unitOfMeasure",
           MAX("price") AS "price",
           MAX("expiredDate") AS "expiredDate",
-          SUM("currStock") AS "currStock",
+          CAST(SUM("currStock") AS INTEGER) AS "currStock",
           MAX("reservedStock") AS "reservedStock",
           MAX("minStock") AS "minStock",
           MAX("maxStock") AS "maxStock",
@@ -591,7 +593,7 @@ WITH flattened_classifications AS (
               MAX(m."unitOfMeasure") AS "unitOfMeasure",
               MAX(m."price") AS "price",
               MAX(m."expiredDate") AS "expiredDate",
-              SUM(m."currStock") AS "currStock",
+              CAST(SUM("currStock") AS INTEGER) AS "currStock",
               MAX(m."reservedStock") AS "reservedStock",
               MAX(m."minStock") AS "minStock",
               MAX(m."maxStock") AS "maxStock",
@@ -698,6 +700,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 					description: true,
 					unitOfMeasure: true,
 					price: true,
+                    reservedStock: true,
 					expiredDate: true,
 					currStock: true,
 					minStock: true,
@@ -768,6 +771,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 					currStock: true,
 					minStock: true,
 					maxStock: true,
+                    reservedStock: true,
 					sideEffect: true,
 					is_active: true,
 					created_at: true,
@@ -839,6 +843,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 					currStock: true,
 					minStock: true,
 					maxStock: true,
+                    reservedStock: true,
 					sideEffect: true,
 					is_active: true,
 					created_at: true,
@@ -893,6 +898,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 					currStock: true,
 					minStock: true,
 					maxStock: true,
+                    reservedStock: true,
 					sideEffect: true,
 					is_active: true,
 					created_at: true,

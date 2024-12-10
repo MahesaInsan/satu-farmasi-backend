@@ -88,9 +88,9 @@ export default class ReceiveMedicineService {
             } else { // existing medicine
                 const request: ReceiveMedicine = this.constructAddReceiveMedicine(data)
                 const validation: boolean = await this.isQuantityStockEnable(data.medicineRequest.code, data.quantity);
-                //if (!validation) {
-                //    throw new Error("Error: Jumlah stok melebih maksimum stok!");
-                //}
+                if (!validation) {
+                    throw new Error("Error: Jumlah stok melebih maksimum stok!");
+                }
                 return this.medicineService.createMedicine(data.medicineRequest)
                     .then(async (newMedicine: MedicineDisplayVO) => {
                         request.medicineId = newMedicine.id;
@@ -193,8 +193,11 @@ export default class ReceiveMedicineService {
             const summaryMedicine = await this.medicineService.getMedicineSummaryByCode(0, 1, medicineCode, "code", "asc");
             console.log("summaryMedicine: ", summaryMedicine);
             for (let i = 0; i < summaryMedicine.length; i++) {
-                if (summaryMedicine[i].currStock + quantity > summaryMedicine[i].maxStock 
-                    || quantity > summaryMedicine[i].maxStock) {
+                console.log("currStock: ", summaryMedicine[i].currStock);
+                console.log("maxStock", summaryMedicine[i].maxStock);
+                console.log("quantity", quantity);
+                if (summaryMedicine[i].currStock + quantity > summaryMedicine[i].maxStock) {
+                    console.log("reutrn false")
                     return false;
                 }
             }

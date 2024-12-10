@@ -53,7 +53,7 @@ export default class TransactionService{
             const newTransaction = Builder<Transaction>()
                 .patientId(request.patientId)
                 .prescriptionId(request.prescriptionId)
-                .userId(1)
+                .pharmacistId(1)
                 .totalPrice(totalPrice)
                 .is_active(true)
                 .created_at(request.created_at || new Date())

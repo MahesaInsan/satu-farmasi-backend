@@ -14,7 +14,6 @@ export default class PharmacistController extends BaseController{
 
     async addPharmacist(req: Request, res: Response){
         try{
-            console.log("req from pharmacist: ", req.body)
             this.validateData(req);
             const request: AddPharmacistRequest = req.body;
             const createdPharmacist: boolean = await this.pharmacistService.addPharmacist(request)

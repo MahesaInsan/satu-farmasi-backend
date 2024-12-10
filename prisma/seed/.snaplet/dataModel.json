@@ -1128,7 +1128,7 @@
           "name": "physicalReportId",
           "columnName": "physicalReportId",
           "type": "int4",
-          "isRequired": true,
+          "isRequired": false,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -1176,7 +1176,7 @@
         {
           "name": "PhysicalReport",
           "type": "PhysicalReport",
-          "isRequired": true,
+          "isRequired": false,
           "kind": "object",
           "relationName": "OutputMedicineToPhysicalReport",
           "relationFromFields": [
@@ -2356,9 +2356,9 @@
           "maxLength": null
         },
         {
-          "id": "public.Transaction.userId",
-          "name": "userId",
-          "columnName": "userId",
+          "id": "public.Transaction.pharmacistId",
+          "name": "pharmacistId",
+          "columnName": "pharmacistId",
           "type": "int4",
           "isRequired": true,
           "kind": "scalar",
@@ -2458,7 +2458,7 @@
           "name": "physicalReportId",
           "columnName": "physicalReportId",
           "type": "int4",
-          "isRequired": true,
+          "isRequired": false,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
@@ -2506,7 +2506,7 @@
         {
           "name": "PhysicalReport",
           "type": "PhysicalReport",
-          "isRequired": true,
+          "isRequired": false,
           "kind": "object",
           "relationName": "TransactionToPhysicalReport",
           "relationFromFields": [
@@ -2546,7 +2546,7 @@
           "kind": "object",
           "relationName": "TransactionToUser",
           "relationFromFields": [
-            "userId"
+            "pharmacistId"
           ],
           "relationToFields": [
             "id"
