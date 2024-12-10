@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
 import BaseRequest from "../model/request/BaseRequest/BaseRequest";
 import BaseMiddleware from "./BaseMiddleware/BaseMiddleware";
 import { JwtPayload } from "jsonwebtoken";
@@ -38,13 +38,21 @@ export default class AuthMiddleware extends BaseMiddleware {
             req.user = decoded;
             next();
         } catch (err) {
+            if (err instanceof TokenExpiredError) {
+                console.log("expired token time: ", err.expiredAt);
+                return res.status(401).send({
+                    message: "Token has expired",
+                    expiredAt: err.expiredAt, 
+                });
+            }
             console.error("error when authenticate token", err);
-            res.status(400).send('Invalid Token.');
         }
     }
 
     public hasPermission(req: BaseRequest, res: Response, next: NextFunction, role: string) {
         console.log("req.user", req.user);
+        console.log("role", role);
+        console.log((req.user as JwtPayload)?.role !== role);
         if ((req.user as JwtPayload)?.role !== role) 
             return res .status(403) .send(this.responseHelper.constructUnAuthorizedRequest(
                 new Error("Access Denied. Insufficient Permissions."

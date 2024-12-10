@@ -39,7 +39,8 @@ export default class GenericNameController  extends BaseController {
 
     async getGenericNameDropdown(req: Request, res: Response) {
         try {
-            const genericName: GenericDropdownVO[] = await this.genericNameService.getGenericNameDropdown();
+            const medicineCode: string | null = req.query.medicineCode as string;
+            const genericName: GenericDropdownVO[] = await this.genericNameService.getGenericNameDropdown(medicineCode);
             return res.status(200).send(new BaseResponse().ok(genericName));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

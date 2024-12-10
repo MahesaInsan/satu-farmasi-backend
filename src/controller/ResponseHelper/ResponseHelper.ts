@@ -24,6 +24,7 @@ export default class ResponseHelper {
         return Builder<LoginResponse>()
             .firstName(user.firstName)
             .lastName(user.lastName)
+            .email(user.email)
             .role(user.role)
             .token(token)
             .build();

@@ -37,12 +37,14 @@ export default class DoctorRepository extends BaseRepository {
 
     public async getDoctorByEmail(email: string): Promise<User | null> {
         try {
-            return await this.Prisma.user.findUnique({
-                where: { email: email },
+            const doctor: User | null =  await this.Prisma.user.findUnique({
+                where: { email: email, role: "DOCTOR" },
             });
+            if (doctor && !doctor.is_active) throw new CustomError().formatError("Akun sudah tidak aktif lagi", "custom");
+            return doctor
         } catch (error) {
             console.error("Error getting doctor by email:", error);
-            throw new Error("Failed to get doctor");
+            throw error;
         }
     }
 

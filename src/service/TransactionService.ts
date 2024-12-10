@@ -41,10 +41,10 @@ export default class TransactionService{
             const newTransaction = Builder<Transaction>()
                 .patientId(request.patientId)
                 .prescriptionId(request.prescriptionId)
-                .pharmacistId(1)
+                .userId(1)
                 .totalPrice(totalPrice)
                 .is_active(true)
-                .created_at(new Date())
+                .created_at(request.created_at || new Date())
                 .updated_at(new Date())
                 .build();
             await this.prescriptionService.changeDraftPrescriptionToFinalizedPrescription(tuple[1].id)
@@ -240,8 +240,11 @@ export default class TransactionService{
 
     private async calculateTotalPrice(prescription: PrescriptionDetailVO): Promise<Prisma.Decimal>{
         try {
-            return prescription.medicineList
+            console.log("prescription.medicineList", prescription.medicineList)
+            const test =  prescription.medicineList
                 .reduce((total: Prisma.Decimal, medicine) => Prisma.Decimal.add(total, medicine.totalPrice), new Prisma.Decimal(0))
+            console.log("test", test)
+            return test;
         } catch (error) {
             throw error as string;
         }

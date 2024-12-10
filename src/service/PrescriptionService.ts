@@ -68,8 +68,10 @@ export default class PrescriptionService{
                 if (result && result.medicineList) {
                     console.log("this is draft")
                     console.log("rees:", result)
+                    console.log("prescription medicine: ", result.medicineList)
                     draftMedicineList = await Promise.all(
                         result.medicineList.map(async (prescribedMedicine) => {
+                            console.log("prescribedMedicine: ", prescribedMedicine)
                             const medicineData = await this.medicineService.getMedicineByCode(prescribedMedicine.medicineCode)
                             if (medicineData) {
                                 return this.constructDraftMedicineList(prescribedMedicine, medicineData)
@@ -79,6 +81,7 @@ export default class PrescriptionService{
                     );
 
                     draftPrescription.medicineList = draftMedicineList
+                    console.log("draftPrescription: ", draftPrescription.medicineList)
                     return draftPrescription
                 }
                 new Error("Medicine list is undefined")
@@ -139,7 +142,7 @@ export default class PrescriptionService{
                 .patientId(request.patient.patientId)
                 .status(Status.UNPROCESSED)
                 .is_active(true)
-                .created_at(new Date())
+                .created_at(request.created_at || new Date())
                 .updated_at(new Date())
                 .build();
             return await this.prescriptionRepository.createNewPrescription(newPrescription)
@@ -268,9 +271,13 @@ export default class PrescriptionService{
             const prescription = tuple[0]
             const prescriptionHasMedicine = tuple[1]
 
+
+            console.log("medicineData: ", medicineData)
             let finalPrescriptionHasMedicine= await Promise.all(
                 prescriptionHasMedicine.map(async prescriptionHasMedicine => {
+                    console.log("prescriptionHasMedicine: ", prescriptionHasMedicine)
                     if (medicineData.get(prescriptionHasMedicine.medicineCode)) {
+                        console.log("medicinedata.get: ", medicineData.get(prescriptionHasMedicine.medicineCode)!)
                         return this.constructFinalizedPrescriptionHasMedicineAndUpdateStock(prescription.id,
                             medicineData.get(prescriptionHasMedicine.medicineCode)!, prescriptionHasMedicine.quantity,
                             prescriptionHasMedicine)
@@ -279,6 +286,7 @@ export default class PrescriptionService{
             )
 
             if (finalPrescriptionHasMedicine.length > 0) {
+                console.log("finalPrescriptionHasMedicine: ", finalPrescriptionHasMedicine)
                 await Promise.all([
                     this.prescriptionRepository.updatePrescriptionStatusById(Status.WAITING_FOR_PAYMENT, tuple[0].id),
                     this.prescriptionHasMedicineRepository.createPrescriptionHasMedicine(finalPrescriptionHasMedicine
@@ -403,7 +411,7 @@ export default class PrescriptionService{
             .medicineCode(prescribeMedicineRequest.code)
             .quantity(prescribeMedicineRequest.quantity)
             .instruction(prescribeMedicineRequest.instruction)
-            .totalPrice(new Prisma.Decimal(Number(prescribeMedicineRequest.price) * prescribeMedicineRequest.quantity))
+            .totalPrice(new Prisma.Decimal(Number(prescribeMedicineRequest.price)))
             .draft(true)
             .build();
     }
@@ -456,12 +464,18 @@ export default class PrescriptionService{
             .build()
     }
 
+    // FIX: deon't return anyting
     private async constructFinalizedPrescriptionHasMedicineAndUpdateStock(prescriptionId: number, medicineByCodeList: MedicineData[],
                                                                           quantity: number, prescriptionHasMedicine: PrescriptionHasMedicine) {
         let quantityLeftToAssign = quantity;
         const finalizedPrescriptionHasMedicineList: PrescriptionHasMedicine[] = [];
+        console.log("quantityLeftToAssign: ", quantityLeftToAssign)
+        console.log("medicineByCodeList: ", medicineByCodeList)
         for (const medicine of medicineByCodeList) {
+            console.log("medicine here: ", medicine)
             if (quantityLeftToAssign <= 0) {
+                console.log("quantityLeftToAssign: ", quantityLeftToAssign)
+                console.log("finalizedPrescriptionHasMedicineList: ", finalizedPrescriptionHasMedicineList)
                 return finalizedPrescriptionHasMedicineList
             }
             const quantityToAssign = Math.min(quantityLeftToAssign, medicine.reservedStock);
@@ -472,6 +486,8 @@ export default class PrescriptionService{
             await this.medicineService.decreaseStockAndReservedStock(medicine.id, quantityToAssign, quantityToAssign)
             quantityLeftToAssign -= quantityToAssign
         }
+        return finalizedPrescriptionHasMedicineList
     }
+
 
 }

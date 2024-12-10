@@ -88,9 +88,9 @@ export default class ReceiveMedicineService {
             } else { // existing medicine
                 const request: ReceiveMedicine = this.constructAddReceiveMedicine(data)
                 const validation: boolean = await this.isQuantityStockEnable(data.medicineRequest.code, data.quantity);
-                if (!validation) {
-                    throw new Error("Error: Jumlah stok melebih maksimum stok!");
-                }
+                //if (!validation) {
+                //    throw new Error("Error: Jumlah stok melebih maksimum stok!");
+                //}
                 return this.medicineService.createMedicine(data.medicineRequest)
                     .then(async (newMedicine: MedicineDisplayVO) => {
                         request.medicineId = newMedicine.id;

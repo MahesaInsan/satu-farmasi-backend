@@ -4,12 +4,16 @@ import PackagingRepository from "../repository/PackagingRepository";
 import AddPackagingRequest from "../model/request/AddPackagingRequest";
 import EditPackagingRequest from "../model/request/EditPackagingRequest";
 import PackagingDropdownVO from "../model/VOs/PackagingDropdownVO";
+import MedicineRepository from "../repository/MedicineRepository";
+import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
 
 export default class PackagingService {
     private readonly packagingRepository: PackagingRepository;
+    private readonly medicineRepository: MedicineRepository;
 
     constructor() {
         this.packagingRepository = new PackagingRepository();
+        this.medicineRepository = new MedicineRepository();
     }
 
     public async createPackaging(request: AddPackagingRequest): Promise<boolean> {
@@ -46,9 +50,16 @@ export default class PackagingService {
         }
     }
 
-    public async getPackagingsDropdown(): Promise<PackagingDropdownVO[]> {
+    public async getPackagingsDropdown(medicineCode?: string): Promise<PackagingDropdownVO[]> {
         try {
-            return await this.packagingRepository.getPackagingsDropdown();
+            let packagingId: number | undefined;
+            if (medicineCode) {
+                const medicine: MedicineDisplayVO | null = await this.medicineRepository.getMedicineByCode(medicineCode);
+                if (medicine) {
+                    packagingId  = medicine.packaging.id;
+                }
+            }
+            return await this.packagingRepository.getPackagingsDropdown(packagingId);
         } catch (error) {
             throw error as string;
         }

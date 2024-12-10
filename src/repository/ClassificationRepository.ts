@@ -124,10 +124,15 @@ export default class ClassificationRepository extends BaseRepository {
 		}
 	}
 
-	public async getClassificationsDropdown(): Promise<Classification[]> {
+	public async getClassificationsDropdown(classificationId?: number[]): Promise<Classification[]> {
 		try {
 			return await this.Prisma.classification.findMany({
-				where: { is_active: true },
+				where: {
+                    OR: [
+                        { is_active: true },
+                        { id: { in: classificationId } },
+                    ]
+                },
 				orderBy: [
 					{ updated_at: 'desc' },
 					{ created_at: 'desc' },

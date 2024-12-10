@@ -167,8 +167,8 @@ model Transaction {
   patientId      Int
   prescription   Prescription    @relation(fields: [prescriptionId], references: [id])
   prescriptionId Int             @unique
-  pharmacist     Pharmacist      @relation(fields: [pharmacistId], references: [id])
-  pharmacistId   Int
+  pharmacist     User            @relation(fields: [userId], references: [id])
+  userId   Int
   paymentMethod  PaymentMethod?
   totalPrice     Decimal
   is_active      Boolean
@@ -176,8 +176,8 @@ model Transaction {
   updated_at     DateTime        @default(now())
   report         MedicineReport? @relation(fields: [reportId], references: [id])
   reportId       Int?
-  physicalReport  PhysicalReport  @relation(fields: [physicalReportId], references: [id])
-  physicalReportId Int           @unique
+//  physicalReport  PhysicalReport  @relation(fields: [physicalReportId], references: [id])
+//  physicalReportId Int           @unique
 }
 
 model ReceiveMedicine {
@@ -211,8 +211,8 @@ model OutputMedicine {
   updated_at      DateTime        @default(now())
   report          MedicineReport? @relation(fields: [reportId], references: [id])
   reportId        Int?
-  physicalReport  PhysicalReport  @relation(fields: [physicalReportId], references: [id])
-  physicalReportId Int            @unique
+//  physicalReport  PhysicalReport  @relation(fields: [physicalReportId], references: [id])
+ // physicalReportId Int            @unique
 }
 
 model MedicineReport {
@@ -241,8 +241,8 @@ model PhysicalReport {
   id               Int               @id @default(autoincrement())
   data             Json
   created_at       DateTime
-  transaction      Transaction?
-  outputMedicine   OutputMedicine?
+//  transaction      Transaction?
+//  outputMedicine   OutputMedicine?
 }
 
 enum Role {

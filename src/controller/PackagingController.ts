@@ -52,7 +52,8 @@ export default class PackagingController extends BaseController {
 
     public async getPackagingsDropdown(req: Request, res: Response) {
         try {
-            const packagings: PackagingDropdownVO[] = await this.packagingService.getPackagingsDropdown();
+            const medicineCode: string | null = req.query.medicineCode as string;
+            const packagings: PackagingDropdownVO[] = await this.packagingService.getPackagingsDropdown(medicineCode);
             return res.status(200).send(new BaseResponse().ok(packagings));
         } catch (error) {
             console.log("[src][controller][PackagingController][getPackagingsDropdown] ", error);

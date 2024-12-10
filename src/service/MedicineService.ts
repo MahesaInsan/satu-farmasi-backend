@@ -234,12 +234,17 @@ export default class MedicineService {
 
 	public async createMedicine(request: AddMedicineRequest): Promise<MedicineDisplayVO> {
 		try {
-			const oldMedicine: MedicineDisplayVO | null = await this.getMedicineByCode(request.code);
+            let oldMedicine: MedicineDisplayVO | null = null;
+            if (request.code) {
+			    oldMedicine = await this.getMedicineByCode(request.code);
+            }
 
 			request.code = !oldMedicine
 				? await this.generateMedicineCode(request.genericNameId)
 				: request.code;
 
+            console.log("currStock: ", request.currStock)
+            console.log("maxStock", request.maxStock)
 			if (request.currStock > request.maxStock) {
 				throw new Error("Error: jumlah stok melebihi jumlah maksimum stok!")
 			}

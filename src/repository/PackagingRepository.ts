@@ -67,10 +67,15 @@ export default class PackagingRepository {
 		}
 	}
 
-	public async getPackagingsDropdown(): Promise<PackagingDropdownVO[]> {
+	public async getPackagingsDropdown(packagingId?: number): Promise<PackagingDropdownVO[]> {
 		try {
 			return await this.prisma.packaging.findMany({
-				where: { is_active: true },
+				where: {
+                    OR: [
+                        { is_active: true },
+                        { id: packagingId },
+                    ],
+                },
 				select: {
 					id: true,
 					label: true,

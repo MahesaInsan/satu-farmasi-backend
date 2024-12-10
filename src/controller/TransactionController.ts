@@ -35,6 +35,7 @@ export default class TransactionController extends BaseController{
             const patientName = req.query.name as string | undefined
             const totalData = await this.transactionService.countTransaction(patientName)
             const pagination = this.getPagination(totalData, req)
+            // TODO: handle if satus filter is available in the query
             pagination.results = await this.transactionService.getTransactionSummary(pagination, patientName)
             pagination.total = totalData
             res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)))

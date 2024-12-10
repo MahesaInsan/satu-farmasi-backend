@@ -73,7 +73,8 @@ export default class ClassificationController extends BaseController {
 
 	async getClassificationsDropdown(req: Request, res: Response) {
 		try {
-			const classifications = await this.classificationService.getClassificationsDropdown();
+            const medicineCode: string | null = req.query.medicineCode as string;
+			const classifications = await this.classificationService.getClassificationsDropdown(medicineCode);
 			res.status(200).send(new BaseResponse().ok(classifications));
 		} catch (error) {
 			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
