@@ -53,8 +53,6 @@ export default class ValidationHelper {
             } else quantityByMedicineCode.set(phm.medicineCode, phm.quantity)
         }
 
-        let medicineRequestList: string[]
-
         request.medicineList.forEach((medicineRequest) => {
             if (!indexByMedicineCode.has(medicineRequest.code)) {
                 throw new Error("Medicine is not found")
@@ -62,14 +60,8 @@ export default class ValidationHelper {
             if (medicineRequest.quantity < 1) {
                 throw new Error("Quantity must be greater than 0")
             }
-
             const medicineValidation: MedicineData = medicineListValidation[indexByMedicineCode.get(medicineRequest.code)!]
-            const medicineStockLeft = medicineValidation.currStock - medicineValidation.reservedStock
-
-            if (medicineRequestList.includes(medicineRequest.code)) {
-                throw new Error("Medicine chosen cannot be duplicate")
-            } else medicineRequestList.push(medicineRequest.code)
-            if (prescriptionHasMedicine.length === 0 && (medicineStockLeft - medicineRequest.quantity < 0)) {
+            if (prescriptionHasMedicine.length === 0 && medicineValidation.currStock - medicineRequest.quantity < 0) {
                 throw new Error("Insufficient medicine stock")
             }
             if (prescriptionHasMedicine.length > 0) {

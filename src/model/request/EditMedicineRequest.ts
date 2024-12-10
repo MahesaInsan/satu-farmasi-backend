@@ -11,7 +11,9 @@ export default class EditMedicineRequest {
     private _description: string;
     private _unitOfMeasure: UnitOfMeasure;
     private _price: Decimal;
+    private _expiredDate: Date;
     private _packagingId: number;
+    private _currStock: number;
     private _minStock: number;
     private _maxStock: number;
     private _sideEffect: string;
@@ -49,7 +51,9 @@ export default class EditMedicineRequest {
         this._description = description;
         this._unitOfMeasure = unitOfMeasure;
         this._price = price;
+        this._expiredDate = expiredDate;
         this._packagingId = packagingId;
+        this._currStock = currStock;
         this._minStock = minStock;
         this._maxStock = maxStock;
         this._sideEffect = sideEffect;
@@ -91,8 +95,16 @@ export default class EditMedicineRequest {
         return this._price;
     }
 
+    get expiredDate(): Date {
+        return this._expiredDate;
+    }
+
     get packagingId(): number {
         return this._packagingId;
+    }
+
+    get currStock(): number {
+        return this._currStock;
     }
 
     get minStock(): number {
@@ -155,8 +167,16 @@ export default class EditMedicineRequest {
         this._price = price;
     }
 
+    set expiredDate(expiredDate: Date) {
+        this._expiredDate = expiredDate;
+    }
+
     set packagingId(packagingId: number) {
         this._packagingId = packagingId;
+    }
+
+    set currStock(currStock: number) {
+        this._currStock = currStock;
     }
 
     set minStock(minStock: number) {
