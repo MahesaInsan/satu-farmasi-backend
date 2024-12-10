@@ -23,5 +23,10 @@ export default interface TransactionDetailVO {
                 price: Prisma.Decimal
             }
         }[]
+    },
+    physicalReport: {
+        id: number,
+        data: Prisma.JsonValue,
+        created_at: Date
     }
 }

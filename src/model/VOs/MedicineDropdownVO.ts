@@ -5,6 +5,7 @@ export default interface MedicineData {
     id: number;
     code: string;
     name: string;
+    batchCode: string;
     merk: string;
     currStock: number;
     minStock: number;

@@ -28,7 +28,7 @@ export default class PharmacyController extends BaseController {
             console.error("#updatePharmacyInformation with request: ", req.body.data)
             const request: AddAndEditPharmacyRequest = req.body.data;
             res.status(200).send(new BaseResponse().ok(await this.pharmacyService.updatePharmacyInformation(request),
-                "Successfully Updated Pharmacy Information"));
+                "Data Apotek Berhasil Diubah"));
         } catch (error) {
             console.error("Error when #updatePharmacyInformation with error: ", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

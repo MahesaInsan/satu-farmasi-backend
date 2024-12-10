@@ -12,10 +12,10 @@ class PharmacyRouter extends BaseRouter {
     }
 
     private initRoutes(){
-        this.router.use(
-            (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "ADMIN"),
-        )
+        // this.router.use(
+        //     (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
+        //     (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "ADMIN"),
+        // )
         this.router.get('/', this.pharmacyController.getPharmacyInformation.bind(this.pharmacyController));
         this.router.put('/', this.pharmacyController.updatePharmacyInformation.bind(this.pharmacyController));
     }

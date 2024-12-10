@@ -15,7 +15,7 @@ export default class DiagnoseController {
             const request: AddDiagnoseRequest = req.body.data
             console.log("#diagnosePatient with request: ", request)
             console.log("medicineList: ", request.prescription.medicineList)
-            return res.status(200).send(new BaseResponse().ok(await this.diagnoseService.createDiagnose(request), "Successfully create diagnose"))
+            return res.status(200).send(new BaseResponse().ok(await this.diagnoseService.createDiagnose(request), "Diagnosis Berhasil Dibuat!"))
         } catch (error) {
             console.log(error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

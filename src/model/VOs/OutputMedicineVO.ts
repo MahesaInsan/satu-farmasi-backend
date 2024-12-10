@@ -1,4 +1,5 @@
 import { ReasonOfDispose } from "@prisma/client";
+import PhysicalReportVO from "./PhysicalReportVO";
 
 export default interface OutputMedicineVO {
     id: number;
@@ -15,4 +16,5 @@ export default interface OutputMedicineVO {
         isFinalized: boolean,
 
     } | null;
+    physicalReport: PhysicalReportVO | null;
 }

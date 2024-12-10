@@ -32,12 +32,14 @@ export default class MedicineService {
 	public async getAllMedicineList(): Promise<Map<string, MedicineDropdownVO>> {
 		try {
 			const medicineList: MedicineDropdownVO[] = await this.medicineRepository.fetchMedicineList()
+            console.log("dropdown: ", medicineList)
 			let medicineByMedicineCode: Map<string, MedicineDropdownVO> = new Map<string, MedicineDropdownVO>();
 			if (medicineList !== null) {
 				medicineByMedicineCode = await this.mapMedicineDropdownList(medicineList)
 			} else {
 				new Error("No Medicine Found")
 			}
+            console.log("medicineByMedicineCode: ", medicineByMedicineCode)
 			return medicineByMedicineCode;
 		} catch (error) {
 			throw error as string
@@ -77,6 +79,15 @@ export default class MedicineService {
 				}, new Map()))
 		} catch (error) {
 			throw error as string
+		}
+	}
+
+	public async getTotalActiveMedicineByCode(): Promise<number> {
+		try {
+			const medicineList: MedicineDropdownVO[] = await this.medicineRepository.fetchMedicineList()
+			return medicineList.length;
+		} catch (error) {
+			throw error as string;
 		}
 	}
 
@@ -213,16 +224,33 @@ export default class MedicineService {
 		}
 	}
 
+	public async activeMedicineById(medicineId: number) {
+		try {
+			await this.medicineRepository.activateMedicineById(medicineId);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
 	public async createMedicine(request: AddMedicineRequest): Promise<MedicineDisplayVO> {
 		try {
-			const oldMedicine: MedicineDisplayVO | null = await this.getMedicineByCode(request.code);
+            let oldMedicine: MedicineDisplayVO | null = null;
+            if (request.code) {
+			    oldMedicine = await this.getMedicineByCode(request.code);
+            }
 
 			request.code = !oldMedicine
 				? await this.generateMedicineCode(request.genericNameId)
 				: request.code;
 
+            console.log("currStock: ", request.currStock)
+            console.log("maxStock", request.maxStock)
+			if (request.currStock > request.maxStock) {
+				throw new Error("Error: jumlah stok melebihi jumlah maksimum stok!")
+			}
+
 			const medicine: Medicine = this.constructMedicine(request);
-			return await this.medicineRepository.createMedicine(medicine)
+			return this.medicineRepository.createMedicine(medicine)
 				.then(async (newMedicine: MedicineDisplayVO): Promise<MedicineDisplayVO> => {
 					await this.createNewMedicineHasClassification(request.classificationList, newMedicine.id);
 					return newMedicine;
@@ -274,7 +302,24 @@ export default class MedicineService {
 			);
 
 			this.medicineRepository.updateInactiveMedicine(medicine)
+				.then(() => { return true })
+				.catch(() => { console.warn("No inactive medicines were updated") })
 			return true
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
+	public async editMedicineForReceiveById(request: Medicine) {
+		try {
+			const oldMedicine: Medicine | null = await this.getMedicineById(request.id);
+			if (!oldMedicine) throw new Error("Medicine not found");
+
+			request.code = oldMedicine && oldMedicine.genericNameId === request.genericNameId
+				? request.code
+				: await this.generateMedicineCode(request.genericNameId);
+
+			await this.medicineRepository.editMedicineById(request);
 		} catch (error) {
 			throw error as string;
 		}
@@ -341,6 +386,17 @@ export default class MedicineService {
 		}
 	}
 
+	public async hardDeleteMedicineById(medicineId: number) {
+		try {
+			return await this.medicineHasClassificationRepository.deleteMedicineHasClassification(medicineId)
+			.then(async () => {
+					await this.medicineRepository.hardDeleteMedicineById(medicineId);
+				})
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
 	public async returnReservedStock (prescriptionHasMedicine: PrescriptionHasMedicine[]){
 		try {
 			const medicineList = await this.getAndMapMedicineListByMedicineCode(
@@ -369,7 +425,7 @@ export default class MedicineService {
 	}
 
 	// ganti jadi count all (jangan spesifik per generic name)
-	private async generateMedicineCode(genericNameId: number): Promise<string> {
+	public async generateMedicineCode(genericNameId: number): Promise<string> {
 		try {
 			const genericName: GenericName | null = await this.genericNameService.getGenericNameById(genericNameId);
 			if (!genericName) throw new Error("Generic name not found");
@@ -387,11 +443,12 @@ export default class MedicineService {
 
 	private constructMedicine(request: AddMedicineRequest): Medicine {
 		return Builder<Medicine>()
-			.is_active(true)
+			.is_active(false)
 			.created_at(new Date())
 			.updated_at(new Date())
 			.code(request.code)
 			.name(request.name)
+			.batchCode(request.batchCode)
 			.genericNameId(request.genericNameId)
 			.merk(request.merk)
 			.description(request.description)
@@ -412,6 +469,7 @@ export default class MedicineService {
 			.code(request.code)
 			.name(request.name)
 			.merk(request.merk)
+			.batchCode(request.batchCode)
 			.description(request.description)
 			.unitOfMeasure(request.unitOfMeasure)
 			.price(request.price)

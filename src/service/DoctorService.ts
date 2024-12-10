@@ -29,6 +29,7 @@ export default class DoctorService {
 		try {
 			await this.userService.emailIsExist(request.email);
 			await this.userService.nikIsExist(request.nik);
+            console.log("success validating ...")
 			request.password = await this.userService.encryptPassword(request.password);
 			const doctor: User = this.createUserHelper.createBaseUser(request);
 			return await this.doctorRepository.addDoctor(Builder(doctor).role(Role.DOCTOR).specialist(request.specialist).build())
