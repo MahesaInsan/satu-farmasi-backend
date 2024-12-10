@@ -20,6 +20,8 @@ import MedicineReportService from "./MedicineReportService";
 import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
 import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
 import MedicineReportHelper from "./helper/MedicineReportHelper";
+import PhysicalReportService from "./PhysicalReportService";
+import PhysicalReportVO from "../model/VOs/PhysicalReportVO";
 
 export default class TransactionService{
     private readonly patientService: PatientService;
@@ -29,6 +31,7 @@ export default class TransactionService{
     private readonly medicineReportService:MedicineReportService;
     private readonly medicineReportHelper: MedicineReportHelper;
     private readonly transactionRepository: TransactionRepository;
+    private readonly physicalReportService: PhysicalReportService;
 
     private transactionSSE: SSEConnection[] = [];
 
@@ -40,6 +43,7 @@ export default class TransactionService{
         this.medicineReportService = new MedicineReportService();
         this.transactionRepository = new TransactionRepository();
         this.medicineReportHelper = new MedicineReportHelper();
+        this.physicalReportService = new PhysicalReportService();
     }
 
     public async createNewTransaction(request: AddTransactionRequest) {
@@ -204,6 +208,8 @@ export default class TransactionService{
             if (transaction !== null) {
                 if (Object.values(PaymentMethod).includes(request.paymentMethod) &&
                         Status.WAITING_FOR_PAYMENT === transaction.prescription.status) {
+                    const physicalReport: PhysicalReportVO = await this.physicalReportService.createPhysicalReport(request.physicalReport);
+                    await this.transactionRepository.updatePhysicalReportById(physicalReport.id, request.id);
                     await this.transactionRepository.updatePaymentMethodById(request.paymentMethod, request.id)
                     await this.prescriptionService.updatePrescriptionStatus(transaction.prescriptionId, Status.ON_PROGRESS)
                     return true;

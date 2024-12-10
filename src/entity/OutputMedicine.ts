@@ -6,13 +6,15 @@ export default class OutputMedicine extends BaseEntity {
     private _quantity: number;
     private _reasonOfDispose: ReasonOfDispose;
     private _reportId: number | null;
+    private _physicalReportId: number | null;
 
-    constructor(id: number, is_active: boolean, created_at: Date, updated_at: Date, medicineId: number, quantity: number, reasonOfDispose: ReasonOfDispose, reportId: number) {
+    constructor(id: number, is_active: boolean, created_at: Date, updated_at: Date, medicineId: number, quantity: number, reasonOfDispose: ReasonOfDispose, reportId: number, physicalReportId: number | null) {
         super(id, is_active, created_at, updated_at);
         this._medicineId = medicineId;
         this._quantity = quantity;
         this._reasonOfDispose = reasonOfDispose;
         this._reportId = reportId;
+        this._physicalReportId = physicalReportId;
     }
 
     get medicineId(): number {
@@ -45,5 +47,13 @@ export default class OutputMedicine extends BaseEntity {
 
     set reportId(value: number) {
         this._reportId = value;
+    }
+
+    get physicalReportId(): number | null {
+        return this._physicalReportId;
+    }
+
+    set physicalReportId(value: number | null) {
+        this._physicalReportId = value;
     }
 }

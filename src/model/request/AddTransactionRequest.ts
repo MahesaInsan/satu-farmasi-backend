@@ -2,10 +2,12 @@ export default class AddTransactionRequest {
     private _patientId: number;
     private _prescriptionId: number;
     private _created_at?: Date;
+    private _pharmacistId: number;
 
-    constructor(patientId: number, prescriptionId: number, created_at?: Date) {
+    constructor(patientId: number, prescriptionId: number, pharmacistId: number, created_at?: Date) {
         this._patientId = patientId;
         this._prescriptionId = prescriptionId;
+        this._pharmacistId = pharmacistId;
         this._created_at = created_at;
     }
 
@@ -31,5 +33,13 @@ export default class AddTransactionRequest {
 
     set created_at(value: Date | undefined) {
         this._created_at = value;
+    }
+
+    get pharmacistId(): number {
+        return this._pharmacistId;
+    }
+
+    set pharmacistId(value: number) {
+        this._pharmacistId = value;
     }
 }

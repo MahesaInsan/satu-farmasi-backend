@@ -52,6 +52,21 @@ export default class TransactionRepository{
         }
     }
 
+    public async updatePhysicalReportById(physicalReportId: number, id: number) {
+        try {
+            return this.prisma.transaction.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    physicalReportId: physicalReportId
+                }
+            })
+        } catch (error) {
+            throw error as string
+        }
+    }
+
     public async countTransaction(patientName: string | undefined, status: Status | undefined): Promise<number>{
         try {
             return this.prisma.transaction.count({
@@ -164,6 +179,13 @@ export default class TransactionRepository{
                             }
                         }
                     },
+                    physicalReport: {
+                        select: {
+                            id: true,
+                            data: true,
+                            created_at: true
+                        }
+                    }
                 }
             }) as Promise<TransactionDetailVO>
         } catch (error) {

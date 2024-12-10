@@ -1,4 +1,5 @@
 import { ReasonOfDispose } from "@prisma/client";
+import AddPhysicalReportRequest from "./AddPhysicalReportRequest";
 
 export default class AddOutputMedicineRequest {
     private _medicineId: number;
@@ -6,13 +7,17 @@ export default class AddOutputMedicineRequest {
     private _quantity: number;
     private _reasonOfDispose: ReasonOfDispose;
     private _reportId: number | null;
+    private _physicalReportId: number;
+    private _physicalReport: AddPhysicalReportRequest;
 
-    constructor(medicineId: number, quantity: number, reasonOfDispose: ReasonOfDispose, reportId: number, _currStock: number) {
+    constructor(medicineId: number, quantity: number, reasonOfDispose: ReasonOfDispose, reportId: number, _currStock: number, physicalReportId: number, physicalReport: AddPhysicalReportRequest) {
         this._medicineId = medicineId;
         this._quantity = quantity;
         this._reasonOfDispose = reasonOfDispose;
         this._reportId = reportId;
         this._currStock = _currStock;
+        this._physicalReportId = physicalReportId;
+        this._physicalReport = physicalReport;
     }
 
     get medicineId(): number {
@@ -53,5 +58,21 @@ export default class AddOutputMedicineRequest {
 
     set currStock(value: number) {
         this._currStock = value;
+    }
+
+    get physicalReportId(): number {
+        return this._physicalReportId;
+    }
+
+    set physicalReportId(value: number) {
+        this._physicalReportId = value;
+    }
+
+    get physicalReport(): AddPhysicalReportRequest {
+        return this._physicalReport;
+    }
+
+    set physicalReport(value: AddPhysicalReportRequest) {
+        this._physicalReport = value;
     }
 }
