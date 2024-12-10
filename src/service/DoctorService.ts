@@ -1,4 +1,4 @@
-import { Doctor, Role } from "@prisma/client";
+import {  Role, User } from "@prisma/client";
 import { Builder } from "builder-pattern";
 import CreateUserHelper from "./helper/CreateUserHelper";
 import DoctorRepository from "../repository/DoctorRepository";
@@ -7,31 +7,30 @@ import EditDoctorRequest from "../model/request/EditDoctorRequest";
 import EditUserHelper from "./helper/EditUserHelper";
 import UserService from "./UserService";
 import DoctorVO from "../model/VOs/DoctorVO";
-import { CustomError } from "../validator/helper/ErrorHelper";
 
 export default class DoctorService {
 	private readonly doctorRepository: DoctorRepository;
 	private readonly userService: UserService;
-	private readonly createUserHelper: CreateUserHelper<AddDoctorRequest, Doctor>;
-	private readonly editUserHelper: EditUserHelper<EditDoctorRequest, Doctor>;
+	private readonly createUserHelper: CreateUserHelper<AddDoctorRequest, User>;
+	private readonly editUserHelper: EditUserHelper<EditDoctorRequest, User>;
 
 	constructor() {
 		this.doctorRepository = new DoctorRepository();
 		this.userService = new UserService();
-		this.createUserHelper = new CreateUserHelper<AddDoctorRequest, Doctor>();
-		this.editUserHelper = new EditUserHelper<EditDoctorRequest, Doctor>();
+		this.createUserHelper = new CreateUserHelper<AddDoctorRequest, User>();
+		this.editUserHelper = new EditUserHelper<EditDoctorRequest, User>();
 	}
 
 	public async emailIsExist(email: string): Promise<Boolean> {
 		return await this.doctorRepository.emailIsExist(email)
 	}
 
-	public async addDoctor(request: AddDoctorRequest): Promise<Doctor> {
+	public async addDoctor(request: AddDoctorRequest): Promise<User> {
 		try {
 			await this.userService.emailIsExist(request.email);
 			await this.userService.nikIsExist(request.nik);
 			request.password = await this.userService.encryptPassword(request.password);
-			const doctor: Doctor = this.createUserHelper.createBaseUser(request);
+			const doctor: User = this.createUserHelper.createBaseUser(request);
 			return await this.doctorRepository.addDoctor(Builder(doctor).role(Role.DOCTOR).specialist(request.specialist).build())
 		} catch (error) {
 			throw error as string;
@@ -42,14 +41,14 @@ export default class DoctorService {
 		try {
 			await this.userService.emailIsExist(request.email, request.oldEmail);
 			await this.userService.nikIsExist(request.nik, request.oldNik);
-			const doctor: Doctor = this.editUserHelper.editBaseUser(request);
+			const doctor: User = this.editUserHelper.editBaseUser(request);
 			return await this.doctorRepository.editDoctor(Builder(doctor).role(Role.DOCTOR).specialist(request.specialist).build())
 		} catch (error) {
 			throw error as string;
 		}
 	}
 
-	public async getDoctorByEmail(email: string): Promise<Doctor | null> {
+	public async getDoctorByEmail(email: string): Promise<User | null> {
 		try {
 			return await this.doctorRepository.getDoctorByEmail(email)
 		} catch (error) {

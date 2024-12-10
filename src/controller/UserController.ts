@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import ResponseHelper from "./ResponseHelper/ResponseHelper";
 import UserService from "../service/UserService";
 import LoginRequest from "../model/request/LoginRequest";
-import { Admin, Doctor, Pharmacist } from "@prisma/client";
 import jwt from 'jsonwebtoken';
 import BaseResponse from "../model/response/BaseResponse";
 import { CustomError } from "../validator/helper/ErrorHelper";
+import { User } from "@prisma/client";
 
 export default class UserController {
     private readonly userService: UserService;
@@ -19,7 +19,7 @@ export default class UserController {
     async getUserByEmail(req: Request, res: Response) {
         try {
             const request: LoginRequest = req.body;
-            const user: Admin | Doctor | Pharmacist | null =
+            const user: User | null =
                 await this.userService.getUserByEmail(request.email);
             if ( user && (await this.userService.bcryptPassword( request.password, user.password))) {
                 try {
@@ -48,6 +48,7 @@ export default class UserController {
             // req.body.email = (decoded as any).email;
             return res.status(200).send({ message: "Token is valid" });
         } catch (error) {
+            console.log("error check token: ", error);
             return res.status(401).send(this.responseHelper.constructUnAuthorizedRequest(error as object));
         }
     }
