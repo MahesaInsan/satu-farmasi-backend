@@ -434,7 +434,7 @@ export default class MedicineRepository {
 		try {
 			return await this.prisma.medicine.findMany({
 				where: {
-					code: { contains: 'PARACETAMOL' }
+					code: { contains: code }
 				},
 				select: {
 					code: true
@@ -443,6 +443,20 @@ export default class MedicineRepository {
 		} catch (error) {
 			console.error('Error counting medicineList: ', error);
 			throw new Error('Failed to count medicineList');
+		}
+	}
+
+	public async getAllMedicineByGenericName(genericNameId: number) {
+		try {
+			return await this.prisma.medicine.findMany({
+				where: {
+					genericName: {
+						id: genericNameId
+					}
+				}
+			})
+		} catch (error) {
+			throw error as string;
 		}
 	}
 
@@ -853,6 +867,17 @@ export default class MedicineRepository {
 					]
 				},
 				data: dataMedicine
+			});
+		} catch (error) {
+			console.error('Error editing medicine: ', error);
+			throw new Error('Failed to edit medicine');
+		}
+	}
+
+	public async updateAllMedicine(medicineList: Medicine[]) {
+		try {
+			await this.prisma.medicine.updateMany({
+				data: medicineList
 			});
 		} catch (error) {
 			console.error('Error editing medicine: ', error);

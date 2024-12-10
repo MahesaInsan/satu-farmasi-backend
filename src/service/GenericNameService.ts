@@ -6,14 +6,17 @@ import { Builder } from "builder-pattern";
 import EditGenericNameHelper from "./helper/EditGenericNameHelper";
 import EditGenericNameRequest from "../model/request/editGenericNameRequest";
 import GenericDropdownVO from "../model/VOs/GenericDropdownVO";
+import MedicineService from "./MedicineService";
 
 export default class GenericNameService {
     private readonly genericNameRepository: GenericNameRepository;
     private readonly createMedicineHelper: CreateMedicineHelper<AddGenericNameRequest, GenericName>;
     private readonly editGenericNameHelper: EditGenericNameHelper<EditGenericNameRequest, GenericName>;
+    private readonly medicineService: MedicineService;
 
     constructor() {
         this.genericNameRepository = new GenericNameRepository();
+        this.medicineService = new MedicineService();
         this.createMedicineHelper = new CreateMedicineHelper<AddGenericNameRequest, GenericName>();
         this.editGenericNameHelper = new EditGenericNameHelper<EditGenericNameRequest, GenericName>();
     }
@@ -78,7 +81,10 @@ export default class GenericNameService {
     public async editGenericName(request: EditGenericNameRequest): Promise<boolean>{
         try { 
             const genericName: GenericName = this.editGenericNameHelper.editGenericName(request);
-            return await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).build())
+            const success =
+                await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).build())
+            this.medicineService.updateMedicineCode(genericName.id, genericName.value.toUpperCase(), request.value.toUpperCase())
+            return success
         } catch (err) {
             throw new Error(err as string);
         }

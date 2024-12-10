@@ -368,18 +368,25 @@ export default class MedicineService {
 		}
 	}
 
-	// ganti jadi count all (jangan spesifik per generic name)
+	public async updateMedicineCode (oldGenericId: number, oldGenericName: string, newGenericName: string){
+		const medicineList: Medicine[] = await this.medicineRepository.getAllMedicineByGenericName(oldGenericId)
+		medicineList.forEach(medicine => {
+			medicine.code = medicine.code.replace(oldGenericName, newGenericName)
+		})
+		await this.medicineRepository.updateAllMedicine(medicineList);
+ 	}
+
 	private async generateMedicineCode(genericNameId: number): Promise<string> {
 		try {
 			const genericName: GenericName | null = await this.genericNameService.getGenericNameById(genericNameId);
 			if (!genericName) throw new Error("Generic name not found");
 
 			console.log(genericName.value);
-			const totalMedicine: number = await this.getTotalMedicineCodeByCode(genericName.value);
+			const totalMedicine: number = await this.getTotalMedicineCodeByCode(genericName.value.toUpperCase());
 			const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
 			console.log("medicine code: ", formatNumber);
 
-			return `${genericName.value}-${formatNumber}`
+			return `${genericName.value.toUpperCase()}-${formatNumber}`
 		} catch (error) {
 			throw error as string;
 		}
