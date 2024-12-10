@@ -16,12 +16,18 @@ import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
 import ReceiveMedicineService from "./ReceiveMedicineService";
 import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
 import TransactionAnnualRecapVO from "../model/VOs/TransactionAnnualRecapVO";
+import MedicineReportService from "./MedicineReportService";
+import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
+import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
+import MedicineReportHelper from "./helper/MedicineReportHelper";
 
 export default class TransactionService{
     private readonly patientService: PatientService;
     private readonly prescriptionService: PrescriptionService;
     private readonly pharmacistService: PharmacistService;
     private readonly receiveMedicineService: ReceiveMedicineService;
+    private readonly medicineReportService:MedicineReportService;
+    private readonly medicineReportHelper: MedicineReportHelper;
     private readonly transactionRepository: TransactionRepository;
 
     private transactionSSE: SSEConnection[] = [];
@@ -31,7 +37,9 @@ export default class TransactionService{
         this.prescriptionService = new PrescriptionService();
         this.pharmacistService = new PharmacistService();
         this.receiveMedicineService = new ReceiveMedicineService();
+        this.medicineReportService = new MedicineReportService();
         this.transactionRepository = new TransactionRepository();
+        this.medicineReportHelper = new MedicineReportHelper();
     }
 
     public async createNewTransaction(request: AddTransactionRequest) {
@@ -48,23 +56,35 @@ export default class TransactionService{
                 .updated_at(new Date())
                 .build();
             await this.prescriptionService.changeDraftPrescriptionToFinalizedPrescription(tuple[1].id)
+
+            let todayReport: TodayMedicineReportVOs | null =
+                await this.medicineReportService.getTodayUnFinalizedMedicineReport();
+
+            if (!todayReport) {
+                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
+                todayReport = await this.medicineReportService.
+                    addMedicineReport(this.medicineReportHelper.createMedicineReport(reportRequest))
+            }
+            newTransaction.reportId = todayReport.id
+
             return await this.transactionRepository.addTransaction(newTransaction).then(transaction => true)
         } catch (error) {
             throw error as string
         }
     }
 
-    public async countTransaction(patientName: string | undefined) {
+    public async countTransaction(patientName: string | undefined, status: Status | undefined) {
         try {
-            return await this.transactionRepository.countTransaction(patientName);
+            return await this.transactionRepository.countTransaction(patientName, status);
         } catch (error) {
             throw error as string;
         }
     }
 
-    public async getTransactionSummary(pagination: PaginationRequest, patientName: string | undefined) {
+    public async getTransactionSummary(pagination: PaginationRequest, patientName: string | undefined, status: Status | undefined) {
         try {
-            return await this.transactionRepository.getAllTransaction(patientName, pagination.startIndex, pagination.limit);
+            return await this.transactionRepository.getAllTransaction(patientName, status,
+                pagination.startIndex, pagination.limit);
         } catch (error) {
             throw error as string
         }
