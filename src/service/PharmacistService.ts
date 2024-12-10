@@ -58,7 +58,7 @@ export default class PharmacistService {
 
 	public async getTotalPharmacist(param?: string): Promise<number> {
 		try {
-			return await this.pharmacistRepository.getTotalPharmacist();
+			return await this.pharmacistRepository.getTotalPharmacist(param);
 		} catch (error) {
 			throw error as string;
 		}

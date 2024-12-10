@@ -263,11 +263,11 @@ enum UnitOfMeasure {
 }
 
 enum Status {
-  UNPROCESSED
-  WAITING_FOR_PAYMENT
-  ON_PROGRESS
-  DONE
-  CANCELED
+    UNPROCESSED
+    WAITING_FOR_PAYMENT
+    ON_PROGRESS
+    DONE
+    CANCELED
 }
 
 enum PaymentMethod {
