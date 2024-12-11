@@ -1,15 +1,15 @@
 import { MedicineHasClassification, PrismaClient } from "@prisma/client";
+import BaseRepository from "./helper/BaseRepository";
 
-export default class MedicineHasClassificationRepository {
-    private readonly prisma: PrismaClient;
+export default class MedicineHasClassificationRepository extends BaseRepository{
 
     constructor() {
-        this.prisma = new PrismaClient();
+        super();
     }
 
     public async createMedicineHasClassification(medicineHasClassificationList: MedicineHasClassification[]) {
         try {
-            return this.prisma.medicineHasClassification.createMany({ data: medicineHasClassificationList });
+            return this.Prisma.medicineHasClassification.createMany({ data: medicineHasClassificationList });
         } catch (error) {
             console.error('Error creating medicine has classification: ', error);
             throw new Error('Failed to create medicine has classification');
@@ -18,7 +18,7 @@ export default class MedicineHasClassificationRepository {
 
     public async deleteMedicineHasClassification(medicineId: number) {
         try {
-            return await this.prisma.medicineHasClassification.deleteMany({
+            return await this.Prisma.medicineHasClassification.deleteMany({
                 where: {
                     medicineId: medicineId
                 }

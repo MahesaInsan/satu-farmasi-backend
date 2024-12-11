@@ -1,15 +1,15 @@
 import {PrescriptionHasMedicine, PrismaClient} from "@prisma/client"
+import BaseRepository from "./helper/BaseRepository";
 
-export default class PrescriptionHasMedicineRepository{
-    private readonly prisma: PrismaClient
+export default class PrescriptionHasMedicineRepository extends BaseRepository{
 
     constructor() {
-        this.prisma = new PrismaClient();
+        super();
     }
 
     public async createPrescriptionHasMedicine(prescriptionHasMedicineList: PrescriptionHasMedicine[]){
         try {
-            await this.prisma.prescriptionHasMedicine.createMany({
+            await this.Prisma.prescriptionHasMedicine.createMany({
                 data: prescriptionHasMedicineList,
             })
         } catch (error) {
@@ -19,7 +19,7 @@ export default class PrescriptionHasMedicineRepository{
 
     public async getPrescriptionHasMedicine(prescriptionId: number) {
         try {
-            return await this.prisma.prescriptionHasMedicine.findMany({
+            return await this.Prisma.prescriptionHasMedicine.findMany({
                 where: {
                     prescriptionId: prescriptionId
                 }
@@ -31,7 +31,7 @@ export default class PrescriptionHasMedicineRepository{
 
     public async getMostSalesMedicineByPrescription(startDate: Date, lastDate: Date) {
         try {
-            return await this.prisma.prescriptionHasMedicine.groupBy({
+            return await this.Prisma.prescriptionHasMedicine.groupBy({
                 by: ["medicineId"],
                 _sum: {
                     quantity: true
@@ -66,7 +66,7 @@ export default class PrescriptionHasMedicineRepository{
     public async getSoldCountMedicineByCode(medicineCodeList: string[], startDate: Date, lastDate: Date) {
         try {
             console.log(medicineCodeList, startDate, lastDate)
-            return await this.prisma.prescriptionHasMedicine.groupBy({
+            return await this.Prisma.prescriptionHasMedicine.groupBy({
                 by: ["medicineCode"],
                 _sum: {
                     quantity: true,
@@ -99,7 +99,7 @@ export default class PrescriptionHasMedicineRepository{
 
     public async deleteWherePrescriptionIdAndInId(prescriptionId: number, idList: number[]) {
         try {
-            return await this.prisma.prescriptionHasMedicine.deleteMany({
+            return await this.Prisma.prescriptionHasMedicine.deleteMany({
                 where: {
                     prescriptionId: prescriptionId,
                     id: {
@@ -114,7 +114,7 @@ export default class PrescriptionHasMedicineRepository{
 
     public async updateWhereId(prescriptionHasMedicine: PrescriptionHasMedicine, id: number) {
         try {
-            await this.prisma.prescriptionHasMedicine.update({
+            await this.Prisma.prescriptionHasMedicine.update({
                 where: {
                     id: id
                 },

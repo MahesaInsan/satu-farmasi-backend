@@ -1,17 +1,17 @@
 import {Diagnose, PrismaClient} from "@prisma/client"
 import SummaryDiagnoseVO from "../model/VOs/SummaryDiagnoseVO";
 import DiagnoseDetailVO from "../model/VOs/DiagnoseDetailVO";
+import BaseRepository from "./helper/BaseRepository";
 
-export default class DiagnoseRepository {
-    private readonly prisma: PrismaClient;
+export default class DiagnoseRepository extends BaseRepository{
 
     constructor() {
-        this.prisma = new PrismaClient();
+        super();
     }
 
     async createDiagnose(newDiagnose: Diagnose): Promise<Diagnose>{
         try {
-            return this.prisma.diagnose.create({
+            return this.Prisma.diagnose.create({
                 data: newDiagnose
             })
         } catch (error) {
@@ -21,7 +21,7 @@ export default class DiagnoseRepository {
 
     public async getDiagnoseCount(doctorId: number, patientName?: string): Promise<number>{
         try {
-            return this.prisma.diagnose.count({
+            return this.Prisma.diagnose.count({
                 where: {
                     AND: [
                         {
@@ -44,7 +44,7 @@ export default class DiagnoseRepository {
 
     async getDiagnoseSummary(doctorId: number, startIndex: number, limit: number, patientName?: string): Promise<SummaryDiagnoseVO[]> {
         try {
-            return this.prisma.diagnose.findMany({
+            return this.Prisma.diagnose.findMany({
                 where: {
                     AND: [
                         {
@@ -96,7 +96,7 @@ export default class DiagnoseRepository {
 
     async getDiagnoseDetail(diagnoseId: number): Promise<DiagnoseDetailVO | null> {
         try {
-            return this.prisma.diagnose.findFirst({
+            return this.Prisma.diagnose.findFirst({
                 where: {
                     id: diagnoseId
                 },

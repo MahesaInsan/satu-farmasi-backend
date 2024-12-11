@@ -433,15 +433,7 @@ export default class MedicineService {
 		}
 	}
 
-	public async updateMedicineCode (oldGenericId: number, oldGenericName: string, newGenericName: string){
-		const medicineList: Medicine[] = await this.medicineRepository.getAllMedicineByGenericName(oldGenericId)
-		medicineList.forEach(medicine => {
-			medicine.code = medicine.code.replace(oldGenericName, newGenericName)
-		})
-		await this.medicineRepository.updateAllMedicine(medicineList);
- 	}
-
-	private async generateMedicineCode(genericNameId: number): Promise<string> {
+	public async generateMedicineCode(genericNameId: number): Promise<string> {
 		try {
 			const genericName: GenericName | null = await this.genericNameService.getGenericNameById(genericNameId);
 			if (!genericName) throw new Error("Generic name not found");
@@ -677,8 +669,11 @@ export default class MedicineService {
 	private constructExpiredMedicineResponse(medicine: Medicine) {
 		return Builder<ExpiredMedicineResponse>()
 			.medicineId(medicine.id)
+			.medicineName(medicine.name)
+			.batchCode(medicine.batchCode)
 			.currStock(medicine.currStock)
 			.quantity(medicine.currStock)
+			.expiredDate(medicine.expiredDate)
 			.reasonOfDispose(ReasonOfDispose.EXPIRED)
 			.build()
 	}

@@ -1,4 +1,4 @@
-import { GenericName } from "@prisma/client";
+import {GenericName, Medicine} from "@prisma/client";
 import AddGenericNameRequest from "../model/request/AddGenericName";
 import CreateMedicineHelper from "./helper/CreateMedicineHelper";
 import GenericNameRepository from "../repository/GenericNameRepository";
@@ -14,11 +14,9 @@ export default class GenericNameService {
     private readonly medicineRepository: MedicineRepository;
     private readonly createMedicineHelper: CreateMedicineHelper<AddGenericNameRequest, GenericName>;
     private readonly editGenericNameHelper: EditGenericNameHelper<EditGenericNameRequest, GenericName>;
-    private readonly medicineService: MedicineService;
 
     constructor() {
         this.genericNameRepository = new GenericNameRepository();
-        this.medicineService = new MedicineService();
         this.medicineRepository = new MedicineRepository();
         this.createMedicineHelper = new CreateMedicineHelper<AddGenericNameRequest, GenericName>();
         this.editGenericNameHelper = new EditGenericNameHelper<EditGenericNameRequest, GenericName>();
@@ -95,7 +93,7 @@ export default class GenericNameService {
             await this.validateDuplicate(genericName.value, genericName.id)
             const success =
                 await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).build())
-            this.medicineService.updateMedicineCode(genericName.id, genericName.value.toUpperCase(), request.value.toUpperCase())
+            this.updateMedicineCode(genericName.id, genericName.value.toUpperCase(), request.value.toUpperCase())
             return success
         } catch (err) {
             throw new Error(err as string);
@@ -122,5 +120,16 @@ export default class GenericNameService {
         } catch (error) {
             throw new Error(error as string)
         }
+    }
+
+    private async updateMedicineCode (oldGenericId: number, oldGenericName: string, newGenericName: string){
+        const medicineList: Medicine[] = await this.medicineRepository.getAllMedicineByGenericName(oldGenericId)
+        if (oldGenericName === newGenericName) {
+            return
+        }
+        medicineList.forEach(medicine => {
+            medicine.code = medicine.code.replace(oldGenericName, newGenericName)
+        })
+        await this.medicineRepository.updateAllMedicine(medicineList);
     }
 }

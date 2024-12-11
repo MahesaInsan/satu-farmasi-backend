@@ -1,16 +1,16 @@
 import { Packaging, PrismaClient } from "@prisma/client";
 import PackagingDropdownVO from "../model/VOs/PackagingDropdownVO";
+import BaseRepository from "./helper/BaseRepository";
 
-export default class PackagingRepository {
-	private readonly prisma: PrismaClient;
+export default class PackagingRepository extends BaseRepository{
 
 	constructor() {
-		this.prisma = new PrismaClient();
+		super();
 	}
 
 	public async createPackaging(dataPackaging: Packaging): Promise<boolean> {
 		try {
-			const packaging: Packaging = await this.prisma.packaging.create({ data: dataPackaging });
+			const packaging: Packaging = await this.Prisma.packaging.create({ data: dataPackaging });
 			return packaging !== null;
 		} catch (error) {
 			throw error as string;
@@ -19,7 +19,7 @@ export default class PackagingRepository {
 
 	public async getTotalPackagings(): Promise<number> {
 		try {
-			return await this.prisma.packaging.count({
+			return await this.Prisma.packaging.count({
 				orderBy: [
                     { is_active: 'desc' },
 					{ updated_at: 'desc' },
@@ -33,7 +33,7 @@ export default class PackagingRepository {
 
 	public async getTotalPackagingsByLabel(label: string): Promise<number> {
 		try {
-			return await this.prisma.packaging.count({
+			return await this.Prisma.packaging.count({
 				where: {
 					label: {
 						contains: label,
@@ -53,7 +53,7 @@ export default class PackagingRepository {
 
 	public async getAllPackagings(limit: number, startIndex: number): Promise<Packaging[]> {
 		try {
-			return await this.prisma.packaging.findMany({
+			return await this.Prisma.packaging.findMany({
 				orderBy: [
                     { is_active: 'desc' },
 					{ updated_at: 'desc' },
@@ -69,7 +69,7 @@ export default class PackagingRepository {
 
 	public async getPackagingsDropdown(packagingId?: number): Promise<PackagingDropdownVO[]> {
 		try {
-			return await this.prisma.packaging.findMany({
+			return await this.Prisma.packaging.findMany({
 				where: {
                     OR: [
                         { is_active: true },
@@ -89,7 +89,7 @@ export default class PackagingRepository {
 
 	public async getPackagingById(id: number): Promise<Packaging | null> {
 		try {
-			return await this.prisma.packaging.findUnique({ where: { id: id, is_active: true } })
+			return await this.Prisma.packaging.findUnique({ where: { id: id, is_active: true } })
 		} catch (error) {
 			throw error as string;
 		}
@@ -97,7 +97,7 @@ export default class PackagingRepository {
 
 	public async getPackagingByLabel(limit: number, startIndex: number, label: string): Promise<Packaging[]> {
 		try {
-			return await this.prisma.packaging.findMany({
+			return await this.Prisma.packaging.findMany({
 				skip: startIndex,
 				take: limit,
 				where: {
@@ -119,7 +119,7 @@ export default class PackagingRepository {
 
 	public async isPackagingExist(label: string, id?: number): Promise<boolean> {
 		try {
-			const packaging: Packaging | null = await this.prisma.packaging.findFirst({
+			const packaging: Packaging | null = await this.Prisma.packaging.findFirst({
 				where: {
 					label: {
 						equals: label,
@@ -138,7 +138,7 @@ export default class PackagingRepository {
 
 	public async editPackaging(dataPackaging: Packaging): Promise<boolean> {
 		try {
-			const packaging: Packaging = await this.prisma.packaging.update({
+			const packaging: Packaging = await this.Prisma.packaging.update({
 				where: { id: dataPackaging.id },
 				data: dataPackaging
 			});

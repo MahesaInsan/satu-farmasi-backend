@@ -1,16 +1,16 @@
 import { PrismaClient, ReceiveMedicine } from "@prisma/client";
 import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
+import BaseRepository from "./helper/BaseRepository";
 
-export default class ReceiveMedicineRepository {
-    private prisma: PrismaClient;
+export default class ReceiveMedicineRepository extends BaseRepository{
 
     constructor() {
-        this.prisma = new PrismaClient();
+        super();
     }
 
     public async getTotalReceiveMedicines(): Promise<number> {
         try {
-            return await this.prisma.receiveMedicine.count();
+            return await this.Prisma.receiveMedicine.count();
         } catch (error) {
             throw error as string;
         }
@@ -18,7 +18,7 @@ export default class ReceiveMedicineRepository {
 
     public async getTotalSearchReceiveMedicine(parameter: string): Promise<number> {
         try {
-            return await this.prisma.receiveMedicine.count({
+            return await this.Prisma.receiveMedicine.count({
                 where: {
                     AND: [
                         {
@@ -49,7 +49,7 @@ export default class ReceiveMedicineRepository {
 
     public async getAllReceiveMedicines(limit: number, startIndex: number): Promise<ReceiveMedicineVO[]> {
         try {
-            return await this.prisma.receiveMedicine.findMany({
+            return await this.Prisma.receiveMedicine.findMany({
                 orderBy: [
                     { created_at: 'desc' }
                 ],
@@ -130,7 +130,7 @@ export default class ReceiveMedicineRepository {
 
     public async searchReceiveMedicine(limit: number, startIndex: number, parameter: string): Promise<ReceiveMedicineVO[]> {
         try {
-            return await this.prisma.receiveMedicine.findMany({
+            return await this.Prisma.receiveMedicine.findMany({
                 where: {
                     AND: [
                         {
@@ -233,7 +233,7 @@ export default class ReceiveMedicineRepository {
 
     public async getReceiveMedicineByMedicineId(medicineId: number): Promise<ReceiveMedicineVO | null> {
         try {
-            return await this.prisma.receiveMedicine.findFirst({
+            return await this.Prisma.receiveMedicine.findFirst({
                 where: {
                     medicineId: medicineId
                 },
@@ -312,7 +312,7 @@ export default class ReceiveMedicineRepository {
 
     public async getReceiveMedicineById(receiveMedicineId: number): Promise<ReceiveMedicineVO | null> {
         try {
-            return await this.prisma.receiveMedicine.findFirst({
+            return await this.Prisma.receiveMedicine.findFirst({
                 where: {
                     id: receiveMedicineId
                 },
@@ -391,7 +391,7 @@ export default class ReceiveMedicineRepository {
 
     public async createReceiveMedicine(data: ReceiveMedicine) {
         try {
-            return await this.prisma.receiveMedicine.create({
+            return await this.Prisma.receiveMedicine.create({
                 data: data
             })
         } catch (error) {
@@ -401,7 +401,7 @@ export default class ReceiveMedicineRepository {
 
     public async updateReceiveMedicine(data: ReceiveMedicine) {
         try {
-            return await this.prisma.receiveMedicine.update({
+            return await this.Prisma.receiveMedicine.update({
                 where: {
                     id: data.id
                 },
@@ -414,7 +414,7 @@ export default class ReceiveMedicineRepository {
 
     public async deleteReceiveMedicine(receiveMedicineId: number) {
         try {
-            return await this.prisma.receiveMedicine.delete({
+            return await this.Prisma.receiveMedicine.delete({
                 where: {
                     id: receiveMedicineId
                 }

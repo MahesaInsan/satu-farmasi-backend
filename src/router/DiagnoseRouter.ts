@@ -12,10 +12,10 @@ class DiagnoseRouter extends BaseRouter{
     }
 
     private initRoutes(){
-        this.router.use(
-            (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "DOCTOR"),
-        )
+        // this.router.use(
+        //     (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
+        //     (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "DOCTOR"),
+        // )
         this.router.post('/create', this.diagnoseController.diagnosePatient.bind(this.diagnoseController))
         this.router.post('/', this.diagnoseController.getDiagnoseSummary.bind(this.diagnoseController))
         this.router.get('/:id', this.diagnoseController.getDiagnoseDetail.bind(this.diagnoseController))

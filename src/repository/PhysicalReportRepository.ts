@@ -1,16 +1,16 @@
 import { PhysicalReport, PrismaClient } from "@prisma/client";
 import PhysicalReportVO from "../model/VOs/PhysicalReportVO";
+import BaseRepository from "./helper/BaseRepository";
 
-export default class PhysicalReportRepository {
-    private readonly prisma: PrismaClient;
+export default class PhysicalReportRepository extends BaseRepository{
 
     constructor() {
-        this.prisma = new PrismaClient();
+        super();
     }
 
     public async getPhysicalReportById(id: number): Promise<PhysicalReportVO | null> {
         try {
-            return await this.prisma.physicalReport.findFirst({
+            return await this.Prisma.physicalReport.findFirst({
                 where: { id: id },
                 select: {
                     id: true,
@@ -25,7 +25,7 @@ export default class PhysicalReportRepository {
 
     public async createPhysicalReport(physicalReport: PhysicalReport): Promise<PhysicalReportVO> {
         try {
-            return await this.prisma.physicalReport.create({
+            return await this.Prisma.physicalReport.create({
                 data: {...physicalReport,
                     data: JSON.parse(JSON.stringify(physicalReport.data))
                 },
