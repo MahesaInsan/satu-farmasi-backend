@@ -2,10 +2,10 @@
 CREATE TYPE "Role" AS ENUM ('ADMIN', 'DOCTOR', 'PHARMACIST');
 
 -- CreateEnum
-CREATE TYPE "UnitOfMeasure" AS ENUM ('MILLILITER', 'MILLIGRAM');
+CREATE TYPE "UnitOfMeasure" AS ENUM ('MILLILITER', 'MILLIGRAM', 'GRAM', 'LITER', 'GROS', 'KODI', 'RIM', 'PCS');
 
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('UNPROCESSED', 'ON_PROGRESS', 'WAITING_FOR_PAYMENT', 'DONE');
+CREATE TYPE "Status" AS ENUM ('UNPROCESSED', 'WAITING_FOR_PAYMENT', 'ON_PROGRESS', 'DONE');
 
 -- CreateEnum
 CREATE TYPE "PaymentMethod" AS ENUM ('DEBIT', 'CREDIT', 'QRIS', 'PAYPAL', 'CASH');
@@ -14,7 +14,7 @@ CREATE TYPE "PaymentMethod" AS ENUM ('DEBIT', 'CREDIT', 'QRIS', 'PAYPAL', 'CASH'
 CREATE TYPE "ReasonOfDispose" AS ENUM ('EXPIRED', 'BROKEN', 'LOST');
 
 -- CreateTable
-CREATE TABLE "Admin" (
+CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "nik" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -23,49 +23,14 @@ CREATE TABLE "Admin" (
     "lastName" TEXT NOT NULL,
     "dob" TIMESTAMP(3) NOT NULL,
     "phoneNum" TEXT NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'ADMIN',
+    "role" "Role" NOT NULL,
     "is_active" BOOLEAN NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Admin_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Doctor" (
-    "id" SERIAL NOT NULL,
-    "nik" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "firstName" TEXT NOT NULL,
-    "lastName" TEXT NOT NULL,
-    "dob" TIMESTAMP(3) NOT NULL,
-    "phoneNum" TEXT NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'DOCTOR',
     "specialist" TEXT,
-    "is_active" BOOLEAN NOT NULL,
+    "sipaNum" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Doctor_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Pharmacist" (
-    "id" SERIAL NOT NULL,
-    "nik" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "firstName" TEXT NOT NULL,
-    "lastName" TEXT NOT NULL,
-    "dob" TIMESTAMP(3) NOT NULL,
-    "phoneNum" TEXT NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'PHARMACIST',
-    "is_active" BOOLEAN NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Pharmacist_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -146,6 +111,7 @@ CREATE TABLE "Medicine" (
     "currStock" INTEGER NOT NULL,
     "minStock" INTEGER NOT NULL,
     "maxStock" INTEGER NOT NULL,
+    "reservedStock" INTEGER NOT NULL DEFAULT 0,
     "sideEffect" TEXT NOT NULL,
     "is_active" BOOLEAN NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
@@ -166,10 +132,12 @@ CREATE TABLE "MedicineHasClassification" (
 CREATE TABLE "PrescriptionHasMedicine" (
     "id" SERIAL NOT NULL,
     "prescriptionId" INTEGER NOT NULL,
-    "medicineId" INTEGER NOT NULL,
+    "medicineId" INTEGER,
+    "medicineCode" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "instruction" TEXT NOT NULL,
     "totalPrice" DECIMAL(65,30) NOT NULL,
+    "draft" BOOLEAN NOT NULL,
 
     CONSTRAINT "PrescriptionHasMedicine_pkey" PRIMARY KEY ("id")
 );
@@ -206,11 +174,12 @@ CREATE TABLE "Transaction" (
     "patientId" INTEGER NOT NULL,
     "prescriptionId" INTEGER NOT NULL,
     "pharmacistId" INTEGER NOT NULL,
+    "paymentMethod" "PaymentMethod",
     "totalPrice" DECIMAL(65,30) NOT NULL,
     "is_active" BOOLEAN NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "reportId" INTEGER NOT NULL,
+    "reportId" INTEGER,
 
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
@@ -230,7 +199,7 @@ CREATE TABLE "ReceiveMedicine" (
     "is_active" BOOLEAN NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "reportId" INTEGER NOT NULL,
+    "reportId" INTEGER,
 
     CONSTRAINT "ReceiveMedicine_pkey" PRIMARY KEY ("id")
 );
@@ -244,7 +213,7 @@ CREATE TABLE "OutputMedicine" (
     "is_active" BOOLEAN NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "reportId" INTEGER NOT NULL,
+    "reportId" INTEGER,
 
     CONSTRAINT "OutputMedicine_pkey" PRIMARY KEY ("id")
 );
@@ -261,22 +230,10 @@ CREATE TABLE "MedicineReport" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Admin_nik_key" ON "Admin"("nik");
+CREATE UNIQUE INDEX "User_nik_key" ON "User"("nik");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Doctor_nik_key" ON "Doctor"("nik");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Doctor_email_key" ON "Doctor"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Pharmacist_nik_key" ON "Pharmacist"("nik");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Pharmacist_email_key" ON "Pharmacist"("email");
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Patient_credentialNumber_key" ON "Patient"("credentialNumber");
@@ -303,13 +260,13 @@ ALTER TABLE "MedicineHasClassification" ADD CONSTRAINT "MedicineHasClassificatio
 ALTER TABLE "PrescriptionHasMedicine" ADD CONSTRAINT "PrescriptionHasMedicine_prescriptionId_fkey" FOREIGN KEY ("prescriptionId") REFERENCES "Prescription"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PrescriptionHasMedicine" ADD CONSTRAINT "PrescriptionHasMedicine_medicineId_fkey" FOREIGN KEY ("medicineId") REFERENCES "Medicine"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "PrescriptionHasMedicine" ADD CONSTRAINT "PrescriptionHasMedicine_medicineId_fkey" FOREIGN KEY ("medicineId") REFERENCES "Medicine"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Prescription" ADD CONSTRAINT "Prescription_patientId_fkey" FOREIGN KEY ("patientId") REFERENCES "Patient"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Diagnose" ADD CONSTRAINT "Diagnose_doctorId_fkey" FOREIGN KEY ("doctorId") REFERENCES "Doctor"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Diagnose" ADD CONSTRAINT "Diagnose_doctorId_fkey" FOREIGN KEY ("doctorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Diagnose" ADD CONSTRAINT "Diagnose_prescriptionId_fkey" FOREIGN KEY ("prescriptionId") REFERENCES "Prescription"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -321,10 +278,10 @@ ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_patientId_fkey" FOREIGN KE
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_prescriptionId_fkey" FOREIGN KEY ("prescriptionId") REFERENCES "Prescription"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_pharmacistId_fkey" FOREIGN KEY ("pharmacistId") REFERENCES "Pharmacist"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_pharmacistId_fkey" FOREIGN KEY ("pharmacistId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_reportId_fkey" FOREIGN KEY ("reportId") REFERENCES "MedicineReport"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_reportId_fkey" FOREIGN KEY ("reportId") REFERENCES "MedicineReport"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ReceiveMedicine" ADD CONSTRAINT "ReceiveMedicine_medicineId_fkey" FOREIGN KEY ("medicineId") REFERENCES "Medicine"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -333,10 +290,10 @@ ALTER TABLE "ReceiveMedicine" ADD CONSTRAINT "ReceiveMedicine_medicineId_fkey" F
 ALTER TABLE "ReceiveMedicine" ADD CONSTRAINT "ReceiveMedicine_vendorId_fkey" FOREIGN KEY ("vendorId") REFERENCES "Vendor"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ReceiveMedicine" ADD CONSTRAINT "ReceiveMedicine_reportId_fkey" FOREIGN KEY ("reportId") REFERENCES "MedicineReport"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ReceiveMedicine" ADD CONSTRAINT "ReceiveMedicine_reportId_fkey" FOREIGN KEY ("reportId") REFERENCES "MedicineReport"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OutputMedicine" ADD CONSTRAINT "OutputMedicine_medicineId_fkey" FOREIGN KEY ("medicineId") REFERENCES "Medicine"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "OutputMedicine" ADD CONSTRAINT "OutputMedicine_reportId_fkey" FOREIGN KEY ("reportId") REFERENCES "MedicineReport"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "OutputMedicine" ADD CONSTRAINT "OutputMedicine_reportId_fkey" FOREIGN KEY ("reportId") REFERENCES "MedicineReport"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -3,115 +3,86 @@
 // Belum baca baca migration cuy nanti gua baca lagi ygy
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["omitApi"]
+    provider        = "prisma-client-js"
+    previewFeatures = ["omitApi"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
-model Admin {
-  id         Int      @id @default(autoincrement())
-  nik        String   @unique
-  email      String   @unique
-  password   String
-  firstName  String
-  lastName   String
-  dob        DateTime
-  phoneNum   String
-  role       Role     @default(ADMIN)
-  is_active  Boolean
-  created_at DateTime
-  updated_at DateTime @default(now())
-}
-
-model Doctor {
-  id         Int        @id @default(autoincrement())
-  nik        String     @unique
-  email      String     @unique
-  password   String
-  firstName  String
-  lastName   String
-  dob        DateTime
-  phoneNum   String
-  role       Role       @default(DOCTOR)
-  specialist String?
-  is_active  Boolean
-  created_at DateTime
-  updated_at DateTime   @default(now())
-  diagnose   Diagnose[]
-}
-
-model Pharmacist {
-  id          Int           @id @default(autoincrement())
-  nik         String        @unique
-  email       String        @unique
-  password    String
-  firstName   String
-  lastName    String
-  dob         DateTime
-  phoneNum    String
-  role        Role          @default(PHARMACIST)
-  is_active   Boolean
-  created_at  DateTime
-  updated_at  DateTime      @default(now())
-  transaction Transaction[]
+model User {
+    id                     Int           @id @default(autoincrement())
+    nik                    String        @unique
+    email                  String        @unique
+    password               String
+    firstName              String
+    lastName               String
+    dob                    DateTime
+    phoneNum               String
+    role                   Role
+    is_active              Boolean
+    specialist             String?
+    sipaNum                String?
+    diagnose               Diagnose[]
+    pharmacistTransactions Transaction[]
+    created_at             DateTime
+    updated_at             DateTime      @default(now())
 }
 
 model Patient {
-  id               Int            @id @default(autoincrement())
-  credentialNumber String         @unique
-  phoneNum         String
-  name             String
-  is_active        Boolean
-  created_at       DateTime
-  updated_at       DateTime       @default(now())
-  transaction      Transaction[]
-  prescription     Prescription[]
+    id               Int            @id @default(autoincrement())
+    credentialNumber String         @unique
+    phoneNum         String
+    name             String
+    is_active        Boolean
+    created_at       DateTime
+    updated_at       DateTime       @default(now())
+    transaction      Transaction[]
+    prescription     Prescription[]
 }
 
 model GenericName {
-  id         Int        @id @default(autoincrement())
-  label      String
-  value      String
-  is_active  Boolean
-  created_at DateTime
-  updated_at DateTime   @default(now())
-  medicines  Medicine[]
+    id         Int        @id @default(autoincrement())
+    label      String
+    value      String
+    is_active  Boolean
+    created_at DateTime
+    updated_at DateTime   @default(now())
+    medicines  Medicine[]
 }
 
 model Packaging {
-  id         Int        @id @default(autoincrement())
-  label      String
-  value      String
-  is_active  Boolean
-  created_at DateTime
-  updated_at DateTime   @default(now())
-  medicines  Medicine[]
+    id         Int        @id @default(autoincrement())
+    label      String
+    value      String
+    is_active  Boolean
+    created_at DateTime
+    updated_at DateTime   @default(now())
+    medicines  Medicine[]
 }
 
 model Classification {
-  id         Int                         @id @default(autoincrement())
-  label      String
-  value      String
-  is_active  Boolean
-  created_at DateTime
-  updated_at DateTime                    @default(now())
-  medicines  MedicineHasClassification[]
+    id         Int                         @id @default(autoincrement())
+    label      String
+    value      String
+    is_active  Boolean
+    created_at DateTime
+    updated_at DateTime                    @default(now())
+    medicines  MedicineHasClassification[]
 }
 
 model Vendor {
-  id               Int               @id @default(autoincrement())
-  name             String
-  phoneNum         String
-  address          String
-  city             String
-  is_active        Boolean
-  created_at       DateTime
-  updated_at       DateTime          @default(now())
-  receiveMedicines ReceiveMedicine[]
+    id               Int               @id @default(autoincrement())
+    name             String
+    phoneNum         String
+    address          String
+    city             String
+    is_active        Boolean
+    created_at       DateTime
+    updated_at       DateTime          @default(now())
+    receiveMedicines ReceiveMedicine[]
 }
 
 model Medicine {
@@ -143,51 +114,51 @@ model Medicine {
 }
 
 model MedicineHasClassification {
-  medicine         Medicine       @relation(fields: [medicineId], references: [id])
-  medicineId       Int
-  classification   Classification @relation(fields: [classificationId], references: [id])
-  classificationId Int
+    medicine         Medicine       @relation(fields: [medicineId], references: [id])
+    medicineId       Int
+    classification   Classification @relation(fields: [classificationId], references: [id])
+    classificationId Int
 
-  @@id([medicineId, classificationId])
+    @@id([medicineId, classificationId])
 }
 
 model PrescriptionHasMedicine {
-  id             Int          @id @default(autoincrement())
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
-  prescriptionId Int
-  medicine       Medicine?    @relation(fields: [medicineId], references: [id])
-  medicineId     Int?
-  medicineCode   String
-  quantity       Int
-  instruction    String
-  totalPrice     Decimal
-  draft          Boolean
+    id             Int          @id @default(autoincrement())
+    prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+    prescriptionId Int
+    medicine       Medicine?    @relation(fields: [medicineId], references: [id])
+    medicineId     Int?
+    medicineCode   String
+    quantity       Int
+    instruction    String
+    totalPrice     Decimal
+    draft          Boolean
 }
 
 model Prescription {
-  id           Int                       @id @default(autoincrement())
-  patient      Patient                   @relation(fields: [patientId], references: [id])
-  patientId    Int
-  medicineList PrescriptionHasMedicine[]
-  transaction  Transaction?
-  diagnose     Diagnose?
-  status       Status
-  is_active    Boolean
-  created_at   DateTime
-  updated_at   DateTime                  @default(now())
+    id           Int                       @id @default(autoincrement())
+    patient      Patient                   @relation(fields: [patientId], references: [id])
+    patientId    Int
+    medicineList PrescriptionHasMedicine[]
+    transaction  Transaction?
+    diagnose     Diagnose?
+    status       Status
+    is_active    Boolean
+    created_at   DateTime
+    updated_at   DateTime                  @default(now())
 }
 
 model Diagnose {
-  id             Int          @id @default(autoincrement())
-  doctor         Doctor       @relation(fields: [doctorId], references: [id])
-  doctorId       Int
-  title          String
-  description    String
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
-  prescriptionId Int          @unique
-  is_active      Boolean
-  created_at     DateTime
-  updated_at     DateTime     @default(now())
+    id             Int          @id @default(autoincrement())
+    doctor         User         @relation(fields: [doctorId], references: [id])
+    doctorId       Int
+    title          String
+    description    String
+    prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+    prescriptionId Int          @unique
+    is_active      Boolean
+    created_at     DateTime
+    updated_at     DateTime     @default(now())
 }
 
 model Transaction {
@@ -196,7 +167,7 @@ model Transaction {
   patientId      Int
   prescription   Prescription    @relation(fields: [prescriptionId], references: [id])
   prescriptionId Int             @unique
-  pharmacist     Pharmacist      @relation(fields: [pharmacistId], references: [id])
+  pharmacist     User            @relation(fields: [pharmacistId], references: [id])
   pharmacistId   Int
   paymentMethod  PaymentMethod?
   totalPrice     Decimal
@@ -210,23 +181,23 @@ model Transaction {
 }
 
 model ReceiveMedicine {
-  id             Int             @id @default(autoincrement())
-  documentNumber String
-  batchCode      String
-  medicine       Medicine        @relation(fields: [medicineId], references: [id])
-  medicineId     Int
-  quantity       Int
-  vendor         Vendor          @relation(fields: [vendorId], references: [id])
-  vendorId       Int
-  buyingPrice    Decimal
-  paymentMethod  PaymentMethod
-  deadline       DateTime
-  isPaid         Boolean
-  is_active      Boolean
-  created_at     DateTime
-  updated_at     DateTime        @default(now())
-  report         MedicineReport? @relation(fields: [reportId], references: [id])
-  reportId       Int?
+    id             Int             @id @default(autoincrement())
+    documentNumber String
+    batchCode      String
+    medicine       Medicine        @relation(fields: [medicineId], references: [id])
+    medicineId     Int
+    quantity       Int
+    vendor         Vendor          @relation(fields: [vendorId], references: [id])
+    vendorId       Int
+    buyingPrice    Decimal
+    paymentMethod  PaymentMethod
+    deadline       DateTime
+    isPaid         Boolean
+    is_active      Boolean
+    created_at     DateTime
+    updated_at     DateTime        @default(now())
+    report         MedicineReport? @relation(fields: [reportId], references: [id])
+    reportId       Int?
 }
 
 model OutputMedicine {
@@ -245,14 +216,14 @@ model OutputMedicine {
 }
 
 model MedicineReport {
-  id               Int               @id @default(autoincrement())
-  receiveMedicines ReceiveMedicine[]
-  transactions     Transaction[]
-  outputMedicines  OutputMedicine[]
-  isFinalized      Boolean
-  is_active        Boolean
-  created_at       DateTime
-  updated_at       DateTime          @default(now())
+    id               Int               @id @default(autoincrement())
+    receiveMedicines ReceiveMedicine[]
+    transactions     Transaction[]
+    outputMedicines  OutputMedicine[]
+    isFinalized      Boolean
+    is_active        Boolean
+    created_at       DateTime
+    updated_at       DateTime          @default(now())
 }
 
 model Pharmacy {
@@ -275,40 +246,40 @@ model PhysicalReport {
 }
 
 enum Role {
-  ADMIN
-  DOCTOR
-  PHARMACIST
+    ADMIN
+    DOCTOR
+    PHARMACIST
 }
 
 enum UnitOfMeasure {
-  MILLILITER
-  MILLIGRAM
-  GRAM
-  LITER
-  GROS
-  KODI
-  RIM
-  PCS
+    MILLILITER
+    MILLIGRAM
+    GRAM
+    LITER
+    GROS
+    KODI
+    RIM
+    PCS
 }
 
 enum Status {
-  UNPROCESSED
-  WAITING_FOR_PAYMENT
-  ON_PROGRESS
-  DONE
-  CANCELED
+    UNPROCESSED
+    WAITING_FOR_PAYMENT
+    ON_PROGRESS
+    DONE
+    CANCELED
 }
 
 enum PaymentMethod {
-  DEBIT
-  CREDIT
-  QRIS
-  PAYPAL
-  CASH
+    DEBIT
+    CREDIT
+    QRIS
+    PAYPAL
+    CASH
 }
 
 enum ReasonOfDispose {
-  EXPIRED
-  BROKEN
-  LOST
+    EXPIRED
+    BROKEN
+    LOST
 }

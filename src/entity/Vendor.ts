@@ -1,3 +1,4 @@
+import { isNumber } from "util";
 import BaseEntity from "./BaseEntity";
 
 export default class Vendor extends BaseEntity {
@@ -17,7 +18,7 @@ export default class Vendor extends BaseEntity {
     public static createSchema() {
         return {
             name: { isString: true },
-            phoneNum: { isString: true },
+            phoneNum: { isNumber: true },
             address: { isString: true },
             city: { isString: true },
         };

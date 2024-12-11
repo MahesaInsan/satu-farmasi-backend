@@ -16,57 +16,87 @@ export default class MedicineRepository {
 	public async fetchMedicineList(): Promise<MedicineDropdownVO[]> {
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+            // findAllMedicineIdByMedicineCode
 			return await this.prisma.$queryRaw<MedicineDropdownVO[]>(
 				Prisma.sql`
-					SELECT 
-						MAX(m.id) as id,
-						m.code,
-						MIN(m.name) as name,
-						MIN(m."merk") as "merk",
-						MIN(m."batchCode") as "batchCode",
-						CAST(SUM(m."currStock" - m."reservedStock") AS INTEGER) as "currStock",
-						MIN(m."minStock") as "minStock",
-						MIN(m.price) as "price",
-						MIN(m."maxStock") as "maxStock",
-						MIN(m.description) as "description",
-						MIN(m."expiredDate") as "expiredDate",
-						MIN(m."unitOfMeasure") as "unitOfMeasure",
-						MIN(m."sideEffect") as "sideEffect",
-						jsonb_agg(
-						  DISTINCT jsonb_build_object(
-							 'id', c.id,
-							 'label', c.label,
-							 'value', c.value
-						  )
-						) as classifications,
-						json_build_object(
-							'id', MIN(p.id),
-							'label', MIN(p.label)
-						) as packaging,
-						json_build_object(
-							'id', MIN(g.id),
-							'label', MIN(g.label)
-						) as "genericName"
-					FROM "Medicine" m
-					INNER JOIN "Packaging" p
-					ON m."packagingId" = p.id
-					INNER JOIN "GenericName" g
-					ON m."genericNameId" = g.id
-					INNER JOIN "MedicineHasClassification" mhc
-					ON m."id" = mhc."medicineId"
-					INNER JOIN "Classification" c
-					ON mhc."classificationId" = c."id"
-					WHERE 
-						m."is_active" = true
-						AND m."currStock" > 0
-						AND m."expiredDate" > ${futureDate}
-					GROUP BY 
-						m.code
-					HAVING 
-						SUM(m."currStock") > 0
-					ORDER BY
-						m.code ASC
-            `
+                    WITH flattened_classifications AS (
+                        SELECT
+                            MIN(id) as id,
+                            code,
+                            MIN("name") as "name",
+                            MIN("merk") as "merk",
+                            MIN("description") as "description",
+                            SUM("currStock") as "currStock",
+                            MIN("price") as "price",
+                            MIN("minStock") as "minStock",
+                            MIN("maxStock") as "maxStock",
+                            MIN("expiredDate") as "expiredDate",
+                            MIN("unitOfMeasure") as "unitOfMeasure",
+                            MIN("sideEffect") as "sideEffect",
+                            jsonb_array_elements(classifications) AS classification,
+                            packaging,
+                            "genericName"
+                        FROM (
+                            SELECT
+                                MIN(m.id) as id,
+                                m.code,
+                                MIN(m.name) as "name",
+                                MIN(m.merk) as "merk",
+                                MIN(m.description) as "description",
+                                SUM(m."currStock" - m."reservedStock") AS "currStock",
+                                MIN(m.price) AS "price",
+                                MIN(m."minStock") AS "minStock",
+                                MIN(m."maxStock") AS "maxStock",
+                                MIN(m."expiredDate") AS "expiredDate",
+                                MIN(m."unitOfMeasure") AS "unitOfMeasure",
+                                MIN(m."sideEffect") AS "sideEffect",
+                                jsonb_agg(
+                                    DISTINCT jsonb_build_object(
+                                        'id', c.id,
+                                        'label', c.label,
+                                        'value', c.value
+                                    )
+                                ) AS classifications,
+                                jsonb_build_object(
+                                    'id', MIN(p.id),
+                                    'label', MIN(p.label)
+                                ) AS packaging,
+                                jsonb_build_object(
+                                    'id', MIN(g.id),
+                                    'label', MIN(g.label)
+                                ) AS "genericName"
+                            FROM "Medicine" m
+                            INNER JOIN "Packaging" p ON m."packagingId" = p.id
+                            INNER JOIN "GenericName" g ON m."genericNameId" = g.id
+                            INNER JOIN "MedicineHasClassification" mhc ON m.id = mhc."medicineId"
+                            INNER JOIN "Classification" c ON mhc."classificationId" = c.id
+                            WHERE 
+                                m.is_active = true
+                                AND m."currStock" > 0
+                                AND m."expiredDate" > ${futureDate}
+                            GROUP BY m.code, m.id, mhc."classificationId"
+                        ) subquery
+                        GROUP BY
+                            code, packaging, "genericName", classification
+                    )
+                    SELECT
+                        MIN(id) as id,
+                        code,
+                        MIN("name") as "name",
+                        MIN("merk") as "merk",
+                        MIN("description") as "description",
+                        "currStock",
+                        MIN("price") as "price",
+                        MIN("minStock") as "minStock",
+                        MIN("maxStock") as "maxStock",
+                        MIN("expiredDate") as "expiredDate",
+                        MIN("unitOfMeasure") as "unitOfMeasure",
+                        MIN("sideEffect") as "sideEffect",
+                        jsonb_agg(DISTINCT classification) AS classifications,
+                        packaging,
+                        "genericName"
+                    FROM flattened_classifications
+                    GROUP BY code, packaging, "genericName", "currStock"`
 			);
 		} catch (error) {
 			console.error('Error getting medicineList:', error);
@@ -300,7 +330,8 @@ export default class MedicineRepository {
 				data: {
 					currStock: {
 						increment: quantity
-					}
+					},
+                    is_active: true
 				}
 			})
 		} catch (error) {
@@ -485,6 +516,7 @@ export default class MedicineRepository {
 					currStock: true,
 					minStock: true,
 					maxStock: true,
+                    reservedStock: true,
 					sideEffect: true,
 					is_active: true,
 					created_at: true,
@@ -529,55 +561,103 @@ export default class MedicineRepository {
 				? `ORDER BY "${sortBy}" ${sortMode}`
 				: `ORDER BY "code" ASC, "is_active" DESC`;
 
-			return await this.prisma.$queryRaw`
-				SELECT 
-					"code",
-					MAX("name") AS "name", 
-					MAX("merk") AS "merk",
-					MIN(m."batchCode") as "batchCode",
-					MAX("description") AS "description",
-					MAX("unitOfMeasure") AS "unitOfMeasure",
-					MAX("price") AS "price",
-					MAX("expiredDate") AS "expiredDate",
-					CAST(SUM("currStock") AS INTEGER) AS "currStock",
-					MAX("minStock") AS "minStock",
-					MAX("maxStock") AS "maxStock",
-					CASE WHEN COUNT(CASE WHEN m."is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
-					MAX("sideEffect") AS "sideEffect",
-					MAX(m."created_at") AS "created_at",
-					MAX(m."updated_at") AS "updated_at",
-					jsonb_agg(
-						  DISTINCT jsonb_build_object(
-							 'id', c.id,
-							 'label', c.label,
-							 'value', c.value
-						  )
-						) as classifications,
-					json_build_object(
-						'id', MAX(p.id),
-						'label', MAX(p.label)
-					) as packaging,
-					json_build_object(
-						'id', MAX(g.id),
-						'label', MAX(g.label)
-					) as "genericName"
-				FROM "Medicine" m
-					INNER JOIN "Packaging" p
-					ON m."packagingId" = p.id
-					INNER JOIN "GenericName" g
-					ON m."genericNameId" = g.id
-					INNER JOIN "MedicineHasClassification" mhc
-					ON m."id" = mhc."medicineId"
-					INNER JOIN "Classification" c
-					ON mhc."classificationId" = c."id"
-				WHERE 
-					"name" ILIKE ${`%${searchQuery}%`} 
-					OR "code" ILIKE ${`%${searchQuery}%`} 
-					OR "merk" ILIKE ${`%${searchQuery}%`}
-				GROUP BY "code"
-				${Prisma.sql([orderBy])}
-				LIMIT ${limit} OFFSET ${startIndex};
-			`;
+            return await this.prisma.$queryRaw<MedicineDisplayVO[]>(Prisma.sql`
+WITH flattened_classifications AS (
+    SELECT
+          "code",
+          MIN(id) AS id,
+          MAX("name") AS "name", 
+          MAX("merk") AS "merk",
+          MAX("description") AS "description",
+          MAX("unitOfMeasure") AS "unitOfMeasure",
+          MAX("price") AS "price",
+          MAX("expiredDate") AS "expiredDate",
+          CAST(SUM("currStock") AS INTEGER) AS "currStock",
+          MAX("reservedStock") AS "reservedStock",
+          MAX("minStock") AS "minStock",
+          MAX("maxStock") AS "maxStock",
+          CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+          MAX("sideEffect") AS "sideEffect",
+          MAX("created_at") AS "created_at",
+          MAX("updated_at") AS "updated_at",
+        jsonb_array_elements(classifications) AS classification,
+        packaging,
+        "genericName"
+    FROM (
+        SELECT 
+              "code",
+              MIN(m.id) AS id,
+              MAX(m."name") AS "name", 
+              MAX(m."merk") AS "merk",
+              MAX(m."description") AS "description",
+              MAX(m."unitOfMeasure") AS "unitOfMeasure",
+              MAX(m."price") AS "price",
+              MAX(m."expiredDate") AS "expiredDate",
+              CAST(SUM("currStock") AS INTEGER) AS "currStock",
+              MAX(m."reservedStock") AS "reservedStock",
+              MAX(m."minStock") AS "minStock",
+              MAX(m."maxStock") AS "maxStock",
+              CASE WHEN COUNT(CASE WHEN m."is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+              MAX(m."sideEffect") AS "sideEffect",
+              MAX(m."created_at") AS "created_at",
+              MAX(m."updated_at") AS "updated_at",
+              jsonb_agg(
+                DISTINCT jsonb_build_object(
+                  'id', c.id,
+                  'label', c.label,
+                  'value', c.value
+                )
+              ) AS classifications,
+                jsonb_build_object(
+                'id', MAX(p.id),
+                'label', MAX(p.label)
+              ) AS packaging,
+                jsonb_build_object(
+                'id', MAX(g.id),
+                'label', MAX(g.label)
+              ) AS "genericName"
+            FROM "Medicine" m
+            INNER JOIN "Packaging" p ON m."packagingId" = p.id
+            INNER JOIN "GenericName" g ON m."genericNameId" = g.id
+            INNER JOIN "MedicineHasClassification" mhc ON m."id" = mhc."medicineId"
+            INNER JOIN "Classification" c ON mhc."classificationId" = c."id"
+            WHERE 
+      ("name" ILIKE ${`%${searchQuery}%`} 
+      OR "code" ILIKE ${`%${searchQuery}%`} 
+      OR "merk" ILIKE ${`%${searchQuery}%`})
+            AND m.is_active = True
+            GROUP BY m.code, m.id, mhc."classificationId"
+    ${Prisma.sql([orderBy])}
+    LIMIT ${limit} OFFSET ${startIndex}
+                ) subquery
+            GROUP BY
+                code, packaging, "genericName", classification
+)
+SELECT
+      "code",
+      MIN(id) AS id,
+      MAX("name") AS "name", 
+      MAX("merk") AS "merk",
+      MAX("description") AS "description",
+      MAX("unitOfMeasure") AS "unitOfMeasure",
+      MAX("price") AS "price",
+      MAX("expiredDate") AS "expiredDate",
+    "currStock",
+      MAX("reservedStock") AS "reservedStock",
+      MAX("minStock") AS "minStock",
+      MAX("maxStock") AS "maxStock",
+      CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+      MAX("sideEffect") AS "sideEffect",
+      MAX("created_at") AS "created_at",
+      MAX("updated_at") AS "updated_at",
+    jsonb_agg(DISTINCT classification) AS classifications,
+    packaging,
+    "genericName"
+FROM flattened_classifications
+GROUP BY code, packaging, "genericName", "currStock"
+`);
+
+
 		} catch (error) {
 			throw error as string
 		}
@@ -620,6 +700,7 @@ export default class MedicineRepository {
 					description: true,
 					unitOfMeasure: true,
 					price: true,
+                    reservedStock: true,
 					expiredDate: true,
 					currStock: true,
 					minStock: true,
@@ -690,6 +771,7 @@ export default class MedicineRepository {
 					currStock: true,
 					minStock: true,
 					maxStock: true,
+                    reservedStock: true,
 					sideEffect: true,
 					is_active: true,
 					created_at: true,
@@ -761,6 +843,7 @@ export default class MedicineRepository {
 					currStock: true,
 					minStock: true,
 					maxStock: true,
+                    reservedStock: true,
 					sideEffect: true,
 					is_active: true,
 					created_at: true,
@@ -815,6 +898,7 @@ export default class MedicineRepository {
 					currStock: true,
 					minStock: true,
 					maxStock: true,
+                    reservedStock: true,
 					sideEffect: true,
 					is_active: true,
 					created_at: true,

@@ -51,7 +51,7 @@ export default class VendorController extends BaseController {
             this.validateData(req);
             const request: AddVendorRequest = req.body;
             const createdVendor: Vendor = await this.vendorService.addVendor(request)
-            res.status(200).send(new BaseResponse().ok(createdVendor, "Successfully Created Vendor"));
+            res.status(200).send(new BaseResponse().ok(createdVendor, "Vendor Berhasil Ditambahkan"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -92,7 +92,7 @@ export default class VendorController extends BaseController {
             data.id = id;
             const request: EditVendorRequest = data;
             const editVendor: boolean = await this.vendorService.editVendor(request);
-            res.status(200).send(new BaseResponse().ok(editVendor, "Successfully Edited Vendor"));
+            res.status(200).send(new BaseResponse().ok(editVendor, "Vendor Berhasil Diubah"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
@@ -107,7 +107,11 @@ export default class VendorController extends BaseController {
             data.id = id;
             const request: EditVendorRequest = data;
             const vendor: boolean = await this.vendorService.deleteVendor(request);
-            return res.status(200).send(new BaseResponse().ok(vendor, "Successfully Deleted Vendor"));
+            const successMsg: string = 
+                req.body.isActive
+                ? "Vendor Berhasil Diaktifkan"
+                : "Vendor Berhasil Dinonaktifkan";
+            return res.status(200).send(new BaseResponse().ok(vendor, successMsg));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));

@@ -1,0 +1,162 @@
+[
+    {
+        "id": 1,
+        "medicine": "Anafen",
+        "genericName": "Ibuprofen",
+        "merk": "Bodrex",
+        "packaging": "Tablet",
+        "classification": ["Antiinflamasi", "Antipiretik"]
+    },
+    {
+        "id": 2,
+        "medicine": "Antibiotik",
+        "genericName": "Amoxicillin",
+        "merk": "Flemox",
+        "packaging": "Kapsul",
+        "classification": ["Antimikroba", "Antibakteri"]
+    },
+    {
+        "id": 3,
+        "medicine": "Antiemetik",
+        "genericName": "Domperidone",
+        "merk": "Praxis",
+        "packaging": "Kaplet",
+        "classification": [
+            "Diphenhydramine",
+            "Dimenhydrinate",
+            "Chlorpromazine"
+        ]
+    },
+    {
+        "id": 4,
+        "medicine": "Antimania",
+        "genericName": "Valproat",
+        "merk": "Depakene",
+        "packaging": "Tablet",
+        "classification": ["Antipsikotik"]
+    },
+    {
+        "id": 5,
+        "medicine": "Antiza",
+        "genericName": "phenylpropanolamine",
+        "merk": "Reactine",
+        "packaging": "Tablet",
+        "classification": ["Antihistamin"]
+    },
+    {
+        "id": 6,
+        "medicine": "Analgetik",
+        "genericName": "Analgesik",
+        "merk": "Aspirin",
+        "packaging": "Sirup",
+        "classification": [
+            "Antiinflamasi Analgesik",
+            "Opioid Analgesik",
+            "Compound Analgesics"
+        ]
+    },
+    {
+        "id": 7,
+        "medicine": "Cefadroxil",
+        "genericName": "Cefalosporin",
+        "merk": "Methimazole",
+        "packaging": "Tablet",
+        "classification": ["Sefalosporin"]
+    },
+    {
+        "id": 8,
+        "medicine": "Caviplex",
+        "genericName": "Suplemen vitamin",
+        "merk": "Neurotropik",
+        "packaging": "Botol",
+        "classification": ["Suplemen"]
+    },
+    {
+        "id": 9,
+        "medicine": "Histigen",
+        "genericName": "Antihistamin",
+        "merk": "Allerin",
+        "packaging": "Sirup",
+        "classification": ["Antihistamin", "Antialergi"]
+    },
+    {
+        "id": 10,
+        "medicine": "Histigo",
+        "genericName": "Antihistamin",
+        "merk": "Cetirizine",
+        "packaging": "Tablet",
+        "classification": ["Antihistamin", "Antialergi"]
+    },
+    {
+        "id": 11,
+        "medicine": "Holimox",
+        "genericName": "Amoxicillin",
+        "merk": "Amoxicillin",
+        "packaging": "Kapsul",
+        "classification": ["Antibakteri"]
+    },
+    {
+        "id": 12,
+        "medicine": "Imboost",
+        "genericName": "imunostimulan",
+        "merk": "Elkana",
+        "packaging": "Botol",
+        "classification": ["Imunomodulator"]
+    },
+    {
+        "id": 13,
+        "medicine": "Imodium",
+        "genericName": "Loperamide",
+        "merk": "Loperal",
+        "packaging": "Kapsul",
+        "classification": ["Antidiare", "Antispasmodik"]
+    },
+    {
+        "id": 14,
+        "medicine": "Icodextrin",
+        "genericName": "kortikosteroid",
+        "merk": "Extraneal",
+        "packaging": "Kantong Infus",
+        "classification": ["Infus"]
+    },
+    {
+        "id": 15,
+        "medicine": "Kafein",
+        "genericName": "Kafein",
+        "merk": "Stimuno",
+        "packaging": "Kapsul",
+        "classification": ["Psikostimulan"]
+    },
+    {
+        "id": 16,
+        "medicine": "Panadol",
+        "genericName": "Parasetamol",
+        "merk": "Pamol",
+        "packaging": "Tablet",
+        "classification": ["Analgesik", "Antipiretik"]
+    },
+    {
+        "id": 17,
+        "medicine": "Paramex",
+        "genericName": "Propyphenazone",
+        "merk": "Panadol",
+        "packaging": "Tablet",
+        "classification": ["Analgesik", "Antipiretik"]
+    },
+    {
+        "id": 18,
+        "medicine": "Paratusin",
+        "genericName": "Parasetamol",
+        "merk": "Vicks",
+        "packaging": "Sirup",
+        "classification": ["Antitusif", "Analgesik topikal"]
+    },
+    {
+        "id": 19,
+        "medicine": "Palenox",
+        "genericName": "Prokain",
+        "merk": "Procaine",
+        "packaging": "Tablet",
+        "classification": ["Antihistamin"]
+    }
+]

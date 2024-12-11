@@ -9,8 +9,8 @@ export default class VendorRepository extends BaseRepository {
 	public async getAllVendors(limit: number, startIndex: number): Promise<Vendor[]> {
 		try {
 			return await this.Prisma.vendor.findMany({
-				where: { is_active: true },
 				orderBy: [
+                    { is_active: 'desc' },
 					{ updated_at: 'desc' },
 					{ created_at: 'desc' },
 				],
@@ -41,7 +41,11 @@ export default class VendorRepository extends BaseRepository {
 	public async getTotalVendors(): Promise<number> {
 		try {
 			return await this.Prisma.vendor.count({
-				where: { is_active: true },
+				orderBy: [
+                    { is_active: 'desc' },
+					{ updated_at: 'desc' },
+					{ created_at: 'desc' },
+				],
 			});
 		} catch (error) {
 			console.log("Error getting total vendors:", error);
@@ -57,9 +61,9 @@ export default class VendorRepository extends BaseRepository {
 						contains: name,
 						mode: 'insensitive'
 					},
-					is_active: true,
 				},
 				orderBy: [
+                    { is_active: 'desc' },
 					{ updated_at: 'desc' },
 					{ created_at: 'desc' },
 				],
@@ -81,11 +85,13 @@ export default class VendorRepository extends BaseRepository {
 								mode: 'insensitive'
 							}
 						},
-						{
-							is_active: true
-						}
 					],
 				},
+				orderBy: [
+                    { is_active: 'desc' },
+					{ updated_at: 'desc' },
+					{ created_at: 'desc' },
+				],
 				skip: startIndex,
 				take: limit,
 			});

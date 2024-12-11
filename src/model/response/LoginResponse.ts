@@ -1,22 +1,32 @@
 export default class LoginResponse{
     private _firstName: string;
     private _lastName: string;
+    private _email: string;
     private _token: string;
     private _role: string;
 
-    constructor(firstName: string, lastName: string, token: string, role: string) {
+    constructor(firstName: string, lastName: string, token: string, role: string, email: string) {
         this._firstName = firstName;
         this._lastName = lastName;
         this._token = token;
         this._role = role;
+        this._email = email;
     }
 
     get firstName(): string {
         return this._firstName;
     }
 
+    get email(): string {
+        return this._email;
+    }
+
     set firstName(value: string) {
         this._firstName = value;
+    }
+
+    set email(value: string) {
+        this._email = value;
     }
 
     get lastName(): string {

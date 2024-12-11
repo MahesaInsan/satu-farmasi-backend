@@ -20,7 +20,7 @@ export default class PackagingController extends BaseController {
             this.validateData(req);
             const request: AddPackagingRequest = req.body;
             const packaging: boolean = await this.packagingService.createPackaging( request );
-            return res.status(200).send(new BaseResponse().ok(packaging, "Successfully Created Packaging"));
+            return res.status(200).send(new BaseResponse().ok(packaging, "Kemasan Berhasil Ditambahkan"));
         } catch (error) {
             console.log("[src][controller][PackagingController][createPackaging] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -52,7 +52,8 @@ export default class PackagingController extends BaseController {
 
     public async getPackagingsDropdown(req: Request, res: Response) {
         try {
-            const packagings: PackagingDropdownVO[] = await this.packagingService.getPackagingsDropdown();
+            const medicineCode: string | null = req.query.medicineCode as string;
+            const packagings: PackagingDropdownVO[] = await this.packagingService.getPackagingsDropdown(medicineCode);
             return res.status(200).send(new BaseResponse().ok(packagings));
         } catch (error) {
             console.log("[src][controller][PackagingController][getPackagingsDropdown] ", error);
@@ -65,7 +66,7 @@ export default class PackagingController extends BaseController {
         try {
             this.validateData(req);
             const packaging: boolean = await this.packagingService.editPackaging(req.body);
-            return res.status(200).send(new BaseResponse().ok(packaging, "Successfully Edited Packaging"));
+            return res.status(200).send(new BaseResponse().ok(packaging, "Kemasan Berhasil Diubah"));
         } catch (error) {
             console.log("[src][controller][PackagingController][editPackaging] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -77,7 +78,11 @@ export default class PackagingController extends BaseController {
         try {
             this.validateData(req);
             const packaging: boolean = await this.packagingService.deletePackaging(req.body);
-            return res.status(200).send(new BaseResponse().ok(packaging, "Successfully Deleted Packaging"));
+            const successMsg: string = 
+                req.body.isActive
+                ? "Kemasan Berhasil Diaktifkan"
+                : "Kemasan Berhasil Dinonaktifkan";
+            return res.status(200).send(new BaseResponse().ok(packaging,successMsg));
         } catch (error) {
             console.log("[src][controller][PackagingController][deletePackaging] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
