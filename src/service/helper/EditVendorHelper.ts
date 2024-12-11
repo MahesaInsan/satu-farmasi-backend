@@ -8,7 +8,7 @@ export default class VendorHelper {
     public createVendor(request: AddVendorRequest): Vendor {
         return Builder<Vendor>()
             .name(request.name)
-            .phoneNum(request.phoneNum)
+            .phoneNum(request.phoneNum.toString())
             .address(request.address)
             .city(request.city)
             .is_active(true)
@@ -20,7 +20,7 @@ export default class VendorHelper {
         return Builder<Vendor>()
             .id(request.id)
             .name(request.name)
-            .phoneNum(request.phoneNum)
+            .phoneNum(request.phoneNum.toString())
             .address(request.address)
             .city(request.city)
             .is_active(request.is_active || false)

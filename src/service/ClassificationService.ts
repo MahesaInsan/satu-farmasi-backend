@@ -3,14 +3,18 @@ import AddClassificationRequest from "../model/request/AddClassificationRequest"
 import ClassificationRepository from "../repository/ClassificationRepository";
 import ClassificationHelper from "./helper/ClassificationHelper";
 import EditClassificationRequest from "../model/request/EditClassificationRequest";
+import MedicineRepository from "../repository/MedicineRepository";
+import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
 
 export default class ClassificationService {
     private readonly classificationRepository: ClassificationRepository;
     private readonly classificationHelper: ClassificationHelper;
+    private readonly medicineRepository: MedicineRepository;
 
     constructor() {
         this.classificationRepository = new ClassificationRepository();
         this.classificationHelper = new ClassificationHelper();
+        this.medicineRepository = new MedicineRepository();
     }
 
   public async getTotalClassifications(): Promise<number> {
@@ -82,9 +86,19 @@ export default class ClassificationService {
     }
   }
 
-  public async getClassificationsDropdown(): Promise<Classification[]> {
+  public async getClassificationsDropdown(medicineCode?: string): Promise<Classification[]> {
 	  try {
-		  return await this.classificationRepository.getClassificationsDropdown();
+        let classificationId: number[] = []
+        if (medicineCode) {
+            const medicine: MedicineDisplayVO | null = await this.medicineRepository.getMedicineByCode(medicineCode);
+            if (medicine) {
+                for (const item of medicine.classifications) {
+                    classificationId?.push(item.classification.id)
+                }
+            }
+        }
+        console.log("classificationId", classificationId);
+		return await this.classificationRepository.getClassificationsDropdown(classificationId);
 	  } catch (error) {
 		  throw new Error(error as string);
 	  }

@@ -63,7 +63,7 @@ export default class AdminRepository extends BaseRepository {
     public async getAdminByEmail(email: string): Promise<User | null> {
         try {
             return await this.Prisma.user.findUnique({
-                where: { email: email },
+                where: { email: email, role: "ADMIN" },
             });
         } catch (error) {
             console.error("Error getting admin by email:", error);

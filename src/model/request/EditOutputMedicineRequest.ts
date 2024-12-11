@@ -8,8 +8,9 @@ export default class EditOutputMedicineRequest {
     private _reasonOfDispose: ReasonOfDispose;
     private _reportId: number;
     private _is_active: boolean;
+    private _physicalReportId: number;
 
-    constructor(id: number, medicineId: number, quantity: number, reasonOfDispose: ReasonOfDispose, reportId: number, is_active: boolean, oldQuantity: number) {
+    constructor(id: number, medicineId: number, quantity: number, reasonOfDispose: ReasonOfDispose, reportId: number, is_active: boolean, oldQuantity: number, physicalReportId: number) {
         this._id = id;
         this._medicineId = medicineId;
         this._quantity = quantity;
@@ -17,6 +18,7 @@ export default class EditOutputMedicineRequest {
         this._reportId = reportId;
         this._is_active = is_active;
         this._oldQuantity = oldQuantity;
+        this._physicalReportId = physicalReportId;
     }
 
     get id(): number {
@@ -58,7 +60,7 @@ export default class EditOutputMedicineRequest {
     set reportId(value: number) {
         this._reportId = value;
     }
-
+    
     get is_active(): boolean {
         return this._is_active;
     }
@@ -66,12 +68,20 @@ export default class EditOutputMedicineRequest {
     set is_active(value: boolean) {
         this._is_active = value;
     }
-
+    
     get oldQuantity(): number {
         return this._oldQuantity;
     }
-
+    
     set currStock(value: number) {
         this._oldQuantity = value;
+    }
+
+    get physicalReportId(): number {
+        return this._physicalReportId;
+    }
+
+    set physicalReportId(value: number) {
+        this._physicalReportId = value;
     }
 }

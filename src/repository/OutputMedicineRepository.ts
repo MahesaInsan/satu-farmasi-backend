@@ -31,6 +31,13 @@ export default class OutputMedicineRepository extends BaseRepository {
                             id: true,
                             isFinalized: true,
                         }
+                    },
+                    physicalReport: {
+                        select: {
+                            id: true,
+                            data: true,
+                            created_at: true,
+                        }
                     }
                 },
                 orderBy: { created_at: 'desc' },
@@ -78,6 +85,13 @@ export default class OutputMedicineRepository extends BaseRepository {
                         select: {
                             id: true,
                             isFinalized: true,
+                        }
+                    },
+                    physicalReport: {
+                        select: {
+                            id: true,
+                            data: true,
+                            created_at: true,
                         }
                     }
                 }
@@ -141,6 +155,13 @@ export default class OutputMedicineRepository extends BaseRepository {
                         select: {
                             id: true,
                             isFinalized: true,
+                        }
+                    },
+                    physicalReport: {
+                        select: {
+                            id: true,
+                            data: true,
+                            created_at: true,
                         }
                     }
                 },

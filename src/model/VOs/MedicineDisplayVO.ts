@@ -12,6 +12,7 @@ export default interface MedicineDisplayVO {
     currStock: number;
     minStock: number;
     maxStock: number;
+    reservedStock: number;
     sideEffect: string;
     is_active: boolean;
     created_at: Date;

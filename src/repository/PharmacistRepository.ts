@@ -40,12 +40,14 @@ export default class PharmacistRepository extends BaseRepository {
 
     public async getPharmacistByEmail(email: string): Promise<User | null> {
         try {
-            return await this.Prisma.user.findUnique({
-                where: { email: email },
+            const pharmacist: User | null = await this.Prisma.user.findUnique({
+                where: { email: email, role: "PHARMACIST" },
             });
+            if (pharmacist && !pharmacist.is_active) throw new CustomError().formatError("Akun sudah tidak aktif lagi", "custom");
+            return pharmacist
         } catch (error) {
             console.error("Error getting pharmacist by email:", error);
-            throw new Error("Failed to get pharmacist");
+            throw error;
         }
     }
 

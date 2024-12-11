@@ -6,6 +6,9 @@ import AddTransactionRequest from "../model/request/AddTransactionRequest";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
 import ChangeTransactionStatusVO from "../model/VOs/ChangeTransactionStatusVO";
+import TransactionAnnualRecapRequest from "../model/request/TransactionAnnualRecapRequest";
+import { Prisma } from "@prisma/client";
+import RangeMonthRequest from "../model/request/RangeMonthRequest";
 import {Status} from "@prisma/client";
 
 export default class TransactionController extends BaseController{
@@ -64,6 +67,32 @@ export default class TransactionController extends BaseController{
         } catch (error) {
             console.error("error when #getTransactionDetail with error: ", error)
             res.status(400).send(new BaseResponse().badRequest(error as string));
+        }
+    }
+
+    public async getTransactionProfitByDate(req: Request, res: Response) {
+        try {
+            console.log("#getTransactionDetail with body: ", req.body);
+            const request: RangeMonthRequest = req.body;
+            const result: Prisma.Decimal = await this.transactionService.getTransactionProfitByDate(request.startDate, request.lastDate)
+            res.status(200).send(new BaseResponse().ok(result))
+        } catch (error) {
+            console.error("error when #getTransasctionByDate with error: ", error)
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            return res.status(200).send(new BaseResponse().badRequest(errorMessage));
+        }
+    }
+
+    public async getAnnualTransactionRecap(req: Request, res: Response) {
+        try {
+            console.log("#getAnnualTransactionRecap with body: ", req.body);
+            const request: TransactionAnnualRecapRequest = req.body;
+            const result = await this.transactionService.getAnnualTransactionRecap(request.year);
+            res.status(200).send(new BaseResponse().ok(result))
+        } catch (error) {
+            console.error("error when #getAnnualTransactionRecap with error: ", error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            return res.status(200).send(new BaseResponse().badRequest(errorMessage));
         }
     }
 

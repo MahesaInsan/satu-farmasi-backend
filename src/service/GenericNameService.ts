@@ -7,9 +7,11 @@ import EditGenericNameHelper from "./helper/EditGenericNameHelper";
 import EditGenericNameRequest from "../model/request/editGenericNameRequest";
 import GenericDropdownVO from "../model/VOs/GenericDropdownVO";
 import MedicineService from "./MedicineService";
+import MedicineRepository from "../repository/MedicineRepository";
 
 export default class GenericNameService {
     private readonly genericNameRepository: GenericNameRepository;
+    private readonly medicineRepository: MedicineRepository;
     private readonly createMedicineHelper: CreateMedicineHelper<AddGenericNameRequest, GenericName>;
     private readonly editGenericNameHelper: EditGenericNameHelper<EditGenericNameRequest, GenericName>;
     private readonly medicineService: MedicineService;
@@ -17,6 +19,7 @@ export default class GenericNameService {
     constructor() {
         this.genericNameRepository = new GenericNameRepository();
         this.medicineService = new MedicineService();
+        this.medicineRepository = new MedicineRepository();
         this.createMedicineHelper = new CreateMedicineHelper<AddGenericNameRequest, GenericName>();
         this.editGenericNameHelper = new EditGenericNameHelper<EditGenericNameRequest, GenericName>();
     }
@@ -45,9 +48,16 @@ export default class GenericNameService {
         }
     }
 
-    public async getGenericNameDropdown(): Promise<GenericDropdownVO[]>{
+    public async getGenericNameDropdown(medicineCode?: string): Promise<GenericDropdownVO[]>{
         try {
-            return await this.genericNameRepository.getGenericNameDropdown();
+            let genericNameId: number | undefined;
+            if (medicineCode) {
+                const medicine = await this.medicineRepository.getMedicineByCode(medicineCode)
+                if (medicine) {
+                    genericNameId = medicine.genericName.id
+                }
+            }
+            return await this.genericNameRepository.getGenericNameDropdown(genericNameId)
         } catch (error) {
             throw new Error(error as string);
         }
@@ -95,7 +105,7 @@ export default class GenericNameService {
     public async deleteGenericName(request: EditGenericNameRequest): Promise<boolean>{
         try {
             const genericName: GenericName = this.editGenericNameHelper.editGenericName(request);
-            return await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).is_active(false).build())
+            return await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).is_active(request.isActive).build())
         } catch (error) {
             throw new Error(error as string);
         }

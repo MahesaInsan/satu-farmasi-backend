@@ -12,18 +12,26 @@ import PaginationRequest from "../model/request/PaginationRequest";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import ChangeTransactionStatusVO from "../model/VOs/ChangeTransactionStatusVO";
 import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
+import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
+import ReceiveMedicineService from "./ReceiveMedicineService";
+import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
+import TransactionAnnualRecapVO from "../model/VOs/TransactionAnnualRecapVO";
 import MedicineReportService from "./MedicineReportService";
 import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
 import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
 import MedicineReportHelper from "./helper/MedicineReportHelper";
+import PhysicalReportService from "./PhysicalReportService";
+import PhysicalReportVO from "../model/VOs/PhysicalReportVO";
 
 export default class TransactionService{
     private readonly patientService: PatientService;
     private readonly prescriptionService: PrescriptionService;
     private readonly pharmacistService: PharmacistService;
+    private readonly receiveMedicineService: ReceiveMedicineService;
     private readonly medicineReportService:MedicineReportService;
     private readonly medicineReportHelper: MedicineReportHelper;
     private readonly transactionRepository: TransactionRepository;
+    private readonly physicalReportService: PhysicalReportService;
 
     private transactionSSE: SSEConnection[] = [];
 
@@ -31,9 +39,11 @@ export default class TransactionService{
         this.patientService = new PatientService();
         this.prescriptionService = new PrescriptionService();
         this.pharmacistService = new PharmacistService();
+        this.receiveMedicineService = new ReceiveMedicineService();
         this.medicineReportService = new MedicineReportService();
         this.transactionRepository = new TransactionRepository();
         this.medicineReportHelper = new MedicineReportHelper();
+        this.physicalReportService = new PhysicalReportService();
     }
 
     public async createNewTransaction(request: AddTransactionRequest) {
@@ -46,7 +56,7 @@ export default class TransactionService{
                 .pharmacistId(1)
                 .totalPrice(totalPrice)
                 .is_active(true)
-                .created_at(new Date())
+                .created_at(request.created_at || new Date())
                 .updated_at(new Date())
                 .build();
             await this.prescriptionService.changeDraftPrescriptionToFinalizedPrescription(tuple[1].id)
@@ -115,6 +125,22 @@ export default class TransactionService{
         }
     }
 
+    public async getTransactionByDate(startDate: Date, lastDate: Date): Promise<TransactionByDateVO[]> {
+        try {
+            return await this.transactionRepository.getTransactionByDate(new Date(startDate), new Date(lastDate))
+        } catch (error) {
+            throw error as string
+        }
+    }
+
+    public async getAnnualTransactionRecap(year: number): Promise<TransactionAnnualRecapVO[]> {
+        try {
+            return await this.transactionRepository.getAnnualTransactionRecap(year);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
     public async getOnGoingAndWaitingPaymentTransaction(patientName: string | undefined) {
         try {
             const onGoing: TransactionSummaryVO[] = await this.transactionRepository.getTransactionByStatus(patientName, "ON_PROGRESS", 5)
@@ -122,6 +148,36 @@ export default class TransactionService{
             return onGoing.concat(waitingPayment);
         } catch (error) {
             throw error as string
+        }
+    }
+
+    public async getTransactionProfitByDate(startDate: Date, lastDate: Date): Promise<Prisma.Decimal> {
+        try {
+            const transactions: TransactionByDateVO[] = await this.getTransactionByDate(startDate, lastDate);
+            const profits: Prisma.Decimal[] = await Promise.all(
+                transactions.map(async transaction => {
+                    const receiveMedicine: ReceiveMedicineVO | null = await this.receiveMedicineService.getReceiveMedicineByMedicineId(transaction.id);
+                    
+                    // get buying price
+                    const buyingQty: Prisma.Decimal = new Prisma.Decimal(receiveMedicine?.quantity ?? 1);
+                    const buyingPrice: Prisma.Decimal = receiveMedicine
+                    ? receiveMedicine.buyingPrice.div(buyingQty)
+                    : new Prisma.Decimal(0)
+                    
+                    // get profit
+                    return new Prisma.Decimal(transaction.totalPrice)
+                    .sub(new Prisma.Decimal(transaction.quantity).mul(buyingPrice))
+                })
+            )
+            
+            // add profit to total
+            const total: Prisma.Decimal = profits.reduce((accumulator, currentValue) => {
+                return new Prisma.Decimal(accumulator).add(currentValue)
+            }, new Prisma.Decimal(0));
+
+            return total
+        } catch (error) {
+            throw error as string;
         }
     }
 
@@ -152,6 +208,8 @@ export default class TransactionService{
             if (transaction !== null) {
                 if (Object.values(PaymentMethod).includes(request.paymentMethod) &&
                         Status.WAITING_FOR_PAYMENT === transaction.prescription.status) {
+                    const physicalReport: PhysicalReportVO = await this.physicalReportService.createPhysicalReport(request.physicalReport);
+                    await this.transactionRepository.updatePhysicalReportById(physicalReport.id, request.id);
                     await this.transactionRepository.updatePaymentMethodById(request.paymentMethod, request.id)
                     await this.prescriptionService.updatePrescriptionStatus(transaction.prescriptionId, Status.ON_PROGRESS)
                     return true;
@@ -208,8 +266,11 @@ export default class TransactionService{
 
     private async calculateTotalPrice(prescription: PrescriptionDetailVO): Promise<Prisma.Decimal>{
         try {
-            return prescription.medicineList
+            console.log("prescription.medicineList", prescription.medicineList)
+            const test =  prescription.medicineList
                 .reduce((total: Prisma.Decimal, medicine) => Prisma.Decimal.add(total, medicine.totalPrice), new Prisma.Decimal(0))
+            console.log("test", test)
+            return test;
         } catch (error) {
             throw error as string;
         }

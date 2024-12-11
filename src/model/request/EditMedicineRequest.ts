@@ -6,6 +6,7 @@ export default class EditMedicineRequest {
     private _id: number;
     private _code: string;
     private _name: string;
+    private _batchCode: string;
     private _genericNameId: number;
     private _merk: string;
     private _description: string;
@@ -27,6 +28,7 @@ export default class EditMedicineRequest {
         name: string,
         genericNameId: number,
         merk: string,
+        batchCode: string,
         description: string,
         unitOfMeasure: UnitOfMeasure,
         price: Decimal,
@@ -46,6 +48,7 @@ export default class EditMedicineRequest {
         this._name = name;
         this._genericNameId = genericNameId;
         this._merk = merk;
+        this._batchCode = batchCode;
         this._description = description;
         this._unitOfMeasure = unitOfMeasure;
         this._price = price;
@@ -69,6 +72,10 @@ export default class EditMedicineRequest {
 
     get name(): string {
         return this._name;
+    }
+
+    get batchCode(): string {
+        return this._batchCode;
     }
 
     get genericNameId(): number {
@@ -133,6 +140,10 @@ export default class EditMedicineRequest {
 
     set name(name: string) {
         this._name = name;
+    }
+
+    set batchCode(batchCode: string) {
+        this._batchCode = batchCode;
     }
 
     set genericNameId(genericNameId: number) {

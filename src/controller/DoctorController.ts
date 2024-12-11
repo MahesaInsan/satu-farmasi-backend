@@ -21,7 +21,7 @@ export default class DoctorController{
             if(!result.isEmpty()) return res.status(400).send(this.responseHelper.constructBadRequest(result.mapped()));
             const request: AddDoctorRequest = req.body;
             const createdDoctor: User = await this.doctorService.addDoctor(request)
-            res.status(200).send(this.responseHelper.constructAddDoctorResponse(createdDoctor));
+            res.status(200).send(new BaseResponse().ok(this.responseHelper.constructAddDoctorResponse(createdDoctor), "Dokter Berhasil Ditambahkan"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
