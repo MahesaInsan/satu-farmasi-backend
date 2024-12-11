@@ -70,7 +70,8 @@ export default class GenericNameService {
     }
     
     public async addGenericName(request: AddGenericNameRequest): Promise<boolean>{
-    try {
+        try {
+            await this.validateDuplicate(request.value)
             const genericName: GenericName = this.createMedicineHelper.createGenericName(request);
             return await this.genericNameRepository.addGenericName(Builder(genericName).label(request.label).value(request.value).build())
         } catch (error) {
@@ -81,6 +82,7 @@ export default class GenericNameService {
     public async editGenericName(request: EditGenericNameRequest): Promise<boolean>{
         try { 
             const genericName: GenericName = this.editGenericNameHelper.editGenericName(request);
+            await this.validateDuplicate(genericName.value, genericName.id)
             const success =
                 await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).build())
             this.medicineService.updateMedicineCode(genericName.id, genericName.value.toUpperCase(), request.value.toUpperCase())
@@ -96,6 +98,19 @@ export default class GenericNameService {
             return await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).is_active(false).build())
         } catch (error) {
             throw new Error(error as string);
+        }
+    }
+
+    private async validateDuplicate(newGenericName: string, genericNameId?: number) {
+        try {
+            const genericName: GenericName | null =  await this.genericNameRepository
+                .findIfExistByValueExceptById(newGenericName, genericNameId);
+
+            if (genericName) {
+                throw new Error("Generic name with the same value already exist")
+            }
+        } catch (error) {
+            throw new Error(error as string)
         }
     }
 }

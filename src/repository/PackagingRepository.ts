@@ -106,13 +106,18 @@ export default class PackagingRepository {
 		}
 	}
 
-	public async isPackagingExist(label: string): Promise<boolean> {
+	public async isPackagingExist(label: string, id?: number): Promise<boolean> {
 		try {
 			const packaging: Packaging | null = await this.prisma.packaging.findFirst({
 				where: {
-					label: label,
-					is_active: true
-				}
+					label: {
+						equals: label,
+						mode: 'insensitive'
+					},
+					NOT: {
+						id: id
+					}
+				},
 			});
 			return packaging !== null;
 		} catch (error) {

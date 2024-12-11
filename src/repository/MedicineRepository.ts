@@ -946,6 +946,37 @@ export default class MedicineRepository {
         }
     }
 
+	public async checkIfMedicineExpiredTodayStillActive(startDate: Date, endDate: Date): Promise<Medicine[]> {
+		try {
+			return this.prisma.medicine.findMany({
+				where: {
+					AND:
+						[
+							{
+								expiredDate: {
+									// gte: startDate,
+									lte: endDate
+								}
+							},
+							{
+								OR:
+									[
+										{is_active: true},
+										{currStock: {
+											gt: 0
+										}}
+									]
+							}
+						]
+
+				}
+			})
+		} catch (error) {
+			console.error('Error checking medicine expired still active with error: ', error)
+			throw error as string
+		}
+	}
+
 	private async validateMedicineId(medicineId: number, quantity: number) {
 		try {
 			const medicine: Medicine | null = await this.getMedicineById(medicineId);
