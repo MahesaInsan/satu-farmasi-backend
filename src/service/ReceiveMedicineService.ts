@@ -114,9 +114,7 @@ export default class ReceiveMedicineService {
             data.reportId = todayReport.id;
 
             // Get medicine data by medicineid
-            console.log("data edit receive: ", data);
             const medicine: Medicine | null = await this.medicineService.getMedicineById(data.medicineId);
-            console.log("medicine data from receive: ", medicine);
             if (!medicine) throw new Error("Data obat tidak ditemukan!");
             
             // Update is active = true (receiveMedicine & medicine by id)
