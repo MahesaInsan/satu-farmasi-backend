@@ -2,14 +2,17 @@ import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
 import MedicineReportRepository from "../repository/MedicineReportRepository";
 import MedicineReportVO from "../model/VOs/TodayMedicineReportVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
-import { MedicineReport } from "@prisma/client";
+import {Medicine, MedicineReport} from "@prisma/client";
+import MedicineService from "./MedicineService";
 
 export default class MedicineReportService {
     private readonly reportRepository: MedicineReportRepository;
+    private readonly medicineService: MedicineService;
     //private readonly vendorHelper: VendorHelper;
 
     constructor() {
         this.reportRepository = new MedicineReportRepository();
+        this.medicineService = new MedicineService();
         //this.vendorHelper = new VendorHelper();
     }
 
@@ -47,6 +50,10 @@ export default class MedicineReportService {
                         unFinalizedReport,
                     );
                 }
+                const medicineList: Medicine[] = await this.medicineService.checkIfExpiredMedicineStillExist(unFinalizedReport?.created_at)
+                if (medicineList.length > 0) {
+                    throw new Error("Some medicine are expired and hasn't been output, please click check expired medicine")
+                }
             }
             return await this.reportRepository.finalizeReport(reportId);
         } catch (error) {
@@ -81,6 +88,14 @@ export default class MedicineReportService {
             );
         } catch (error) {
             throw error as string;
+        }
+    }
+
+    public async checkExpiredMedicine(todayDate: Date) {
+        try {
+            return await this.medicineService.getExpiredMedicineBeforeToday(todayDate)
+        } catch (error) {
+            throw error as string
         }
     }
 

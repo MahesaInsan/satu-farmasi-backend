@@ -1,7 +1,15 @@
 import MedicineRepository from "../repository/MedicineRepository";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
-import { GenericName, Medicine, MedicineHasClassification, Prisma, PrescriptionHasMedicine, UnitOfMeasure } from "@prisma/client";
+import {
+	GenericName,
+	Medicine,
+	MedicineHasClassification,
+	Prisma,
+	PrescriptionHasMedicine,
+	UnitOfMeasure,
+	ReasonOfDispose
+} from "@prisma/client";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
 import { Builder } from "builder-pattern";
 import GenericNameService from "./GenericNameService";
@@ -15,6 +23,7 @@ import MedicineData from "../model/VOs/MedicineDropdownVO";
 import AddClassificationRequest from "../model/request/AddClassificationRequest";
 import { CustomError } from "../validator/helper/ErrorHelper";
 import PrescriptionHasMedicineRepository from "../repository/PrescriptionHasMedicineRepository";
+import ExpiredMedicineResponse from "../model/response/ExpiredMedicineResponse";
 
 export default class MedicineService {
 	private readonly medicineRepository: MedicineRepository;
@@ -424,18 +433,17 @@ export default class MedicineService {
 		}
 	}
 
-	// ganti jadi count all (jangan spesifik per generic name)
 	public async generateMedicineCode(genericNameId: number): Promise<string> {
 		try {
 			const genericName: GenericName | null = await this.genericNameService.getGenericNameById(genericNameId);
 			if (!genericName) throw new Error("Generic name not found");
 
 			console.log(genericName.value);
-			const totalMedicine: number = await this.getTotalMedicineCodeByCode(genericName.value);
+			const totalMedicine: number = await this.getTotalMedicineCodeByCode(genericName.value.toUpperCase());
 			const formatNumber: string = (totalMedicine + 1).toString().padStart(6, "0");
 			console.log("medicine code: ", formatNumber);
 
-			return `${genericName.value}-${formatNumber}`
+			return `${genericName.value.toUpperCase()}-${formatNumber}`
 		} catch (error) {
 			throw error as string;
 		}
@@ -536,6 +544,31 @@ export default class MedicineService {
 		}
 	}
 
+	public async checkIfExpiredMedicineStillExist(expiredDate: Date): Promise<Medicine[]> {
+		try {
+			const startOfDay = new Date(expiredDate)
+			startOfDay.setHours(0, 0, 0, 0)
+			const endOfDay = new Date(expiredDate)
+			endOfDay.setHours(23, 59, 59, 999)
+
+			return await this.medicineRepository.checkIfMedicineExpiredTodayStillActive(startOfDay, endOfDay)
+		} catch (error) {
+			throw error as string
+		}
+	}
+
+	public async getExpiredMedicineBeforeToday(expiredDate: Date): Promise<ExpiredMedicineResponse[]> {
+		try {
+			const medicineList: Medicine[] = await this.checkIfExpiredMedicineStillExist(expiredDate)
+			if (medicineList.length === 0) {
+				return []
+			}
+			return medicineList.map(medicine => this.constructExpiredMedicineResponse(medicine))
+		} catch (error) {
+			throw error as string
+		}
+	}
+
 	private async checkIfParamValid(searchQuery: string | undefined, sortBy: string | undefined, sortMode: string | undefined) {
 		searchQuery === undefined ? searchQuery = "" : searchQuery;
 		if (sortBy && !Object.values(Prisma.MedicineScalarFieldEnum).toString().includes(sortBy)) {
@@ -631,5 +664,17 @@ export default class MedicineService {
 		} catch (error) {
 			throw error as object;
 		}
+	}
+
+	private constructExpiredMedicineResponse(medicine: Medicine) {
+		return Builder<ExpiredMedicineResponse>()
+			.medicineId(medicine.id)
+			.medicineName(medicine.name)
+			.batchCode(medicine.batchCode)
+			.currStock(medicine.currStock)
+			.quantity(medicine.currStock)
+			.expiredDate(medicine.expiredDate)
+			.reasonOfDispose(ReasonOfDispose.EXPIRED)
+			.build()
 	}
 }

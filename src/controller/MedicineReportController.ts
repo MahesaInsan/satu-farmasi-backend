@@ -50,6 +50,26 @@ export default class MedicineReportController extends BaseController {
         }
     }
 
+    async getExpiredMedicine(req: Request, res: Response) {
+        try {
+            console.log("#getExpiredMedicine with request:", req.query.reportDate as string)
+            const reportDate: Date = new Date(req.query.reportDate as string)
+            res.status(200).send(
+                new BaseResponse().ok(
+                    await this.reportService.checkExpiredMedicine(reportDate),
+                    "Successfully Get Expired Medicine",
+                ),
+            );
+        } catch (error) {
+            console.error("Error when #getExpiredMedicine with error: ", error)
+            const { defaultErrorMsg, errors } =
+                new BaseResponse().constructErrorHandler(error as object);
+            return res
+                .status(400)
+                .send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+
     async getAllMedicineReports(req: Request, res: Response) {
         try {
             const totalData =
