@@ -42,7 +42,7 @@
     "jsonwebtoken": "^9.0.2"
   },
   "@snaplet/seed": {
-    "config": "prisma/seed/seed.config.ts"
+    "config": "prisma\\seed\\seed.config.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed/seed.ts"
