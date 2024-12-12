@@ -18,6 +18,7 @@ class OutputMedicineRouter extends BaseRouter {
         this.router.get("/", this.outputMedicineController.getAllOutputMedicines.bind(this.outputMedicineController));
         this.router.get("/:id", this.outputMedicineController.getOutputMedicineById.bind(this.outputMedicineController));
         this.router.post("/", this.outputMedicineController.createOutputMedicine.bind(this.outputMedicineController));
+        this.router.post("/bulkCreate", this.outputMedicineController.bulkCreateOutputMedicine.bind(this.outputMedicineController));
         this.router.put("/", this.outputMedicineController.editOutputMedicine.bind(this.outputMedicineController));
         this.router.delete("/", this.outputMedicineController.deleteOutputMedicine.bind(this.outputMedicineController));
     }

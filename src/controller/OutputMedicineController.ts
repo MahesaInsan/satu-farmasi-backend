@@ -3,6 +3,7 @@ import BaseResponse from "../model/response/BaseResponse";
 import BaseController from "./BaseController";
 import { Request, Response } from "express";
 import PaginationRequest from "../model/request/PaginationRequest";
+import BulkAddOutputMedicineRequest from "../model/request/BulkAddOutputMedicineRequest";
 
 export default class OutputMedicineController extends BaseController {
 	private readonly outputMedicineService: OutputMedicineService;
@@ -50,6 +51,19 @@ export default class OutputMedicineController extends BaseController {
 			return res.status(200).send(new BaseResponse().ok(null, "Succeed Created Output Medicine"));
 		} catch (error) {
 			console.log("[src][controller][MedicineController][createMedicine] ", error);
+			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+			return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+		}
+	}
+
+	public async bulkCreateOutputMedicine(req: Request, res: Response) {
+		try {
+			console.log("#bulkCreateOutputMedicine with request: ", req.body.data)
+			const request: BulkAddOutputMedicineRequest = req.body.data
+			await this.outputMedicineService.bulkAddOutputMedicine(request)
+			return res.status(200).send(new BaseResponse().ok(null, "Succeed Created Bulk Output Medicine"));
+		} catch (error) {
+			console.log("Error when #bulkCreateOutputMedicine with error: ", error);
 			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
 			return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
 		}
