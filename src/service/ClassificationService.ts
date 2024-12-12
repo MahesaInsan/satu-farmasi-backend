@@ -51,6 +51,7 @@ export default class ClassificationService {
 
     public async addClassification(request: AddClassificationRequest): Promise<Classification>{
         try {
+            await this.validateIfDuplicate(request.value)
             const classification: Classification = this.classificationHelper.createClassification(request);
             return await this.classificationRepository.addClassification(classification);
         } catch (error) {
@@ -68,6 +69,7 @@ export default class ClassificationService {
 
   public async editClassification(request: EditClassificationRequest): Promise<Classification> {
     try {
+      await this.validateIfDuplicate(request.value, request.id)
       const classification: Classification = this.classificationHelper.editClassification(request);
       return await this.classificationRepository.editClassification(classification);
     } catch (error) {
@@ -100,6 +102,18 @@ export default class ClassificationService {
 	  } catch (error) {
 		  throw new Error(error as string);
 	  }
+  }
+
+  private async validateIfDuplicate(value: string, id?: number) {
+      try {
+        const classification: Classification | null = await this.classificationRepository
+            .findIfExistByValueExceptById(value, id);
+        if (classification) {
+          throw new Error("Classification by this value already exist")
+        }
+      } catch (error) {
+        throw error as string
+      }
   }
 
 }

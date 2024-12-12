@@ -137,4 +137,23 @@ export default class GenericNameRepository extends BaseRepository {
 			throw new Error("Failed to get generic name by label");
 		}
 	}
+
+	public async findIfExistByValueExceptById(value: string, id?: number): Promise<GenericName | null> {
+		try {
+			return await this.Prisma.genericName.findFirst({
+				where: {
+					value: {
+						equals: value,
+						mode: 'insensitive'
+					},
+					NOT: {
+						id: id
+					}
+				}
+			})
+		} catch (error) {
+			console.error("Error getting generic name by value:", error);
+			throw new Error("Failed to get generic name by value");
+		}
+	}
 }

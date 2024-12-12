@@ -3,17 +3,17 @@ import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import TransactionDetailVO from "../model/VOs/TransactionDetailVO";
 import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
 import TransactionAnnualRecapVO from "../model/VOs/TransactionAnnualRecapVO";
+import BaseRepository from "./helper/BaseRepository";
 
-export default class TransactionRepository{
-    private readonly prisma: PrismaClient;
+export default class TransactionRepository extends BaseRepository{
 
     constructor() {
-        this.prisma = new PrismaClient();
+        super();
     }
 
     public async addTransaction(transaction: Transaction){
         try {
-            return this.prisma.transaction.create({data: transaction})
+            return this.Prisma.transaction.create({data: transaction})
         } catch (error) {
             throw error as string
         }
@@ -21,7 +21,7 @@ export default class TransactionRepository{
 
     public async findById(id: number){
         try {
-            return this.prisma.transaction.findFirst(
+            return this.Prisma.transaction.findFirst(
                 {
                     include: {
                         prescription: true
@@ -39,7 +39,7 @@ export default class TransactionRepository{
 
     public async updatePaymentMethodById(paymentMethod: PaymentMethod, id: number) {
         try {
-            return this.prisma.transaction.update({
+            return this.Prisma.transaction.update({
                 where: {
                     id: id
                 },
@@ -54,7 +54,7 @@ export default class TransactionRepository{
 
     public async updatePhysicalReportById(physicalReportId: number, id: number) {
         try {
-            return this.prisma.transaction.update({
+            return this.Prisma.transaction.update({
                 where: {
                     id: id
                 },
@@ -69,7 +69,7 @@ export default class TransactionRepository{
 
     public async countTransaction(patientName: string | undefined, status: Status | undefined): Promise<number>{
         try {
-            return this.prisma.transaction.count({
+            return this.Prisma.transaction.count({
                 where: {
                     is_active: true,
                     patient: {
@@ -88,7 +88,7 @@ export default class TransactionRepository{
     public async getAllTransaction(patientName: string | undefined, status: Status | undefined,
                                    startIndex: number, limit: number): Promise<TransactionSummaryVO[]>{
         try {
-            return this.prisma.transaction.findMany({
+            return this.Prisma.transaction.findMany({
                 where: {
                     is_active: true,
                     patient: {
@@ -141,7 +141,7 @@ export default class TransactionRepository{
 
     public async getTransactionById(transactionId: number): Promise<TransactionDetailVO | null> {
         try {
-            return this.prisma.transaction.findFirstOrThrow({
+            return this.Prisma.transaction.findFirstOrThrow({
                 where: {
                     id: transactionId
                 },
@@ -195,7 +195,7 @@ export default class TransactionRepository{
 
     public async getTransactionByStatus(patientName: string | undefined, status: $Enums.Status, take: number): Promise<TransactionSummaryVO[]>{
         try {
-            return this.prisma.transaction.findMany({
+            return this.Prisma.transaction.findMany({
                 where: {
                     is_active: true,
                     patient: {
@@ -247,7 +247,7 @@ export default class TransactionRepository{
 
     public async getTransactionByDate(startDate: Date, lastDate: Date): Promise<TransactionByDateVO[]> {
         try {
-            return this.prisma.$queryRaw
+            return this.Prisma.$queryRaw
                 `SELECT 
                     a."id",
                     a."prescriptionId",
@@ -268,7 +268,7 @@ export default class TransactionRepository{
 
     public async getAnnualTransactionRecap(year: number): Promise<TransactionAnnualRecapVO[]> {
         try {
-            return this.prisma.$queryRaw
+            return this.Prisma.$queryRaw
                 `SELECT 
                     EXTRACT(MONTH FROM a."created_at") AS "month",
                     SUM(b."quantity") as "sales",

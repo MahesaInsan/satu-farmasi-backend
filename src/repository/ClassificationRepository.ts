@@ -142,4 +142,22 @@ export default class ClassificationRepository extends BaseRepository {
 			throw error as string;
 		}
 	}
+
+	public async findIfExistByValueExceptById(value: string, id?: number): Promise<Classification | null> {
+		try {
+			return await this.Prisma.classification.findFirst({
+				where: {
+					value: {
+						equals: value,
+						mode: 'insensitive'
+					},
+					NOT: {
+						id: id
+					}
+				}
+			})
+		} catch (error) {
+			throw error as string
+		}
+	}
 }

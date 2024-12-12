@@ -1,4 +1,4 @@
-import { GenericName } from "@prisma/client";
+import {GenericName, Medicine} from "@prisma/client";
 import AddGenericNameRequest from "../model/request/AddGenericName";
 import CreateMedicineHelper from "./helper/CreateMedicineHelper";
 import GenericNameRepository from "../repository/GenericNameRepository";
@@ -6,6 +6,7 @@ import { Builder } from "builder-pattern";
 import EditGenericNameHelper from "./helper/EditGenericNameHelper";
 import EditGenericNameRequest from "../model/request/editGenericNameRequest";
 import GenericDropdownVO from "../model/VOs/GenericDropdownVO";
+import MedicineService from "./MedicineService";
 import MedicineRepository from "../repository/MedicineRepository";
 
 export default class GenericNameService {
@@ -77,7 +78,8 @@ export default class GenericNameService {
     }
     
     public async addGenericName(request: AddGenericNameRequest): Promise<boolean>{
-    try {
+        try {
+            await this.validateDuplicate(request.value)
             const genericName: GenericName = this.createMedicineHelper.createGenericName(request);
             return await this.genericNameRepository.addGenericName(Builder(genericName).label(request.label).value(request.value).build())
         } catch (error) {
@@ -88,7 +90,11 @@ export default class GenericNameService {
     public async editGenericName(request: EditGenericNameRequest): Promise<boolean>{
         try { 
             const genericName: GenericName = this.editGenericNameHelper.editGenericName(request);
-            return await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).build())
+            await this.validateDuplicate(genericName.value, genericName.id)
+            const success =
+                await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).build())
+            this.updateMedicineCode(genericName.id, genericName.value.toUpperCase(), request.value.toUpperCase())
+            return success
         } catch (err) {
             throw new Error(err as string);
         }
@@ -101,5 +107,29 @@ export default class GenericNameService {
         } catch (error) {
             throw new Error(error as string);
         }
+    }
+
+    private async validateDuplicate(newGenericName: string, genericNameId?: number) {
+        try {
+            const genericName: GenericName | null =  await this.genericNameRepository
+                .findIfExistByValueExceptById(newGenericName, genericNameId);
+
+            if (genericName) {
+                throw new Error("Generic name with the same value already exist")
+            }
+        } catch (error) {
+            throw new Error(error as string)
+        }
+    }
+
+    private async updateMedicineCode (oldGenericId: number, oldGenericName: string, newGenericName: string){
+        const medicineList: Medicine[] = await this.medicineRepository.getAllMedicineByGenericName(oldGenericId)
+        if (oldGenericName === newGenericName) {
+            return
+        }
+        medicineList.forEach(medicine => {
+            medicine.code = medicine.code.replace(oldGenericName, newGenericName)
+        })
+        await this.medicineRepository.updateAllMedicine(medicineList);
     }
 }
