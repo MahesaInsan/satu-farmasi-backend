@@ -1,16 +1,22 @@
 export default class LoginResponse{
+    private _id: number;
     private _firstName: string;
     private _lastName: string;
     private _email: string;
     private _token: string;
     private _role: string;
 
-    constructor(firstName: string, lastName: string, token: string, role: string, email: string) {
+    constructor(id: number, firstName: string, lastName: string, token: string, role: string, email: string) {
+        this._id = id;
         this._firstName = firstName;
         this._lastName = lastName;
         this._token = token;
         this._role = role;
         this._email = email;
+    }
+
+    get id(): number {
+        return this._id;
     }
 
     get firstName(): string {
@@ -51,5 +57,9 @@ export default class LoginResponse{
 
     set role(value: string) {
         this._role = value;
+    }
+
+    set id(value: number) {
+        this._id = value;
     }
 }

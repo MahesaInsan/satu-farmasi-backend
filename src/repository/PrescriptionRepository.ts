@@ -142,6 +142,7 @@ export default class PrescriptionRepository{
                     created_at: true,
                     patient: {
                         select: {
+                            id: true,
                             name: true
                         },
                     },
@@ -180,14 +181,15 @@ export default class PrescriptionRepository{
     public async getAllPrescription(): Promise<PrescriptionSummaryVO[]>{
         try {
             return this.prisma.prescription.findMany({
-                where: {
-                  is_active: true
-                },
+                //where: {
+                //  is_active: true
+                //},
                 select: {
                     id: true,
                     created_at: true,
                     patient: {
                         select: {
+                            id: true,
                             name: true
                         },
                     },

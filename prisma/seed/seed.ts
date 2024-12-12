@@ -10,7 +10,13 @@ import VendorList from "./vendor.json";
 import MedicineList from "./medicine.json";
 import PatientList from "./patient.json";
 import PrescriptionList from "./prescirption.json";
-import { url } from "inspector";
+import BaseResponse from "../../src/model/response/BaseResponse";
+import PrescriptionSumaryVO from "../../src/model/VOs/PrescriptionSummaryVO";
+import ConfirmPayRequest from "../../src/model/request/ConfirmPayRequest";
+import PaginataionRequest from "../../src/model/request/PaginationRequest";
+import { Pharmacy, Prisma, User } from "@prisma/client";
+import AddPhysicalReportRequest from "../../src/model/request/AddPhysicalReportRequest";
+import PaginationRequest from "../../src/model/request/PaginationRequest";
 
 const userService: UserService = new UserService();
 const getDefaultPassword = async () =>
@@ -30,6 +36,7 @@ let genericNameList: Map<string, number> = new Map<string, number>();
 let classificationList: Map<string, number> = new Map<string, number>();
 
 const medicineService = new MedicineService();
+const baseResponse = new BaseResponse();
 
 const main = async () => {
     const seed: SeedClient = await createSeedClient();
@@ -56,6 +63,7 @@ const main = async () => {
     await seedMedicineHasClassification(seed);
 
     await seedPrescription();
+    await seedTransaction();
 
     console.info("Database seeded successfully!");
 
@@ -161,8 +169,8 @@ const seedingVendor = async (seed: SeedClient) => {
 };
 
 const generateRandomPhoneNum = () => {
-    let phoneNum = "62";
-    while (phoneNum.length < 13) {
+    let phoneNum = "628";
+    while (phoneNum.length <= 13) {
         phoneNum += Math.floor(Math.random() * 10);
     }
     return phoneNum;
@@ -212,12 +220,12 @@ const seedClassification = async (seed: SeedClient) => {
 
 const seedPrescription = async () => {
     console.info("Seeding prescription ...");
-    const ENDPOINT = "/api/v1/prescriptions";
-    const URL = `${DOMAIN}${ENDPOINT}`;
+    const ENDPOINT: string = "/api/v1/prescriptions";
+    const URL: string = `${DOMAIN}${ENDPOINT}`;
     for (const prescription of PrescriptionList) {
         await fetch(URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json", },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(prescription),
         }).catch((error) => {
             console.error(error);
@@ -225,6 +233,151 @@ const seedPrescription = async () => {
         });
     }
     console.info("Prescription seeded successfully!");
+};
+
+const seedTransaction = async () => {
+    console.info("Seeding transactions ...");
+    const PRESCRIPTION_SIZE: number = PrescriptionList.length;
+
+    const getAllPrescriptions = async (): Promise<PaginationRequest | undefined> => {
+        try {
+            const ENDPOINT: string = "/api/v1/prescriptions";
+            const QUERY: string = `?name=&status=&limit=${PRESCRIPTION_SIZE}&page=1`;
+            const URL: string = `${DOMAIN}${ENDPOINT}${QUERY}`;
+            let response: Response = await fetch(URL, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+            const responseJson: BaseResponse<PaginationRequest> =
+                await response.json();
+            return responseJson.data;
+        } catch (error) {
+            console.error(error);
+            throw new Error("Failed to get all prescriptions!");
+        }
+    };
+
+    const getPharmacyInfo = async (): Promise<Pharmacy | undefined> => {
+        try {
+            const ENDPOINT: string = "/api/v1/pharmacy";
+            const URL: string = `${DOMAIN}${ENDPOINT}`;
+            let response: Response = await fetch(URL, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+            const responseJson: BaseResponse<Pharmacy> = await response.json();
+            return responseJson.data;
+        } catch (error) {
+            console.error(error);
+            throw new Error("Failed to get all prescriptions!");
+        }
+    }
+
+    // Unprocessed -> Waiting for payment
+    const proceseedToTransaction = async (
+        patientId: number,
+        prescriptionId: number,
+        user_token: string,
+        pharmacistId: number,
+        created_at: Date,
+    ) => {
+        try {
+            const ENDPOINT: string = "/api/v1/transactions";
+            const URL: string = `${DOMAIN}${ENDPOINT}`;
+            const BODY = {
+                patientId: patientId,
+                prescriptionId: prescriptionId,
+                pharmacistId: pharmacistId,
+                created_at: created_at
+            };
+
+            let response: Response = await fetch(URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${user_token}`,
+                },
+                body: JSON.stringify({data: BODY}),
+            });
+            await response.json();
+        } catch (error) {
+            console.error(error);
+            throw new Error("Failed to processed prescriptions!");
+        }
+    };
+
+    // Waiting for payment -> On Progress
+    const payTransaction = async (
+        user_token: string,
+        request: ConfirmPayRequest,
+    ) => {
+        try {
+            const ENDPOINT: string = "/api/v1/transactions";
+            const PARAMS : string = "/_pay"
+            const URL: string = `${DOMAIN}${ENDPOINT}${PARAMS}`;
+            const BODY = {request};
+
+            let response: Response = await fetch(URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${user_token}`,
+                },
+                body: JSON.stringify({data: BODY}),
+            });
+            const responseJson = await response.json();
+            console.log("responseJSON: ", responseJson);
+        } catch (error) {
+            console.error(error);
+            throw new Error("Failed to get processed prescriptions!");
+        }
+    };
+
+
+    const initialPharmacist: User | null = await userService.getUserByEmail( "pharmacist1@gmail.com");
+    if (!initialPharmacist) throw new Error("Pharmacist not found!");
+
+    const USER_TOKEN = userService.generateToken(
+        initialPharmacist.email,
+        initialPharmacist.role,
+    );
+
+    // Load all prescriptions
+    const prescriptions: PaginationRequest | undefined = await getAllPrescriptions();
+    if (!prescriptions?.results) throw new Error("Prescriptions not found!");
+    const prescriptionSumaryList: PrescriptionSumaryVO[] = prescriptions.results as PrescriptionSumaryVO[];
+    console.log("Prescriptions: ", prescriptionSumaryList);
+
+    // Proceed to payment (Waiting for payment status)
+    for (const prescription of prescriptionSumaryList) {
+        const { id, patient, created_at } = prescription;
+        await proceseedToTransaction(patient.id, id, USER_TOKEN, initialPharmacist.id, created_at);
+    }
+
+    // Confirm payment (On Progress status)
+    const pharmacyInfo: Pharmacy | undefined = await getPharmacyInfo();
+    if (!pharmacyInfo) throw new Error("Pharmacy not found!");
+
+    let index: number = 0
+    for (const prescription of prescriptionSumaryList) {
+        const { id, patient, created_at } = prescription;
+        // TODO: Fix json value problem
+       
+        //const newPhysicalReportData: AddPhysicalReportRequest = {
+        //    id: 0,
+        //    data: `{
+        //        pharmacy: ${pharmacyInfo},
+        //        pharmacist: ${initialPharmacist},
+        //        patient: ${patient},
+        //        medicine: ${PrescriptionList[index].data.medicineList},
+        //        totalPrice: "100000"
+        //    }`
+        //}
+        index++;
+    }
+
+
+    console.info("Transactions seeded successfully!");
 };
 
 const seedMedicine = async (seed: SeedClient) => {
@@ -248,8 +401,7 @@ const seedMedicine = async (seed: SeedClient) => {
                     packagingId: packagingId,
                     price: 100000,
                     expiredDate: "2025-01-01T00:00:00Z",
-                    currStock:
-                        Math.floor(Math.random() * STOCK.MAX) + 125,
+                    currStock: Math.floor(Math.random() * STOCK.MAX) + 125,
                     reservedStock: 0,
                     minStock: STOCK.MIN,
                     maxStock: STOCK.MAX,

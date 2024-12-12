@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import PharmacistRepository from "../repository/PharmacistRepository";
 import bcrypt from 'bcrypt';
 import { CustomError } from "../validator/helper/ErrorHelper";
-import { User } from "@prisma/client";
+import {  User } from "@prisma/client";
 
 export default class UserService {
 	private readonly adminRepository: AdminRepository;
