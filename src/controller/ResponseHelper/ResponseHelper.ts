@@ -15,7 +15,7 @@ export default class ResponseHelper {
     public constructCookieRequest(maxAge: number): object {
         return {
             httpOnly: true,
-            secure: false,
+            secure: true,
             maxAge: maxAge,
             sameSite: 'None'
         };
