@@ -17,7 +17,7 @@ class VendorRouter extends BaseRouter {
     private initRoutes() {
         this.router.use(
             (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
+            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["PHARMACIST"]),
         )
         this.router.get("/", this.vendorController.getAllVendor.bind(this.vendorController));
         this.router.get("/active", this.vendorController.getAllActiveVendor.bind(this.vendorController));
