@@ -12,10 +12,10 @@ class MedicineReportRouter extends BaseRouter {
     }
 
     private initRoutes() {
-        // this.router.use(
-        //     (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-        //     (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
-        // )
+        this.router.use(
+            (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
+            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["PHARMACIST"]),
+        )
         this.router.get("/unfinalize", this.reportController.getTodayUnFinalizedMedicineReport.bind(this.reportController));
         this.router.get("/", this.reportController.getAllMedicineReports.bind(this.reportController));
         this.router.get("/expiredMedicine", this.reportController.getExpiredMedicine.bind(this.reportController))

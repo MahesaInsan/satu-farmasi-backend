@@ -22,17 +22,17 @@ class AdminRouter extends BaseRouter {
 		);
 		this.router.get('/',
 			(req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-			(req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "ADMIN"),
+			(req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["ADMIN"]),
 			this.adminController.getAllStaff.bind(this.adminController)
 		);
 		this.router.get('/staffs',
 			(req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-			(req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "ADMIN"),
+			(req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["ADMIN"]),
 			this.adminController.getAllStaff.bind(this.adminController)
 		);
 		this.router.use('/staff',
 			(req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-			(req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "ADMIN"),
+			(req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["ADMIN"]),
 			this.router.get('/:id', this.adminController.getStaffById.bind(this.adminController)),
 			this.router.post('/nik', this.adminController.getStaffByNik.bind(this.adminController)),
 			this.router.use('/edit',

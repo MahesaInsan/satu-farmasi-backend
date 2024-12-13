@@ -1,5 +1,6 @@
 import BaseRouter from "./BaseRouter";
 import OutputMedicineController from "../controller/OutputMedicineController";
+import BaseRequest from "../model/request/BaseRequest/BaseRequest";
 
 class OutputMedicineRouter extends BaseRouter {
     private readonly outputMedicineController: OutputMedicineController;
@@ -11,10 +12,10 @@ class OutputMedicineRouter extends BaseRouter {
     }
 
     private initRoutes() {
-        // this.router.use(
-        //     (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-        //     (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
-        // )
+        this.router.use(
+            (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
+            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["PHARMACIST"]),
+        )
         this.router.get("/", this.outputMedicineController.getAllOutputMedicines.bind(this.outputMedicineController));
         this.router.get("/:id", this.outputMedicineController.getOutputMedicineById.bind(this.outputMedicineController));
         this.router.post("/", this.outputMedicineController.createOutputMedicine.bind(this.outputMedicineController));
