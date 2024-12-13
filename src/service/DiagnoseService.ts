@@ -83,6 +83,7 @@ export default class DiagnoseService{
                     const prescription: DraftPrescriptionVO | PrescriptionDetailVO | null = await this.prescriptionService
                         .getPrescription(diagnose?.prescription.id!)
                     if (prescription) {
+                        console.log("masuk sini")
                         return this.constructDiagnoseDetailResponse(diagnose, prescription)
                     } else throw new Error("Prescription is not found")
                 } else throw new Error("Diagnose is not found")
@@ -111,5 +112,6 @@ export default class DiagnoseService{
             .description(diagnose.description)
             .created_at(diagnose.created_at)
             .prescription(prescription)
+            .build()
     }
 }
