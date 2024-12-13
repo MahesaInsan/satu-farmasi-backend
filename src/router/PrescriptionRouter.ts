@@ -12,10 +12,10 @@ class PrescriptionRouter extends BaseRouter{
     }
 
     private initRoutes(){
-        // this.router.use(
-        //     (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-        //     (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
-        // )
+        this.router.use(
+            (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
+            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["PHARMACIST", "DOCTOR"]),
+        )
         this.router.get('/', this.prescriptionController.getAllPrescription.bind(this.prescriptionController))
         this.router.post('/', this.prescriptionController.addNewPrescription.bind(this.prescriptionController))
         this.router.put('/', this.prescriptionController.editPrescription.bind(this.prescriptionController))

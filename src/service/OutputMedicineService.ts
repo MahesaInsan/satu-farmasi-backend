@@ -14,6 +14,10 @@ import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest"
 import MedicineData from "../model/VOs/MedicineDropdownVO";
 import PhysicalReportService from "./PhysicalReportService";
 import PhysicalReportVO from "../model/VOs/PhysicalReportVO";
+import BulkAddOutputMedicineRequest from "../model/request/BulkAddOutputMedicineRequest";
+import OutputMedicineDataRequest from "../model/request/OutputMedicineDataRequest";
+import {Builder} from "builder-pattern";
+import AddPhysicalReportRequest from "../model/request/AddPhysicalReportRequest";
 
 export default class OutputMedicineService {
     private readonly medicineService: MedicineService;
@@ -70,6 +74,19 @@ export default class OutputMedicineService {
             return await this.outputMedicineRepository.getOutputMedicineBySearch(limit, startIndex, q, filter);
         } catch (error) {
 			throw error as string;
+        }
+    }
+
+    public async bulkAddOutputMedicine(request: BulkAddOutputMedicineRequest) {
+        try {
+            const outputMedicineRequests: AddOutputMedicineRequest[] = request.medicineList.map(medicine => {
+                return this.constructAddOutputMedicineRequest(medicine, request.physicalReport)
+            })
+            outputMedicineRequests.map(async outputMedicine => {
+                await this.addOutputMedicine(outputMedicine)
+            })
+        } catch (error) {
+            throw error as string
         }
     }
 
@@ -254,5 +271,15 @@ export default class OutputMedicineService {
         } catch (error) {
             throw error as object;
         }
+    }
+
+    private constructAddOutputMedicineRequest(medicine: OutputMedicineDataRequest, physicalReport: AddPhysicalReportRequest): AddOutputMedicineRequest {
+        return Builder<AddOutputMedicineRequest>()
+            .medicineId(medicine.medicineId)
+            .currStock(medicine.currStock)
+            .currStock(medicine.quantity)
+            .reasonOfDispose(medicine.reasonOfDispose)
+            .physicalReport(physicalReport)
+            .build()
     }
 }

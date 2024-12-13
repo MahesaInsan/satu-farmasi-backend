@@ -17,7 +17,7 @@ class GenericNameRouter extends BaseRouter {
     private initRoutes() {
         this.router.use(
             (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
+            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["PHARMACIST"]),
         )
         this.router.get( "/", this.genericNameController.getAllGenericName.bind(this.genericNameController));
         this.router.get( "/dropdown", this.genericNameController.getGenericNameDropdown.bind(this.genericNameController));
