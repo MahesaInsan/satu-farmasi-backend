@@ -17,7 +17,7 @@ class PackagingRouter extends BaseRouter {
     private initRoutes() {
         this.router.use(
             (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
+            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["PHARMACIST"]),
         )
         this.router.post('/', this.packagingValidation.createPackagingValidation(),this.packagingController.createPackaging.bind(this.packagingController));
         this.router.get('/', this.packagingController.getPackaging.bind(this.packagingController));

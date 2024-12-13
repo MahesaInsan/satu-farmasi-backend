@@ -1,5 +1,6 @@
 import BaseRouter from "./BaseRouter";
 import MedicineController from "../controller/MedicineController";
+import BaseRequest from "../model/request/BaseRequest/BaseRequest";
 
 class MedicineRouter extends BaseRouter {
     private readonly medicineController: MedicineController;
@@ -11,10 +12,10 @@ class MedicineRouter extends BaseRouter {
     }
 
     private initRoutes() {
-        // this.router.use(
-        //     (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-        //     (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
-        // )
+        this.router.use(
+            (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
+            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["PHARMACIST", "DOCTOR"]),
+        )
         this.router.get( "/dropdownOptions", this.medicineController.getMedicineList.bind( this.medicineController));
         this.router.get( "/dropdownOptionsById", this.medicineController.getMedicineListById.bind( this.medicineController));
         this.router.get( "/summaryById", this.medicineController.getMedicineByIdSummary.bind( this.medicineController));

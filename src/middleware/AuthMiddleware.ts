@@ -49,11 +49,12 @@ export default class AuthMiddleware extends BaseMiddleware {
         }
     }
 
-    public hasPermission(req: BaseRequest, res: Response, next: NextFunction, role: string) {
+    public hasPermission(req: BaseRequest, res: Response, next: NextFunction, role: string[]) {
         console.log("req.user", req.user);
         console.log("role", role);
         console.log((req.user as JwtPayload)?.role !== role);
-        if ((req.user as JwtPayload)?.role !== role) 
+        const payload = req.user as JwtPayload;
+        if (role.includes(payload.role))
             return res .status(403) .send(this.responseHelper.constructUnAuthorizedRequest(
                 new Error("Access Denied. Insufficient Permissions."
             )));

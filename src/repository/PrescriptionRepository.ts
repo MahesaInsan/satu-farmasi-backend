@@ -177,12 +177,10 @@ export default class PrescriptionRepository extends BaseRepository{
         }
     }
 
+    //Not Used
     public async getAllPrescription(): Promise<PrescriptionSummaryVO[]>{
         try {
             return this.Prisma.prescription.findMany({
-                where: {
-                  is_active: true
-                },
                 select: {
                     id: true,
                     created_at: true,
