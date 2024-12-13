@@ -12,7 +12,7 @@ import PaginationRequest from "../../model/request/PaginationRequest";
 import { Result } from "express-validator";
 
 export default class ResponseHelper {
-    public constructCookieRequest(maxAge: string): object {
+    public constructCookieRequest(maxAge: number): object {
         return {
             httpOnly: true,
             secure: true,

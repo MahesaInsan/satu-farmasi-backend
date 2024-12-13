@@ -27,8 +27,8 @@ export default class UserController {
                 try {
                     const token: string = this.userService.generateToken( user.email, user.role, request.isRemember);
                     request.isRemember 
-                        ? res.cookie( "token", token, this.responseHelper.constructCookieRequest('14d')) // 30 days
-                        : res.cookie( "token", token, this.responseHelper.constructCookieRequest('5d')) // 7 days
+                        ? res.cookie( "token", token, this.responseHelper.constructCookieRequest(1000 * 60 * 60 * 24 * 30)) // 30 days
+                        : res.cookie( "token", token, this.responseHelper.constructCookieRequest(1000 * 60 * 60 * 24 * 7)) // 7 days
                     return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructLoginResponse( user, token)));
                 } catch (error) {
                     return res .status(400).send(this.responseHelper.constructBadRequest(error as object));
