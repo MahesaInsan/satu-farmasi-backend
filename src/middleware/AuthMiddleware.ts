@@ -54,7 +54,7 @@ export default class AuthMiddleware extends BaseMiddleware {
         console.log("role", role);
         console.log((req.user as JwtPayload)?.role !== role);
         const payload = req.user as JwtPayload;
-        if (role.includes(payload.role))
+        if (!role.includes(payload.role))
             return res .status(403) .send(this.responseHelper.constructUnAuthorizedRequest(
                 new Error("Access Denied. Insufficient Permissions."
             )));
