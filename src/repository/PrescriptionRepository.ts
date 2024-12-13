@@ -2,17 +2,17 @@ import {Prescription, PrismaClient, Status} from "@prisma/client";
 import IdVO from "../model/VOs/IdVO";
 import PrescriptionSummaryVO from "../model/VOs/PrescriptionSummaryVO";
 import PrescriptionDetailVO from "../model/VOs/PrescriptionDetailVO";
+import BaseRepository from "./helper/BaseRepository";
 
-export default class PrescriptionRepository{
-    private readonly prisma: PrismaClient;
+export default class PrescriptionRepository extends BaseRepository{
 
     constructor() {
-        this.prisma = new PrismaClient();
+        super();
     }
 
     public async createNewPrescription(newPrescription: Prescription): Promise<IdVO>{
         try {
-            return this.prisma.prescription.create({
+            return this.Prisma.prescription.create({
                 data: newPrescription,
                 select: {
                     id:true
@@ -25,7 +25,7 @@ export default class PrescriptionRepository{
 
     public async getPrescriptionById(prescriptionId: number) {
         try {
-            return this.prisma.prescription.findFirst({
+            return this.Prisma.prescription.findFirst({
                 where: {
                     id: prescriptionId,
                     is_active: true
@@ -38,7 +38,7 @@ export default class PrescriptionRepository{
 
     public async updatePrescriptionStatusAndIsActiveById(prescriptionId: number) {
         try {
-            return this.prisma.prescription.update({
+            return this.Prisma.prescription.update({
                 where: {
                     id: prescriptionId
                 },
@@ -54,7 +54,7 @@ export default class PrescriptionRepository{
 
     public async getPrescriptionByPrescriptionId(prescriptionId: number): Promise<PrescriptionDetailVO | null> {
         try {
-            return this.prisma.prescription.findFirst({
+            return this.Prisma.prescription.findFirst({
                 where: {
                     id: prescriptionId,
                 },
@@ -127,7 +127,7 @@ export default class PrescriptionRepository{
     public async getAllPrescriptionByUsername(patientName: string | undefined, status: Status | undefined,
                                               startIndex: number, limit: number): Promise<PrescriptionSummaryVO[]> {
         try {
-            return this.prisma.prescription.findMany({
+            return this.Prisma.prescription.findMany({
                 where: {
                     patient: {
                         name: {
@@ -165,7 +165,7 @@ export default class PrescriptionRepository{
 
     public async getAllPrescriptionPerMonth(startDate: Date, lastDate: Date): Promise<Prescription[]> {
         try {
-            return await this.prisma.prescription.findMany({
+            return await this.Prisma.prescription.findMany({
                 where: {
                     AND: [
                         { created_at: { gte: startDate } }
@@ -177,12 +177,10 @@ export default class PrescriptionRepository{
         }
     }
 
+    //Not Used
     public async getAllPrescription(): Promise<PrescriptionSummaryVO[]>{
         try {
-            return this.prisma.prescription.findMany({
-                where: {
-                  is_active: true
-                },
+            return this.Prisma.prescription.findMany({
                 select: {
                     id: true,
                     created_at: true,
@@ -209,7 +207,7 @@ export default class PrescriptionRepository{
 
     public async findIfExistById(id: number): Promise<IdVO | null> {
         try {
-            return this.prisma.prescription.findUnique({
+            return this.Prisma.prescription.findUnique({
                 where: {
                     id: id
                 },
@@ -224,7 +222,7 @@ export default class PrescriptionRepository{
 
     public async countPrescriptionByPatientName(patientName: string | undefined, status: Status | undefined) {
         try {
-            return this.prisma.prescription.count({
+            return this.Prisma.prescription.count({
                 where: {
                     patient: {
                         name: {
@@ -242,7 +240,7 @@ export default class PrescriptionRepository{
     public async updatePrescriptionStatusById(status: Status, id: number) {
         try {
             console.log("saved")
-            return this.prisma.prescription.update({
+            return this.Prisma.prescription.update({
                 where: {
                     id: id
                 },

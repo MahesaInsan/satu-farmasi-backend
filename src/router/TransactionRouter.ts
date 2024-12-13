@@ -14,7 +14,7 @@ class TransactionRouter extends BaseRouter{
     private initRoutes(){
         this.router.use(
             (req, res, next) => this.authMiddleware.authenticateToken(req as BaseRequest, res, next),
-            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, "PHARMACIST"),
+            (req, res, next) => this.authMiddleware.hasPermission(req as BaseRequest, res, next, ["PHARMACIST"]),
         )
         this.router.post('/', this.transactionController.createTransaction.bind(this.transactionController))
         this.router.get('/_summary', this.transactionController.getTransactionSummary.bind(this.transactionController))

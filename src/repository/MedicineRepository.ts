@@ -2,22 +2,20 @@ import { Medicine, Prisma, PrismaClient } from "@prisma/client"
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import MedicineData from "../model/VOs/MedicineDropdownVO"
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
-import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
-import TotalMedicineGroupByCode from "../model/VOs/TotalMedicineGroupByCodeVO";
+import BaseRepository from "./helper/BaseRepository";
 
-export default class MedicineRepository {
-	private prisma: PrismaClient
+export default class MedicineRepository extends BaseRepository{
 
 	constructor() {
-		this.prisma = new PrismaClient()
+		super();
 	}
 
-	public async fetchMedicineList(): Promise<MedicineDropdownVO[]> {
+	public async fetchMedicineList(isActive?: boolean): Promise<MedicineDropdownVO[]> {
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
             // findAllMedicineIdByMedicineCode
-			return await this.prisma.$queryRaw<MedicineDropdownVO[]>(
+			return await this.Prisma.$queryRaw<MedicineDropdownVO[]>(
 				Prisma.sql`
                     WITH flattened_classifications AS (
                         SELECT
@@ -71,7 +69,7 @@ export default class MedicineRepository {
                             INNER JOIN "MedicineHasClassification" mhc ON m.id = mhc."medicineId"
                             INNER JOIN "Classification" c ON mhc."classificationId" = c.id
                             WHERE 
-                                m.is_active = true
+                                m.is_active = ${isActive}
                                 AND m."currStock" > 0
                                 AND m."expiredDate" > ${futureDate}
                             GROUP BY m.code, m.id, mhc."classificationId"
@@ -106,7 +104,7 @@ export default class MedicineRepository {
 
 	public async setMedicineIsActiveToFalse(medicineId: number) {
 		try {
-			await this.prisma.medicine.update({
+			await this.Prisma.medicine.update({
 				where: { id: medicineId },
 				data: { is_active: false }
 			})
@@ -117,7 +115,7 @@ export default class MedicineRepository {
 
 	public async fetchMedicineListById(): Promise<MedicineDropdownVO[]> {
 		try {
-			return this.prisma.medicine.findMany({
+			return this.Prisma.medicine.findMany({
 				where: {
 					is_active: true,
 					currStock: {
@@ -174,7 +172,7 @@ export default class MedicineRepository {
 
 	public async getSingleMedicineById(id: number): Promise<Medicine | null> {
 		try {
-			return this.prisma.medicine.findFirst({ where: { id: id } });
+			return this.Prisma.medicine.findFirst({ where: { id: id } });
 		} catch (error) {
 			console.error('Error getting medicine by id:', error);
 			throw new Error('Failed to get medicine by id');
@@ -182,7 +180,7 @@ export default class MedicineRepository {
 	}
 
 	public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[]): Promise<MedicineData[]> {
-		return this.prisma.medicine.findMany({
+		return this.Prisma.medicine.findMany({
 			where: {
 				code: {
 					in: medicineCodes
@@ -245,7 +243,7 @@ export default class MedicineRepository {
 		try {
 			await this.validateMedicineId(medicineId, quantity)
 
-			await this.prisma.medicine.update({
+			await this.Prisma.medicine.update({
 				where: {
 					id: medicineId
 				},
@@ -264,7 +262,7 @@ export default class MedicineRepository {
 		try {
 			await this.validateMedicineId(medicineId, quantityStock)
 
-			return await this.prisma.medicine.update({
+			return await this.Prisma.medicine.update({
 				where: {
 					id: medicineId
 				},
@@ -289,7 +287,7 @@ export default class MedicineRepository {
 		try {
 			await this.validateMedicineId(medicineId, quantity)
 
-			await this.prisma.medicine.update({
+			await this.Prisma.medicine.update({
 				where: {
 					id: medicineId
 				},
@@ -306,7 +304,7 @@ export default class MedicineRepository {
 
 	public async decreaseReserveStock(medicineId: number, quantity: number){
 		try {
-			await this.prisma.medicine.update({
+			await this.Prisma.medicine.update({
 				where: {
 					id: medicineId
 				},
@@ -323,7 +321,7 @@ export default class MedicineRepository {
 
 	public async increaseStock(medicineId: number, quantity: number) {
 		try {
-			await this.prisma.medicine.update({
+			await this.Prisma.medicine.update({
 				where: {
 					id: medicineId,
 				},
@@ -341,7 +339,7 @@ export default class MedicineRepository {
 
 	public async getMedicineIdIn(medicineId: number[]) {
 		try {
-			return this.prisma.medicine.findMany({
+			return this.Prisma.medicine.findMany({
 				where: {
 					id: {
 						in: medicineId
@@ -356,7 +354,7 @@ export default class MedicineRepository {
 	public async getMedicineByCodeIn(medicineCodes: string[]): Promise<MedicineData[]> {
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-			return await this.prisma.$queryRaw<MedicineData[]>(
+			return await this.Prisma.$queryRaw<MedicineData[]>(
 				Prisma.sql`
 					SELECT 
 						MIN(m.id) as id,
@@ -397,9 +395,10 @@ export default class MedicineRepository {
 		}
 	}
 
+	//NOT NEEDED NO MORE
 	public async getTotalMedicines(): Promise<number> {
 		try {
-			return this.prisma.medicine.count({ where: { is_active: true } })
+			return this.Prisma.medicine.count({ where: { is_active: true } })
 		} catch (error) {
 			console.error('Error counting medicineList: ', error);
 			throw new Error('Failed to count medicineList');
@@ -409,7 +408,7 @@ export default class MedicineRepository {
 	public async getTotalSearchMedicines(parameter: string | undefined): Promise<number> {
 		try {
 			parameter === undefined ? parameter = "" : undefined
-			return this.prisma.medicine.count({
+			return this.Prisma.medicine.count({
 				where: {
 					OR: [
 						{ name: {
@@ -433,7 +432,7 @@ export default class MedicineRepository {
 	public async getTotalSearchMedicinesByCode(parameter: string | undefined): Promise<number> {
 		try {
 			parameter === undefined ? parameter = "" : undefined
-			const distinctCount = await this.prisma.medicine.groupBy({
+			const distinctCount = await this.Prisma.medicine.groupBy({
 				by: ['code'],
 				where: {
 					AND: [
@@ -449,9 +448,6 @@ export default class MedicineRepository {
 										contains: parameter, mode: "insensitive"
 									}}
 							]
-						},
-						{
-							is_active: true
 						}
 					]
 				},
@@ -468,7 +464,7 @@ export default class MedicineRepository {
 
 	public async getAllMedicineCodeByCode(code: string) {
 		try {
-			return await this.prisma.medicine.findMany({
+			return await this.Prisma.medicine.findMany({
 				where: {
 					code: { contains: code }
 				},
@@ -482,12 +478,26 @@ export default class MedicineRepository {
 		}
 	}
 
+	public async getAllMedicineByGenericName(genericNameId: number) {
+		try {
+			return await this.Prisma.medicine.findMany({
+				where: {
+					genericName: {
+						id: genericNameId
+					}
+				}
+			})
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
     public async getTotalNeedToRestock(): Promise<number> {
         try {
-            return this.prisma.medicine.count({
+            return this.Prisma.medicine.count({
                 where: {
                     currStock: {
-                        lte: this.prisma.medicine.fields.minStock
+                        lte: this.Prisma.medicine.fields.minStock
                     }
                 }
             })
@@ -497,9 +507,10 @@ export default class MedicineRepository {
         }
     }
 
+	//UNUSED
 	public async getMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
 		try {
-			return this.prisma.medicine.findMany({
+			return this.Prisma.medicine.findMany({
 				where: { is_active: true },
 				skip: startIndex,
 				take: limit,
@@ -561,103 +572,100 @@ export default class MedicineRepository {
 				? `ORDER BY "${sortBy}" ${sortMode}`
 				: `ORDER BY "code" ASC, "is_active" DESC`;
 
-            return await this.prisma.$queryRaw<MedicineDisplayVO[]>(Prisma.sql`
-WITH flattened_classifications AS (
-    SELECT
-          "code",
-          MIN(id) AS id,
-          MAX("name") AS "name", 
-          MAX("merk") AS "merk",
-          MAX("description") AS "description",
-          MAX("unitOfMeasure") AS "unitOfMeasure",
-          MAX("price") AS "price",
-          MAX("expiredDate") AS "expiredDate",
-          CAST(SUM("currStock") AS INTEGER) AS "currStock",
-          MAX("reservedStock") AS "reservedStock",
-          MAX("minStock") AS "minStock",
-          MAX("maxStock") AS "maxStock",
-          CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
-          MAX("sideEffect") AS "sideEffect",
-          MAX("created_at") AS "created_at",
-          MAX("updated_at") AS "updated_at",
-        jsonb_array_elements(classifications) AS classification,
-        packaging,
-        "genericName"
-    FROM (
-        SELECT 
-              "code",
-              MIN(m.id) AS id,
-              MAX(m."name") AS "name", 
-              MAX(m."merk") AS "merk",
-              MAX(m."description") AS "description",
-              MAX(m."unitOfMeasure") AS "unitOfMeasure",
-              MAX(m."price") AS "price",
-              MAX(m."expiredDate") AS "expiredDate",
-              CAST(SUM("currStock") AS INTEGER) AS "currStock",
-              MAX(m."reservedStock") AS "reservedStock",
-              MAX(m."minStock") AS "minStock",
-              MAX(m."maxStock") AS "maxStock",
-              CASE WHEN COUNT(CASE WHEN m."is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
-              MAX(m."sideEffect") AS "sideEffect",
-              MAX(m."created_at") AS "created_at",
-              MAX(m."updated_at") AS "updated_at",
-              jsonb_agg(
-                DISTINCT jsonb_build_object(
-                  'id', c.id,
-                  'label', c.label,
-                  'value', c.value
-                )
-              ) AS classifications,
-                jsonb_build_object(
-                'id', MAX(p.id),
-                'label', MAX(p.label)
-              ) AS packaging,
-                jsonb_build_object(
-                'id', MAX(g.id),
-                'label', MAX(g.label)
-              ) AS "genericName"
-            FROM "Medicine" m
-            INNER JOIN "Packaging" p ON m."packagingId" = p.id
-            INNER JOIN "GenericName" g ON m."genericNameId" = g.id
-            INNER JOIN "MedicineHasClassification" mhc ON m."id" = mhc."medicineId"
-            INNER JOIN "Classification" c ON mhc."classificationId" = c."id"
-            WHERE 
-      ("name" ILIKE ${`%${searchQuery}%`} 
-      OR "code" ILIKE ${`%${searchQuery}%`} 
-      OR "merk" ILIKE ${`%${searchQuery}%`})
-            AND m.is_active = True
-            GROUP BY m.code, m.id, mhc."classificationId"
-    ${Prisma.sql([orderBy])}
-    LIMIT ${limit} OFFSET ${startIndex}
-                ) subquery
-            GROUP BY
-                code, packaging, "genericName", classification
-)
-SELECT
-      "code",
-      MIN(id) AS id,
-      MAX("name") AS "name", 
-      MAX("merk") AS "merk",
-      MAX("description") AS "description",
-      MAX("unitOfMeasure") AS "unitOfMeasure",
-      MAX("price") AS "price",
-      MAX("expiredDate") AS "expiredDate",
-    "currStock",
-      MAX("reservedStock") AS "reservedStock",
-      MAX("minStock") AS "minStock",
-      MAX("maxStock") AS "maxStock",
-      CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
-      MAX("sideEffect") AS "sideEffect",
-      MAX("created_at") AS "created_at",
-      MAX("updated_at") AS "updated_at",
-    jsonb_agg(DISTINCT classification) AS classifications,
-    packaging,
-    "genericName"
-FROM flattened_classifications
-GROUP BY code, packaging, "genericName", "currStock"
-`);
-
-
+            return await this.Prisma.$queryRaw<MedicineDisplayVO[]>(Prisma.sql`
+				WITH flattened_classifications AS (
+					SELECT
+					  	"code",
+				  		MIN(id) AS id,
+					  	MAX("name") AS "name", 
+					  	MAX("merk") AS "merk",
+					  	MAX("description") AS "description",
+					  	MAX("unitOfMeasure") AS "unitOfMeasure",
+					  	MAX("price") AS "price",
+					  	MAX("expiredDate") AS "expiredDate",
+					  	CAST(SUM("currStock") AS INTEGER) AS "currStock",
+					  	MAX("reservedStock") AS "reservedStock",
+					  	MAX("minStock") AS "minStock",
+					  	MAX("maxStock") AS "maxStock",
+					  	CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+					  	MAX("sideEffect") AS "sideEffect",
+					  	MAX("created_at") AS "created_at",
+					  	MAX("updated_at") AS "updated_at",
+						jsonb_array_elements(classifications) AS classification,
+						packaging,
+						"genericName"
+					FROM (
+						SELECT 
+							  "code",
+							  MIN(m.id) AS id,
+							  MAX(m."name") AS "name", 
+							  MAX(m."merk") AS "merk",
+							  MAX(m."description") AS "description",
+							  MAX(m."unitOfMeasure") AS "unitOfMeasure",
+							  MAX(m."price") AS "price",
+							  MAX(m."expiredDate") AS "expiredDate",
+							  CAST(SUM("currStock") AS INTEGER) AS "currStock",
+							  MAX(m."reservedStock") AS "reservedStock",
+							  MAX(m."minStock") AS "minStock",
+							  MAX(m."maxStock") AS "maxStock",
+							  CASE WHEN COUNT(CASE WHEN m."is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+							  MAX(m."sideEffect") AS "sideEffect",
+							  MAX(m."created_at") AS "created_at",
+							  MAX(m."updated_at") AS "updated_at",
+							  jsonb_agg(
+								DISTINCT jsonb_build_object(
+								  'id', c.id,
+								  'label', c.label,
+								  'value', c.value
+								)
+							  ) AS classifications,
+								jsonb_build_object(
+								'id', MAX(p.id),
+								'label', MAX(p.label)
+							  ) AS packaging,
+								jsonb_build_object(
+								'id', MAX(g.id),
+								'label', MAX(g.label)
+							  ) AS "genericName"
+						FROM "Medicine" m
+						INNER JOIN "Packaging" p ON m."packagingId" = p.id
+						INNER JOIN "GenericName" g ON m."genericNameId" = g.id
+						INNER JOIN "MedicineHasClassification" mhc ON m."id" = mhc."medicineId"
+						INNER JOIN "Classification" c ON mhc."classificationId" = c."id"
+						WHERE 
+				  			("name" ILIKE ${`%${searchQuery}%`} 
+				  			OR "code" ILIKE ${`%${searchQuery}%`} 
+				  			OR "merk" ILIKE ${`%${searchQuery}%`})
+						GROUP BY m.code, m.id, mhc."classificationId"
+						${Prisma.sql([orderBy])}
+						LIMIT ${limit} OFFSET ${startIndex}
+					) subquery
+				GROUP BY
+				code, packaging, "genericName", classification
+			)
+				SELECT
+				 	"code",
+				  	MIN(id) AS id,
+				  	MAX("name") AS "name", 
+				  	MAX("merk") AS "merk",
+				  	MAX("description") AS "description",
+				  	MAX("unitOfMeasure") AS "unitOfMeasure",
+				  	MAX("price") AS "price",
+				  	MAX("expiredDate") AS "expiredDate",
+					"currStock",
+			  		MAX("reservedStock") AS "reservedStock",
+				  	MAX("minStock") AS "minStock",
+				  	MAX("maxStock") AS "maxStock",
+				  	CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+				  	MAX("sideEffect") AS "sideEffect",
+				  	MAX("created_at") AS "created_at",
+				  	MAX("updated_at") AS "updated_at",
+					jsonb_agg(DISTINCT classification) AS classifications,
+					packaging,
+					"genericName"
+				FROM flattened_classifications
+				GROUP BY code, packaging, "genericName", "currStock"
+			`);
 		} catch (error) {
 			throw error as string
 		}
@@ -674,7 +682,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 			orderBy.push({ id: "asc" });
 			orderBy.push({ is_active: "desc" });
 
-			return this.prisma.medicine.findMany({
+			return this.Prisma.medicine.findMany({
 				where: {
 					OR: [
 						{ name: {
@@ -744,7 +752,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 
 	public async getMedicineById(id: number): Promise<Medicine | null> {
 		try {
-			return this.prisma.medicine.findFirst({ where: { id: id } });
+			return this.Prisma.medicine.findFirst({ where: { id: id } });
 		} catch (error) {
 			console.error('Error getting medicine by id:', error);
 			throw new Error('Failed to get medicine by id');
@@ -753,10 +761,9 @@ GROUP BY code, packaging, "genericName", "currStock"
 
 	public async getMedicineByCode(code: string): Promise<MedicineDisplayVO | null> {
 		try {
-			return this.prisma.medicine.findFirst({
+			return this.Prisma.medicine.findFirst({
 				where: {
-					code: code,
-					is_active: true
+					code: code
 				},
 				select: {
 					id: true,
@@ -809,9 +816,10 @@ GROUP BY code, packaging, "genericName", "currStock"
 		}
 	}
 
+	//UNUSED
 	public async searchMedicines(startIndex: number, limit: number, parameter: string): Promise<MedicineDisplayVO[]> {
 		try {
-			return this.prisma.medicine.findMany({
+			return this.Prisma.medicine.findMany({
 				where: {
 					AND: [
 						{
@@ -883,7 +891,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 
 	public async createMedicine(dataMedicine: Medicine): Promise<MedicineDisplayVO> {
 		try {
-			const newMedicine = await this.prisma.medicine.create({
+			const newMedicine = await this.Prisma.medicine.create({
 				data: dataMedicine,
 				select: {
 					id: true,
@@ -940,7 +948,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 
 	public async updateActiveMedicine(dataMedicine: Medicine) {
 		try {
-			await this.prisma.medicine.updateMany({
+			await this.Prisma.medicine.updateMany({
 				where: {
 					AND: [
 						{ code: dataMedicine.code },
@@ -955,9 +963,19 @@ GROUP BY code, packaging, "genericName", "currStock"
 		}
 	}
 
+	public async updateAllMedicine(medicineList: Medicine[]) {
+		const updatePromises = medicineList.map(medicine =>
+			this.Prisma.medicine.update({
+				where: { id: medicine.id }, // Ensure the medicine has a unique identifier
+				data: { code: medicine.code } // Update the specific field
+			})
+		);
+		await Promise.all(updatePromises);
+	}
+
 	public async updateInactiveMedicine(dataMedicine: Medicine): Promise<number> {
 		try {
-			const result = await this.prisma.medicine.updateMany({
+			const result = await this.Prisma.medicine.updateMany({
 				where: {
 					AND: [
 						{ code: dataMedicine.code },
@@ -975,7 +993,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 
 	public async activateMedicineById(medicineId: number) {
 		try {
-			await this.prisma.medicine.update({
+			await this.Prisma.medicine.update({
 				where: {
 					id: medicineId
 				},
@@ -991,7 +1009,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 
 	public async findAllMedicineIdByMedicineCode(medicineCode: string) {
 		try {
-			return await this.prisma.medicine.findMany({
+			return await this.Prisma.medicine.findMany({
 				where: {
 					code: medicineCode
 				},
@@ -1007,7 +1025,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 
 	public async editMedicineByCode(dataMedicine: Medicine) {
 		try {
-			return await this.prisma.medicine.updateMany({
+			return await this.Prisma.medicine.updateMany({
 				where: { code: dataMedicine.code },
 				data: dataMedicine
 			});
@@ -1019,7 +1037,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 
 	public async editMedicineById(dataMedicine: Medicine) {
 		try {
-			return await this.prisma.medicine.update({
+			return await this.Prisma.medicine.update({
 				where: { id: dataMedicine.id },
 				data: dataMedicine
 			});
@@ -1031,7 +1049,7 @@ GROUP BY code, packaging, "genericName", "currStock"
 
     public async checkExpiration(startDay: Date, lastDay: Date): Promise<Medicine[]> {
         try {
-            return this.prisma.medicine.findMany({
+            return this.Prisma.medicine.findMany({
                 where: {
                     expiredDate: {
                         gte: startDay,
@@ -1045,9 +1063,40 @@ GROUP BY code, packaging, "genericName", "currStock"
         }
     }
 
+	public async checkIfMedicineExpiredTodayStillActive(startDate: Date, endDate: Date): Promise<Medicine[]> {
+		try {
+			return this.Prisma.medicine.findMany({
+				where: {
+					AND:
+						[
+							{
+								expiredDate: {
+									// gte: startDate,
+									lte: endDate
+								}
+							},
+							{
+								OR:
+									[
+										{is_active: true},
+										{currStock: {
+											gt: 0
+										}}
+									]
+							}
+						]
+
+				}
+			})
+		} catch (error) {
+			console.error('Error checking medicine expired still active with error: ', error)
+			throw error as string
+		}
+	}
+
 	public async hardDeleteMedicineById(medicineId: number) {
 		try {
-			return this.prisma.medicine.delete({
+			return this.Prisma.medicine.delete({
 				where: {
 					id: medicineId
 				}
