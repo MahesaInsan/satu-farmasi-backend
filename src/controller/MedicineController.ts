@@ -22,7 +22,7 @@ export default class MedicineController extends BaseController {
     async getMedicineList(req: Request, res: Response){
         try{
             console.log("#getMedicineDropdownOption with req ", req.query.isActive as string)
-            const isActive = (req.query.isActive as string).toLowerCase() === "true" ? true : undefined
+            const isActive = (req.query.isActive as string)?.toLowerCase() === "true" ? true : undefined
             const medicineDropdownOption: Map<string, MedicineDropdownVO> = await this.medicineService.getAllMedicineList(isActive)
             res.status(200).send(new BaseResponse().ok(Object.fromEntries(medicineDropdownOption)));
         } catch (error) {
