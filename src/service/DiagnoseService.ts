@@ -86,7 +86,7 @@ export default class DiagnoseService{
                         console.log("masuk sini")
                         return this.constructDiagnoseDetailResponse(diagnose, prescription)
                     } else throw new Error("Prescription is not found")
-                } else throw new Error("Diagnose is not found")
+                } else return
             } else throw new Error("Diagnose id must not be blank")
         } catch (error) {
             throw error as string

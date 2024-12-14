@@ -41,10 +41,7 @@ export default class App {
     private initConfig() {
         this.app.use(cookieParser());
         this.app.use(express.json());
-        this.app.use(cors({
-            ...this.corsOptions,
-            exposedHeaders: ['Set-Cookie'], // Explicitly expose cookie headers
-        }));
+        this.app.use(cors(this.corsOptions));
         this.app.options("*", cors(this.corsOptions)); // Preflight OPTIONS request
     }
 

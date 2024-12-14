@@ -49,7 +49,7 @@ export default interface ReceiveMedicineVO {
     buyingPrice: Prisma.Decimal;
     paymentMethod: $Enums.PaymentMethod;
     deadline: Date;
-    isPaid: boolean;
+    isArrived: boolean;
     is_active: boolean;
     created_at: Date;
     updated_at: Date;

@@ -9,8 +9,9 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL_SUPABASE")
-  directUrl = env("DIRECT_URL_SUPABASE")
+  url       = env("DATABASE_URL")
+  // url       = env("DATABASE_URL_SUPABASE")
+  // directUrl = env("DIRECT_URL_SUPABASE")
 }
 
 model User {
@@ -193,7 +194,7 @@ model ReceiveMedicine {
   buyingPrice    Decimal
   paymentMethod  PaymentMethod
   deadline       DateTime
-  isPaid         Boolean
+  isArrived         Boolean
   is_active      Boolean
   created_at     DateTime
   updated_at     DateTime        @default(now())
