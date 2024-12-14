@@ -31,11 +31,12 @@ export default class UserController {
                         : res.cookie( "token", token, this.responseHelper.constructCookieRequest(1000 * 60 * 60 * 24 * 7)) // 7 days
                     return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructLoginResponse( user, token)));
                 } catch (error) {
-                    return res .status(400).send(this.responseHelper.constructBadRequest(error as object));
+                    return res .status(400).send(new BaseResponse().badRequest("400: Bad Request", error));
                 }
             }
 			throw new CustomError().formatError("Email atau password tidak valid!", "custom");
         } catch (error) {
+            console.log("#getUserByEmail : ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }

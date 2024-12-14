@@ -146,6 +146,7 @@ export default class OutputMedicineService {
             // await this.medicineService.updateMedicineStock(request.oldQuantity, request.quantity, request.medicineId);
             await this.updateMedicineCurrStockAndReserved(request.oldQuantity, request.quantity, request.medicineId)
             const matchedReason: string | undefined = this.outputMedicineRepository.validReasonOfDispose(request.reasonOfDispose);
+            await this.physicalReportService.editPhysicalReport(request.physicalReport);
             request.reasonOfDispose = matchedReason as ReasonOfDispose
             const outputMedicine: OutputMedicine = this.outputMedicineHelper.editOutputMedicine(request);
             return await this.outputMedicineRepository.editOutputMedicine(outputMedicine);
