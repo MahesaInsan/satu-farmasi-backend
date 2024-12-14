@@ -271,7 +271,7 @@ export default class TransactionRepository extends BaseRepository{
             return this.Prisma.$queryRaw
                 `SELECT 
                     EXTRACT(MONTH FROM a."created_at") AS "month",
-                    SUM(b."quantity") as "sales",
+                    CAST(SUM(b."quantity") AS INTEGER) as "sales",
                     SUM(b."totalPrice") as "revenue"
                 FROM "public"."Transaction" a
                 JOIN "public"."PrescriptionHasMedicine" b ON a."prescriptionId" = b."prescriptionId"

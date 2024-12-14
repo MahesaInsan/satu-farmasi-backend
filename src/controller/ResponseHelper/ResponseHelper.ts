@@ -17,7 +17,10 @@ export default class ResponseHelper {
         return {
             httpOnly: true,
             secure: true,
-            maxAge: maxAge
+            maxAge: maxAge,
+            sameSite: 'None',
+            domain: '.onrender.com',
+            path: '/'
         };
     }
 

@@ -24,7 +24,7 @@ export default class App {
     private readonly app: Application;
     private readonly port: number;
     private corsOptions: object = {
-        origin: "http://localhost:3000",
+        origin: "https://satu-farmasi-frontend.onrender.com",
         credentials: true,
         methods: "GET,PUT,POST,DELETE,PATCH,OPTIONS",
         allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept",
@@ -41,7 +41,10 @@ export default class App {
     private initConfig() {
         this.app.use(cookieParser());
         this.app.use(express.json());
-        this.app.use(cors(this.corsOptions));
+        this.app.use(cors({
+            ...this.corsOptions,
+            exposedHeaders: ['Set-Cookie'], // Explicitly expose cookie headers
+        }));
         this.app.options("*", cors(this.corsOptions)); // Preflight OPTIONS request
     }
 
