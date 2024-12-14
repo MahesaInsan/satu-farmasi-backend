@@ -14,6 +14,10 @@ export default class MedicineRepository extends BaseRepository{
 	public async fetchMedicineList(isActive?: boolean): Promise<MedicineDropdownVO[]> {
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+			let isActiveCondition = Prisma.sql``
+			if (isActive) {
+				isActiveCondition = Prisma.sql`m.is_active = ${isActive} AND`
+			}
             // findAllMedicineIdByMedicineCode
 			return await this.Prisma.$queryRaw<MedicineDropdownVO[]>(
 				Prisma.sql`
@@ -69,8 +73,8 @@ export default class MedicineRepository extends BaseRepository{
                             INNER JOIN "MedicineHasClassification" mhc ON m.id = mhc."medicineId"
                             INNER JOIN "Classification" c ON mhc."classificationId" = c.id
                             WHERE 
-                                m.is_active = ${isActive}
-                                AND m."currStock" > 0
+                                ${isActiveCondition}
+                                m."currStock" > 0
                                 AND m."expiredDate" > ${futureDate}
                             GROUP BY m.code, m.id, mhc."classificationId"
                         ) subquery
