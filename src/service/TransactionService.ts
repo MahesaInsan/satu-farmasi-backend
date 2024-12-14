@@ -50,10 +50,11 @@ export default class TransactionService{
         try {
             const tuple: [AddTransactionRequest, PrescriptionDetailVO] = await this.checkData(request) as [AddTransactionRequest, PrescriptionDetailVO]
             const totalPrice: Prisma.Decimal = await this.calculateTotalPrice(tuple[1])
+            console.log("request", request)
             const newTransaction = Builder<Transaction>()
                 .patientId(request.patientId)
                 .prescriptionId(request.prescriptionId)
-                .pharmacistId(1)
+                .pharmacistId(request.pharmacistId)
                 .totalPrice(totalPrice)
                 .is_active(true)
                 .created_at(request.created_at || new Date())

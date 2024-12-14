@@ -31,7 +31,7 @@ export default class PharmacistService {
 			await this.userService.nikIsExist(request.nik);
 			request.password = await this.userService.encryptPassword(request.password);
 			const pharmacist: User = this.createUserHelper.createBaseUser(request);
-			return await this.pharmacistRepository.addPharmacist(Builder(pharmacist).role(Role.PHARMACIST).build());
+			return await this.pharmacistRepository.addPharmacist(Builder(pharmacist).role(Role.PHARMACIST).sipaNum(request.sipaNum).build());
 		} catch (error) {
 			throw error as object;
 		}
@@ -42,7 +42,8 @@ export default class PharmacistService {
 			await this.userService.emailIsExist(request.email, request.oldEmail);
 			await this.userService.nikIsExist(request.nik, request.oldNik);
 			const pharmacist: User = this.editUserHelper.editBaseUser(request);
-			return await this.pharmacistRepository.editPharmacist(Builder(pharmacist).role(Role.PHARMACIST).build());
+            console.log("req: ", request)
+			return await this.pharmacistRepository.editPharmacist(Builder(pharmacist).role(Role.PHARMACIST).sipaNum(request.sipaNum).build());
 		} catch (error) {
 			throw error as object;
 		}

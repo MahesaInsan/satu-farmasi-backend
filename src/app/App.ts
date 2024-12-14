@@ -24,7 +24,6 @@ export default class App {
     private readonly app: Application;
     private readonly port: number;
     private corsOptions: object = {
-        // origin: "https://satu-farmasi-frontend.onrender.com",
         origin: "http://localhost:3000",
         credentials: true,
         methods: "GET,PUT,POST,DELETE,PATCH,OPTIONS",

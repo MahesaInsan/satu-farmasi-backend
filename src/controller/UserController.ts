@@ -5,26 +5,30 @@ import LoginRequest from "../model/request/LoginRequest";
 import jwt, { JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import BaseResponse from "../model/response/BaseResponse";
 import { CustomError } from "../validator/helper/ErrorHelper";
-import { User } from "@prisma/client";
-import { decode } from "punycode";
+import { Pharmacy, User } from "@prisma/client";
+import PharmacyService from "../service/PharmacyService";
 
 export default class UserController {
     private readonly userService: UserService;
     private readonly responseHelper: ResponseHelper;
+    private readonly pharmacyService: PharmacyService;
 
     constructor() {
         this.userService = new UserService();
         this.responseHelper = new ResponseHelper();
+        this.pharmacyService = new PharmacyService();
     }
 
     async getUserByEmail(req: Request, res: Response) {
         try {
             const request: LoginRequest = req.body;
-            const user: User | null =
-                await this.userService.getUserByEmail(request.email);
-            console.log("user: ", user);
+            const user: User | null = await this.userService.getUserByEmail(request.email);
             if ( user && (await this.userService.bcryptPassword( request.password, user.password))) {
                 try {
+                    if (user.role.toLowerCase() !== 'admin') {
+                        const pharmacy: Pharmacy | null = await this.pharmacyService.getPharmacyInformation()
+                        if (!pharmacy) throw new CustomError().formatError("Data Farmasi belum ada, silahkan login sebagai Admin untuk menambahkan data Farmasi", "custom");
+                    }
                     const token: string = this.userService.generateToken( user.email, user.role, request.isRemember);
                     request.isRemember 
                         ? res.cookie( "token", token, this.responseHelper.constructCookieRequest(1000 * 60 * 60 * 24 * 30)) // 30 days
@@ -34,6 +38,7 @@ export default class UserController {
                     return res .status(400).send(new BaseResponse().badRequest("400: Bad Request", error));
                 }
             }
+
 			throw new CustomError().formatError("Email atau password tidak valid!", "custom");
         } catch (error) {
             console.log("#getUserByEmail : ", error);
