@@ -14,10 +14,11 @@ import { Result } from "express-validator";
 export default class ResponseHelper {
     public constructCookieRequest(maxAge: number): object {
         return {
-            httpOnly: true,
+            httpOnly: false,
             secure: true,
             maxAge: maxAge,
-            sameSite: 'None'
+            sameSite: 'None',
+            path: '/'
         };
     }
 
