@@ -277,7 +277,7 @@ export default class OutputMedicineService {
         return Builder<AddOutputMedicineRequest>()
             .medicineId(medicine.medicineId)
             .currStock(medicine.currStock)
-            .currStock(medicine.quantity)
+            .quantity(medicine.quantity)
             .reasonOfDispose(medicine.reasonOfDispose)
             .physicalReport(physicalReport)
             .build()
