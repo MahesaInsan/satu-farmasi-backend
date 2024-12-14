@@ -11,6 +11,7 @@ export default class MedicineRepository extends BaseRepository{
 		super();
 	}
 
+    // TODO: if isActive is undefined, the where caluse gives empty results
 	public async fetchMedicineList(isActive?: boolean): Promise<MedicineDropdownVO[]> {
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);

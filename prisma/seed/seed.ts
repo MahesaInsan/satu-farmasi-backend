@@ -17,6 +17,7 @@ import PaginataionRequest from "../../src/model/request/PaginationRequest";
 import { Pharmacy, Prisma, User } from "@prisma/client";
 import AddPhysicalReportRequest from "../../src/model/request/AddPhysicalReportRequest";
 import PaginationRequest from "../../src/model/request/PaginationRequest";
+import LoginResponse from "../../src/model/response/LoginResponse";
 
 const userService: UserService = new UserService();
 const getDefaultPassword = async () =>
@@ -29,6 +30,14 @@ const DOMAIN = "http://localhost:8000";
 const STOCK = {
     MIN: 1,
     MAX: 300,
+};
+
+const INIT_USER = {
+    email: "pharmacist1@gmail.com",
+    password: "password123",
+    isRemember: true,
+    token: "",
+    cookie: "",
 };
 
 let packagingList: Map<string, number> = new Map<string, number>();
@@ -46,12 +55,18 @@ const main = async () => {
     console.log("Start seeding database ...");
     const MAX_DATA: number = 50;
 
+
+
     // Seed User
     await seedAdmin(seed);
     await seedingDoctor(seed, 3);
     await seedPharmacist(seed, 3);
     await seedPatient(seed);
     await seedPharmacy(seed);
+
+    const { cookie, token } = await authUser();
+    INIT_USER.token = token;
+    INIT_USER.cookie = cookie;
 
     // Seed Medicine
     initMedicine();
@@ -62,13 +77,42 @@ const main = async () => {
     await seedMedicine(seed);
     await seedMedicineHasClassification(seed);
 
-    await seedPrescription();
-    await seedTransaction();
+    await seedPrescription(token, cookie);
+    await seedTransaction(token, cookie);
 
     console.info("Database seeded successfully!");
 
     process.exit();
 };
+
+
+    const authUser = async (): Promise<{
+        cookie: string,
+        token: string,
+    }> => {
+        try {
+            const ENDPOINT: string = "/api/v1/users";
+            const URL: string = `${DOMAIN}${ENDPOINT}`;
+            const BODY = {
+                email: INIT_USER.email,
+                password: INIT_USER.password,
+                isRemember: INIT_USER.isRemember,
+            }
+            let response: Response = await fetch(URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(BODY),
+            });
+            const cookie: string | null = response.headers.get("Set-Cookie");
+            const responseJson: BaseResponse<LoginResponse> = await response.json();
+            if (!cookie || !responseJson.data) throw new Error("Failed to authenticate user!");
+            const { firstName, lastName, email, role, token } = responseJson.data;
+            return { cookie, token };
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    };
 
 const seedAdmin = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding admin ...");
@@ -218,14 +262,18 @@ const seedClassification = async (seed: SeedClient) => {
     console.info("Classification seeded successfully!");
 };
 
-const seedPrescription = async () => {
+const seedPrescription = async (token: string, cookie: string) => {
     console.info("Seeding prescription ...");
     const ENDPOINT: string = "/api/v1/prescriptions";
     const URL: string = `${DOMAIN}${ENDPOINT}`;
     for (const prescription of PrescriptionList) {
         await fetch(URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+                Cookie: cookie,
+            },
             body: JSON.stringify(prescription),
         }).catch((error) => {
             console.error(error);
@@ -235,18 +283,23 @@ const seedPrescription = async () => {
     console.info("Prescription seeded successfully!");
 };
 
-const seedTransaction = async () => {
+const seedTransaction = async (token: string, cookie: string) => {
     console.info("Seeding transactions ...");
     const PRESCRIPTION_SIZE: number = PrescriptionList.length;
 
-    const getAllPrescriptions = async (): Promise<PaginationRequest | undefined> => {
+
+    const getAllPrescriptions = async (token: string, cookie: string): Promise< PaginationRequest | undefined > => {
         try {
             const ENDPOINT: string = "/api/v1/prescriptions";
             const QUERY: string = `?name=&status=&limit=${PRESCRIPTION_SIZE}&page=1`;
             const URL: string = `${DOMAIN}${ENDPOINT}${QUERY}`;
             let response: Response = await fetch(URL, {
                 method: "GET",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    Cookie: cookie,
+                },
             });
             const responseJson: BaseResponse<PaginationRequest> =
                 await response.json();
@@ -257,13 +310,17 @@ const seedTransaction = async () => {
         }
     };
 
-    const getPharmacyInfo = async (): Promise<Pharmacy | undefined> => {
+    const getPharmacyInfo = async ( token: string, cookie: string,): Promise<Pharmacy | undefined> => {
         try {
             const ENDPOINT: string = "/api/v1/pharmacy";
             const URL: string = `${DOMAIN}${ENDPOINT}`;
             let response: Response = await fetch(URL, {
                 method: "GET",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    Cookie: cookie,
+                },
             });
             const responseJson: BaseResponse<Pharmacy> = await response.json();
             return responseJson.data;
@@ -271,15 +328,16 @@ const seedTransaction = async () => {
             console.error(error);
             throw new Error("Failed to get all prescriptions!");
         }
-    }
+    };
 
     // Unprocessed -> Waiting for payment
     const proceseedToTransaction = async (
         patientId: number,
         prescriptionId: number,
-        user_token: string,
+        token: string,
         pharmacistId: number,
         created_at: Date,
+        cookie: string,
     ) => {
         try {
             const ENDPOINT: string = "/api/v1/transactions";
@@ -288,16 +346,17 @@ const seedTransaction = async () => {
                 patientId: patientId,
                 prescriptionId: prescriptionId,
                 pharmacistId: pharmacistId,
-                created_at: created_at
+                created_at: created_at,
             };
 
             let response: Response = await fetch(URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${user_token}`,
+                    Authorization: `Bearer ${token}`,
+                    Cookie: cookie,
                 },
-                body: JSON.stringify({data: BODY}),
+                body: JSON.stringify({ data: BODY }),
             });
             await response.json();
         } catch (error) {
@@ -310,20 +369,23 @@ const seedTransaction = async () => {
     const payTransaction = async (
         user_token: string,
         request: ConfirmPayRequest,
+        cookie: string,
     ) => {
         try {
             const ENDPOINT: string = "/api/v1/transactions";
-            const PARAMS : string = "/_pay"
+            const PARAMS: string = "/_pay";
             const URL: string = `${DOMAIN}${ENDPOINT}${PARAMS}`;
-            const BODY = {request};
+            const BODY = { request };
 
             let response: Response = await fetch(URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${user_token}`,
+                    credentials: "include",
+                    Cookie: cookie,
                 },
-                body: JSON.stringify({data: BODY}),
+                body: JSON.stringify({ data: BODY }),
             });
             const responseJson = await response.json();
             console.log("responseJSON: ", responseJson);
@@ -333,36 +395,41 @@ const seedTransaction = async () => {
         }
     };
 
-
-    const initialPharmacist: User | null = await userService.getUserByEmail( "pharmacist1@gmail.com");
+    const initialPharmacist: User | null = await userService.getUserByEmail(
+        "pharmacist1@gmail.com",
+    );
     if (!initialPharmacist) throw new Error("Pharmacist not found!");
 
-    const USER_TOKEN = userService.generateToken(
-        initialPharmacist.email,
-        initialPharmacist.role,
-    );
-
     // Load all prescriptions
-    const prescriptions: PaginationRequest | undefined = await getAllPrescriptions();
+    const prescriptions: PaginationRequest | undefined =
+        await getAllPrescriptions(cookie);
     if (!prescriptions?.results) throw new Error("Prescriptions not found!");
-    const prescriptionSumaryList: PrescriptionSumaryVO[] = prescriptions.results as PrescriptionSumaryVO[];
+    const prescriptionSumaryList: PrescriptionSumaryVO[] =
+        prescriptions.results as PrescriptionSumaryVO[];
     console.log("Prescriptions: ", prescriptionSumaryList);
 
     // Proceed to payment (Waiting for payment status)
     for (const prescription of prescriptionSumaryList) {
         const { id, patient, created_at } = prescription;
-        await proceseedToTransaction(patient.id, id, USER_TOKEN, initialPharmacist.id, created_at);
+        await proceseedToTransaction(
+            patient.id,
+            id,
+            token,
+            initialPharmacist.id,
+            created_at,
+            cookie,
+        );
     }
 
     // Confirm payment (On Progress status)
-    const pharmacyInfo: Pharmacy | undefined = await getPharmacyInfo();
+    const pharmacyInfo: Pharmacy | undefined = await getPharmacyInfo(token, cookie);
     if (!pharmacyInfo) throw new Error("Pharmacy not found!");
 
-    let index: number = 0
+    let index: number = 0;
     for (const prescription of prescriptionSumaryList) {
         const { id, patient, created_at } = prescription;
         // TODO: Fix json value problem
-       
+
         //const newPhysicalReportData: AddPhysicalReportRequest = {
         //    id: 0,
         //    data: `{
@@ -375,7 +442,6 @@ const seedTransaction = async () => {
         //}
         index++;
     }
-
 
     console.info("Transactions seeded successfully!");
 };

@@ -52,7 +52,10 @@ export default class MedicineReportService {
                 }
                 const medicineList: Medicine[] = await this.medicineService.checkIfExpiredMedicineStillExist(unFinalizedReport?.created_at)
                 if (medicineList.length > 0) {
-                    throw new Error("Some medicine are expired and hasn't been output, please click check expired medicine")
+                    throw new CustomError().formatError(
+                        "Some medicine are expired and hasn't been output, please click check expired medicine",
+                        "hasExpiredMedicine",
+                    );
                 }
             }
             return await this.reportRepository.finalizeReport(reportId);
