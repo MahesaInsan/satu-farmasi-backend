@@ -18,7 +18,7 @@ export default class ResponseHelper {
             secure: true,
             maxAge: maxAge,
             sameSite: 'None',
-            domain: '.onrender.com',
+            domain: '.satu-farmasi.my.id',
             path: '/'
         };
     }
