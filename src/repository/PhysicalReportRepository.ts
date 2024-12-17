@@ -1,4 +1,4 @@
-import { PhysicalReport, PrismaClient } from "@prisma/client";
+import { PhysicalReport, Prisma, PrismaClient } from "@prisma/client";
 import PhysicalReportVO from "../model/VOs/PhysicalReportVO";
 import BaseRepository from "./helper/BaseRepository";
 
@@ -33,6 +33,33 @@ export default class PhysicalReportRepository extends BaseRepository{
                     id: true,
                     data: true,
                     created_at: true
+                }
+            })
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async editPhysicalReport(physicalReport: PhysicalReport) {
+        try {
+            return await this.Prisma.physicalReport.update({
+                data: {
+                    data: JSON.parse(JSON.stringify(physicalReport.data))
+                },
+                where: {
+                    id: physicalReport.id
+                }
+            })
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async deletePhysicalReport(id: number) {
+        try {
+            return await this.Prisma.physicalReport.delete({
+                where: {
+                    id: id
                 }
             })
         } catch (error) {

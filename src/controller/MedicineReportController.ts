@@ -42,6 +42,7 @@ export default class MedicineReportController extends BaseController {
                 ),
             );
         } catch (error) {
+            console.log("Error when #finalizeReport with error ", error)
             const { defaultErrorMsg, errors } =
                 new BaseResponse().constructErrorHandler(error as object);
             return res

@@ -21,6 +21,7 @@ class MedicineRouter extends BaseRouter {
         this.router.post("/", this.receiveMedicineController.createReceiveMedicine.bind(this.receiveMedicineController));
         this.router.post("/_confirm", this.receiveMedicineController.confirmReceiveMedicine.bind(this.receiveMedicineController));
         this.router.post("/_delete", this.receiveMedicineController.deleteReceiveMedicine.bind(this.receiveMedicineController));
+        this.router.post("/_save", this.receiveMedicineController.saveReceiveMedicine.bind(this.receiveMedicineController));
     }
 }
 

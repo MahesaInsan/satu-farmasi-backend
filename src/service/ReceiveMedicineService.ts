@@ -114,16 +114,14 @@ export default class ReceiveMedicineService {
             data.reportId = todayReport.id;
 
             // Get medicine data by medicineid
-            console.log("data edit receive: ", data);
             const medicine: Medicine | null = await this.medicineService.getMedicineById(data.medicineId);
-            console.log("medicine data from receive: ", medicine);
             if (!medicine) throw new Error("Data obat tidak ditemukan!");
             
             // Update is active = true (receiveMedicine & medicine by id)
             const receiveMedicine: ReceiveMedicine = this.constructEditReceiveMedicine(data);
 
             // Ensure receive medicine is paid & validation quantity
-            if (!receiveMedicine.isPaid) throw new Error("Error: penerimaan obat wajib lunas!");
+            if (!receiveMedicine.isArrived) throw new Error("Error: penerimaan obat wajib sudah sampai!");
             const validation: boolean = await this.isConfirmQuantityStockEnable(receiveMedicine.id, medicine?.code, receiveMedicine.quantity);
             if (!validation) throw new Error("Error: Jumlah stok melebihi maksimum Stok!");
 
@@ -133,6 +131,15 @@ export default class ReceiveMedicineService {
             console.log("medicine request for edit: ", medicine)
             await this.receiveMedicineRepository.updateReceiveMedicine(receiveMedicine)
             await this.medicineService.editMedicineForReceiveById(medicine);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async saveReceiveMedicine(data: EditReceiveMedicineRequest) {
+        try {
+            const receiveMedicine: ReceiveMedicine = this.constructEditReceiveMedicine(data);
+            await this.receiveMedicineRepository.updateReceiveMedicine(receiveMedicine);
         } catch (error) {
             throw error as string;
         }
@@ -162,7 +169,7 @@ export default class ReceiveMedicineService {
             .buyingPrice(request.buyingPrice)
             .paymentMethod(request.paymentMethod)
             .deadline(request.deadline)
-            .isPaid(request.isPaid)
+            .isArrived(request.isArrived)
             .is_active(false)
             .created_at(new Date)
             .updated_at(new Date)
@@ -181,7 +188,7 @@ export default class ReceiveMedicineService {
             .buyingPrice(request.buyingPrice)
             .paymentMethod(request.paymentMethod)
             .deadline(request.deadline)
-            .isPaid(request.isPaid)
+            .isArrived(request.isArrived)
             .is_active(request.is_active)
             .updated_at(new Date)
             .reportId(request.reportId)

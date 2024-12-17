@@ -83,9 +83,10 @@ export default class DiagnoseService{
                     const prescription: DraftPrescriptionVO | PrescriptionDetailVO | null = await this.prescriptionService
                         .getPrescription(diagnose?.prescription.id!)
                     if (prescription) {
+                        console.log("masuk sini")
                         return this.constructDiagnoseDetailResponse(diagnose, prescription)
                     } else throw new Error("Prescription is not found")
-                } else throw new Error("Diagnose is not found")
+                } else return
             } else throw new Error("Diagnose id must not be blank")
         } catch (error) {
             throw error as string
@@ -111,5 +112,6 @@ export default class DiagnoseService{
             .description(diagnose.description)
             .created_at(diagnose.created_at)
             .prescription(prescription)
+            .build()
     }
 }

@@ -471,7 +471,10 @@ export default class MedicineRepository extends BaseRepository{
 		try {
 			return await this.Prisma.medicine.findMany({
 				where: {
-					code: { contains: code }
+					code: {
+						contains: code,
+						mode: "insensitive"
+					}
 				},
 				select: {
 					code: true
@@ -643,7 +646,6 @@ export default class MedicineRepository extends BaseRepository{
 				  			OR "merk" ILIKE ${`%${searchQuery}%`})
 						GROUP BY m.code, m.id, mhc."classificationId"
 						${Prisma.sql([orderBy])}
-						LIMIT ${limit} OFFSET ${startIndex}
 					) subquery
 				GROUP BY
 				code, packaging, "genericName", classification
@@ -670,6 +672,7 @@ export default class MedicineRepository extends BaseRepository{
 					"genericName"
 				FROM flattened_classifications
 				GROUP BY code, packaging, "genericName", "currStock"
+				LIMIT ${limit} OFFSET ${startIndex}
 			`);
 		} catch (error) {
 			throw error as string
@@ -951,16 +954,18 @@ export default class MedicineRepository extends BaseRepository{
 		}
 	}
 
-	public async updateActiveMedicine(dataMedicine: Medicine) {
+	public async updateActiveMedicine(oldMedicineCode: string, dataMedicine: Medicine) {
 		try {
 			await this.Prisma.medicine.updateMany({
 				where: {
 					AND: [
-						{ code: dataMedicine.code },
+						{ code: oldMedicineCode },
 						{ is_active: true}
 					]
 				},
-				data: dataMedicine
+				data: {
+					...dataMedicine
+				}
 			});
 		} catch (error) {
 			console.error('Error editing medicine: ', error);
@@ -971,23 +976,25 @@ export default class MedicineRepository extends BaseRepository{
 	public async updateAllMedicine(medicineList: Medicine[]) {
 		const updatePromises = medicineList.map(medicine =>
 			this.Prisma.medicine.update({
-				where: { id: medicine.id }, // Ensure the medicine has a unique identifier
-				data: { code: medicine.code } // Update the specific field
+				where: { id: medicine.id },
+				data: { code: medicine.code }
 			})
 		);
 		await Promise.all(updatePromises);
 	}
 
-	public async updateInactiveMedicine(dataMedicine: Medicine): Promise<number> {
+	public async updateInactiveMedicine(oldMedicineCode: string, dataMedicine: Medicine): Promise<number> {
 		try {
 			const result = await this.Prisma.medicine.updateMany({
 				where: {
 					AND: [
-						{ code: dataMedicine.code },
+						{ code: oldMedicineCode },
 						{ is_active: false}
 					]
 				},
-				data: dataMedicine
+				data: {
+					...dataMedicine
+				}
 			});
 			return result.count;
 		} catch (error) {

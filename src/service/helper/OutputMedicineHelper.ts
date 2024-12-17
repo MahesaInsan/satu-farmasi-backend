@@ -28,7 +28,7 @@ export default class OutputMedicineHelper {
             .reportId(request.reportId)
             .is_active(request.is_active || false)
             .updated_at(new Date())
-            .physicalReportId(request.physicalReportId)
+            .physicalReportId(request.physicalReport.id)
             .build();
     }
 

@@ -30,7 +30,7 @@ export default class ReceiveMedicineController extends BaseController {
 
             pagination.results = receiveMedicines;
             pagination.total = totalReceiveMedicine;
-            return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination), "Succeed fetch receive medicines"));
+            return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination), "Berhasil mendapatkan semua penerimaan obat"));
         } catch (error) {
             console.log("[src][controller][ReceiveMedicineController][getAllReceiveMedicines] : ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -42,7 +42,7 @@ export default class ReceiveMedicineController extends BaseController {
         try {
             const id: number = parseInt(req.params.id);
             const data: ReceiveMedicineVO | null = await this.receiveMedicineService.getReceiveMedicineById(id);
-            return res.status(200).send(new BaseResponse().ok(data, "Succeed get receive medicine by id"));
+            return res.status(200).send(new BaseResponse().ok(data, "Berhasil mendapatkan penerimaan obat berdasarkan id"));
         } catch (error) {
             console.log("[src][controller][ReceiveMedicineController][getReceiveMedicineById] : ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -54,7 +54,7 @@ export default class ReceiveMedicineController extends BaseController {
         try {
             const request: AddReceiveMedicineRequest = req.body;
             await this.receiveMedicineService.createReceiveMedicine(request);
-            return res.status(200).send(new BaseResponse().ok(null, "Succeed insert receive medicine"));
+            return res.status(200).send(new BaseResponse().ok(null, "Draft penerimaan obat berhasil dibuat"));
         } catch (error) {
             console.log("[src][controller][ReceiveMedicineController][createReceiveMedicine] : ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -66,7 +66,7 @@ export default class ReceiveMedicineController extends BaseController {
         try {
             const request: EditReceiveMedicineRequest = req.body;
             await this.receiveMedicineService.confirmReceiveMedicine(request);
-            return res.status(200).send(new BaseResponse().ok(null, "Succeed confirm receive medicine"));
+            return res.status(200).send(new BaseResponse().ok(null, "Konfirmasi Penerimaan obat berhasil"));
         } catch (error) {
             console.log("[src][controller][ReceiveMedicineController][confirmReceiveMedicine] : ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -80,9 +80,21 @@ export default class ReceiveMedicineController extends BaseController {
             console.log("red body: ", req.body);
             console.log("request: ", request);
             await this.receiveMedicineService.deleteReceiveMedicine(request.id);
-            return res.status(200).send(new BaseResponse().ok(null, "Succeed delete receive medicine"))
+            return res.status(200).send(new BaseResponse().ok(null, "Penerimaan obat berhasil dihapus"))
         } catch (error) {
             console.log("[src][controller][ReceiveMedicineController][deleteReceiveMedicine] : ", error);
+            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
+            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
+        }
+    }
+    
+    public async saveReceiveMedicine(req: Request, res: Response) {
+        try {
+            const request: EditReceiveMedicineRequest = req.body;
+            await this.receiveMedicineService.saveReceiveMedicine(request);
+            return res.status(200).send(new BaseResponse().ok(null, "Draft penerimaan obat berhasil diperbarui"))
+        } catch (error) {
+            console.log("[src][controller][ReceiveMedicineController][saveReceiveMedicine] : ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }

@@ -5,14 +5,16 @@ export default class LoginResponse{
     private _email: string;
     private _token: string;
     private _role: string;
+    private _sipaNumber: string | null
 
-    constructor(id: number, firstName: string, lastName: string, token: string, role: string, email: string) {
+    constructor(id: number, firstName: string, lastName: string, token: string, role: string, email: string, sipaNumber: string | null) {
         this._id = id;
         this._firstName = firstName;
         this._lastName = lastName;
         this._token = token;
         this._role = role;
         this._email = email;
+        this._sipaNumber = sipaNumber;
     }
 
     get id(): number {
@@ -25,6 +27,18 @@ export default class LoginResponse{
 
     get email(): string {
         return this._email;
+    }
+
+    get sipaNumber(): string | null {
+        return this._sipaNumber;
+    }
+
+    set id(value: number) {
+        this._id = value;
+    }
+
+    set sipaNumber(value: string | null) {
+        this._sipaNumber = value;
     }
 
     set firstName(value: string) {
@@ -57,9 +71,5 @@ export default class LoginResponse{
 
     set role(value: string) {
         this._role = value;
-    }
-
-    set id(value: number) {
-        this._id = value;
     }
 }

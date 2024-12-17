@@ -6,10 +6,11 @@ import { Builder } from "builder-pattern";
 import LoginResponse from "../../model/response/LoginResponse";
 import Unauthorized from "../../model/request/UnauthorizedRequest";
 import InternalServerRequest from "../../model/request/InteralServerRequest";
-import User from "../../entity/User";
+// import User from "../../entity/User";
 import SuccessRequest from "../../model/request/SuccessRequest";
 import PaginationRequest from "../../model/request/PaginationRequest";
 import { Result } from "express-validator";
+import { User } from "@prisma/client";
 
 export default class ResponseHelper {
     public constructCookieRequest(maxAge: number): object {
@@ -31,6 +32,7 @@ export default class ResponseHelper {
             .email(user.email)
             .role(user.role)
             .token(token)
+            .sipaNumber(user.sipaNum)
             .build();
     }
 

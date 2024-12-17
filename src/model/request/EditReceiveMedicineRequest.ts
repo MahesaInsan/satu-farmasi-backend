@@ -10,7 +10,7 @@ export default class EditReceiveMedicineRequest {
     private _buyingPrice: Prisma.Decimal;
     private _paymentMethod: $Enums.PaymentMethod;
     private _deadline: Date;
-    private _isPaid: boolean;
+    private _isArrived: boolean;
     private _is_active: boolean;
     private _reportId: number;
     private _expiredDate: Date;
@@ -25,7 +25,7 @@ export default class EditReceiveMedicineRequest {
         buyingPrice: Prisma.Decimal,
         paymentMethod: $Enums.PaymentMethod,
         deadline: Date,
-        isPaid: boolean,
+        isArrived: boolean,
         is_active: boolean,
         reportId: number,
         expiredDate: Date,
@@ -39,7 +39,7 @@ export default class EditReceiveMedicineRequest {
         this._buyingPrice = buyingPrice;
         this._paymentMethod = paymentMethod;
         this._deadline = deadline;
-        this._isPaid = isPaid;
+        this._isArrived = isArrived;
         this._is_active = is_active;
         this._reportId = reportId;
         this._expiredDate = expiredDate;
@@ -126,13 +126,13 @@ export default class EditReceiveMedicineRequest {
         this._deadline = value;
     }
 
-    // Getter and Setter for _isPaid
-    public get isPaid(): boolean {
-        return this._isPaid;
+    // Getter and Setter for _isArrived
+    public get isArrived(): boolean {
+        return this._isArrived;
     }
 
-    public set isPaid(value: boolean) {
-        this._isPaid = value;
+    public set isArrived(value: boolean) {
+        this._isArrived = value;
     }
 
     // Getter and Setter for _is_active
