@@ -61,7 +61,7 @@ export default class UserController {
     }
 
     async deleteUser(req: Request, res: Response){
-        res.cookie('token', '', { expires: new Date(0), httpOnly: true });
+        res.cookie('token', '', this.responseHelper.constructCookieRequest(0));
         res.status(200).send(this.responseHelper.constructDeleteUserResponse())
     }
 }
