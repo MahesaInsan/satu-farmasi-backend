@@ -10,19 +10,18 @@
             },
             "medicineList": [
                 {
-                    "code": "Amoxicillin-000001",
+                    "code": "AMOXICILLIN-000001",
                     "quantity": 10,
                     "instruction": "instruksi 1",
                     "price": 1000000
                 },
                 {
-                    "code": "Parasetamol-000002",
                     "quantity": 3,
                     "instruction": "Instruksi 2",
                     "price": 300000
                 },
                 {
-                    "code": "Amoxicillin-000002",
+                    "code": "AMOXICILLIN-000002",
                     "quantity": 4,
                     "instruction": "instruksi 3",
                     "price": 400000
@@ -42,7 +41,7 @@
             },
             "medicineList": [
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
@@ -62,19 +61,19 @@
             },
             "medicineList": [
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
                 },
                 {
-                    "code": "Ibuprofen-000001",
+                    "code": "IBUPROFEN-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
                 },
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
@@ -94,7 +93,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Cefalosporin-000001",
+                    "code": "CEFALOSPORIN-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
@@ -114,7 +113,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Cefalosporin-000001",
+                    "code": "CEFALOSPORIN-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
@@ -134,13 +133,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Loperamide-000001",
+                    "code": "LOPERAMIDE-000001",
                     "quantity": 5,
                     "instruction": "instruksi 1",
                     "price": 500000
                 },
                 {
-                    "code": "Valproat-000001",
+                    "code": "VALPROAT-000001",
                     "quantity": 8,
                     "instruction": "Instruksi 2",
                     "price": 800000
@@ -160,13 +159,13 @@
             },
             "medicineList": [
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 16,
                     "instruction": "instruksi",
                     "price": 1600000
                 },
                 {
-                    "code": "Analgesik-000001",
+                    "code": "ANALGESIK-000001",
                     "quantity": 4,
                     "instruction": "instruksi",
                     "price": 400000
@@ -186,19 +185,19 @@
             },
             "medicineList": [
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 16,
                     "instruction": "instruksi",
                     "price": 1600000
                 },
                 {
-                    "code": "Analgesik-000001",
+                    "code": "ANALGESIK-000001",
                     "quantity": 4,
                     "instruction": "instruksi",
                     "price": 400000
                 },
                 {
-                    "code": "Ibuprofen-000001",
+                    "code": "IBUPROFEN-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
@@ -218,7 +217,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Analgesik-000001",
+                    "code": "ANALGESIK-000001",
                     "quantity": 4,
                     "instruction": "instruksi",
                     "price": 400000
@@ -238,13 +237,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Analgesik-000001",
+                    "code": "ANALGESIK-000001",
                     "quantity": 4,
                     "instruction": "instruksi",
                     "price": 400000
                 },
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
@@ -264,7 +263,7 @@
             },
             "medicineList": [
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 3,
                     "instruction": "instruksi 1",
                     "price": 300000
@@ -284,7 +283,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Loperamide-000001",
+                    "code": "LOPERAMIDE-000001",
                     "quantity": 6,
                     "instruction": "instruksi",
                     "price": 600000
@@ -304,13 +303,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Parasetamol-000002",
+                    "code": "PARASETAMOL-000002",
                     "quantity": 12,
                     "instruction": "instruksi",
                     "price": 1200000
                 },
                 {
-                    "code": "Kafein-000001",
+                    "code": "KAFEIN-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
@@ -330,7 +329,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Kafein-000001",
+                    "code": "KAFEIN-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
@@ -350,7 +349,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 1,
                     "instruction": "instruksi",
                     "price": 100000
@@ -370,13 +369,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Amoxicillin-000002",
+                    "code": "AMOXICILLIN-000002",
                     "quantity": 13,
                     "instruction": "instruksi",
                     "price": 1300000
                 },
                 {
-                    "code": "Loperamide-000001",
+                    "code": "LOPERAMIDE-000001",
                     "quantity": 12,
                     "instruction": "test instruksi",
                     "price": 1200000
@@ -396,19 +395,19 @@
             },
             "medicineList": [
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 1,
                     "instruction": "instruksi",
                     "price": 100000
                 },
                 {
-                    "code": "Kafein-000001",
+                    "code": "KAFEIN-000001",
                     "quantity": 12,
                     "instruction": "instruksi",
                     "price": 1200000
                 },
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
@@ -428,25 +427,25 @@
             },
             "medicineList": [
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 1,
                     "instruction": "instruksi",
                     "price": 100000
                 },
                 {
-                    "code": "Kafein-000001",
+                    "code": "KAFEIN-000001",
                     "quantity": 12,
                     "instruction": "instruksi",
                     "price": 1200000
                 },
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
                 },
                 {
-                    "code": "Parasetamol-000002",
+                    "code": "PARASETAMOL-000002",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
@@ -466,7 +465,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Kafein-000001",
+                    "code": "KAFEIN-000001",
                     "quantity": 12,
                     "instruction": "instruksi",
                     "price": 1200000
@@ -492,7 +491,7 @@
             },
             "medicineList": [
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
@@ -512,25 +511,25 @@
             },
             "medicineList": [
                 {
-                    "code": "Ibuprofen-000001",
+                    "code": "IBUPROFEN-000001",
                     "quantity": 12,
                     "instruction": "instruksi",
                     "price": 1200000
                 },
                 {
-                    "code": "Parasetamol-000001",
+                    "code": "PARASETAMOL-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
                 },
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
                 },
                 {
-                    "code": "kortikosteroid-000001",
+                    "code": "KORTIKOSTEROID-000001",
                     "quantity": 3,
                     "instruction": "test",
                     "price": 300000
@@ -550,13 +549,13 @@
             },
             "medicineList": [
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
                 },
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
@@ -576,13 +575,13 @@
             },
             "medicineList": [
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
                 },
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
@@ -602,7 +601,7 @@
             },
             "medicineList": [
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 4,
                     "instruction": "instruksi",
                     "price": 400000
@@ -622,13 +621,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Propyphenazone-000001",
+                    "code": "PROPYPHENAZONE-000001",
                     "quantity": 7,
                     "instruction": "instruksi",
                     "price": 700000
                 },
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 9,
                     "instruction": "instruksi",
                     "price": 900000
@@ -648,19 +647,19 @@
             },
             "medicineList": [
                 {
-                    "code": "Ibuprofen-000001",
+                    "code": "IBUPROFEN-000001",
                     "quantity": 12,
                     "instruction": "instruksi",
                     "price": 1200000
                 },
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
                 },
                 {
-                    "code": "kortikosteroid-000001",
+                    "code": "KORTIKOSTEROID-000001",
                     "quantity": 3,
                     "instruction": "test",
                     "price": 300000
@@ -680,13 +679,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 12,
                     "instruction": "instruksi",
                     "price": 1200000
                 },
                 {
-                    "code": "Valproat-000001",
+                    "code": "VALPROAT-000001",
                     "quantity": 15,
                     "instruction": "instruksi",
                     "price": 1500000
@@ -706,19 +705,19 @@
             },
             "medicineList": [
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
                 },
                 {
-                    "code": "Valproat-000001",
+                    "code": "VALPROAT-000001",
                     "quantity": 15,
                     "instruction": "instruksi",
                     "price": 1500000
                 },
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 2,
                     "instruction": "instruksi",
                     "price": 200000
@@ -738,13 +737,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
                 },
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 2,
                     "instruction": "instruksi",
                     "price": 200000
@@ -764,13 +763,13 @@
             },
             "medicineList": [
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 2,
                     "instruction": "instruksi",
                     "price": 200000
                 },
                 {
-                    "code": "Parasetamol-000001",
+                    "code": "PARASETAMOL-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
@@ -790,7 +789,7 @@
             },
             "medicineList": [
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
@@ -810,7 +809,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Amoxicillin-000002",
+                    "code": "AMOXICILLIN-000002",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
@@ -830,7 +829,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Valproat-000001",
+                    "code": "VALPROAT-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 1500000
@@ -850,7 +849,7 @@
             },
             "medicineList": [
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 13,
                     "instruction": "instruksi",
                     "price": 1300000
@@ -890,13 +889,13 @@
             },
             "medicineList": [
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 13,
                     "instruction": "instruksi",
                     "price": 1300000
                 },
                 {
-                    "code": "Domperidone-000001",
+                    "code": "DOMPERIDONE-000001",
                     "quantity": 7,
                     "instruction": "instruksi",
                     "price": 700000
@@ -916,7 +915,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Antihistamin-000001",
+                    "code": "ANTIHISTAMIN-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
@@ -936,13 +935,13 @@
             },
             "medicineList": [
                 {
-                    "code": "imunostimulan-000001",
+                    "code": "IMUNOSTIMULAN-000001",
                     "quantity": 6,
                     "instruction": "instruksi",
                     "price": 600000
                 },
                 {
-                    "code": "Ibuprofen-000001",
+                    "code": "IBUPROFEN-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
@@ -962,13 +961,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Domperidone-000001",
+                    "code": "DOMPERIDONE-000001",
                     "quantity": 5,
                     "instruction": "instruksi",
                     "price": 500000
                 },
                 {
-                    "code": "Ibuprofen-000001",
+                    "code": "IBUPROFEN-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
@@ -988,13 +987,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Domperidone-000001",
+                    "code": "DOMPERIDONE-000001",
                     "quantity": 5,
                     "instruction": "instruksi",
                     "price": 500000
                 },
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 6,
                     "instruction": "instruksi",
                     "price": 600000
@@ -1014,13 +1013,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Domperidone-000001",
+                    "code": "DOMPERIDONE-000001",
                     "quantity": 20,
                     "instruction": "instruksi baru",
                     "price": 2000000
                 },
                 {
-                    "code": "Prokain-000001",
+                    "code": "PROKAIN-000001",
                     "quantity": 16,
                     "instruction": "instruksi baru",
                     "price": 1600000
@@ -1040,13 +1039,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Domperidone-000001",
+                    "code": "DOMPERIDONE-000001",
                     "quantity": 8,
                     "instruction": "instruksi baru",
                     "price": 2000000
                 },
                 {
-                    "code": "Prokain-000001",
+                    "code": "PROKAIN-000001",
                     "quantity": 3,
                     "instruction": "instruksi baru",
                     "price": 1600000
@@ -1066,7 +1065,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 6,
                     "instruction": "instruksi",
                     "price": 600000
@@ -1086,19 +1085,19 @@
             },
             "medicineList": [
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 6,
                     "instruction": "instruksi",
                     "price": 600000
                 },
                 {
-                    "code": "Valproat-000001",
+                    "code": "VALPROAT-000001",
                     "quantity": 7,
                     "instruction": "instruksi",
                     "price": 700000
                 },
                 {
-                    "code": "Prokain-000001",
+                    "code": "PROKAIN-000001",
                     "quantity": 1,
                     "instruction": "instruksi",
                     "price": 100000
@@ -1118,13 +1117,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Prokain-000001",
+                    "code": "PROKAIN-000001",
                     "quantity": 2,
                     "instruction": "instruksi",
                     "price": 200000
                 },
                 {
-                    "code": "Loperamide-000001",
+                    "code": "LOPERAMIDE-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
@@ -1144,25 +1143,25 @@
             },
             "medicineList": [
                 {
-                    "code": "Valproat-000001",
+                    "code": "VALPROAT-000001",
                     "quantity": 5,
                     "instruction": "instruksi baru",
                     "price": 500000
                 },
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 10,
                     "instruction": "instruksi baru",
                     "price": 1000000
                 },
                 {
-                    "code": "Amoxicillin-000002",
+                    "code": "AMOXICILLIN-000002",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
                 },
                 {
-                    "code": "Propyphenazone-000001",
+                    "code": "PROPYPHENAZONE-000001",
                     "quantity": 7,
                     "instruction": "insturksi",
                     "price": 700000
@@ -1182,13 +1181,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Amoxicillin-000002",
+                    "code": "AMOXICILLIN-000002",
                     "quantity": 2,
                     "instruction": "instruksi",
                     "price": 300000
                 },
                 {
-                    "code": "Propyphenazone-000001",
+                    "code": "PROPYPHENAZONE-000001",
                     "quantity": 1,
                     "instruction": "insturksi",
                     "price": 700000
@@ -1208,7 +1207,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Valproat-000001",
+                    "code": "VALPROAT-000001",
                     "quantity": 7,
                     "instruction": "instruksi",
                     "price": 700000
@@ -1228,7 +1227,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Suplemen vitamin-000001",
+                    "code": "SUPLEMEN VITAMIN-000001",
                     "quantity": 5,
                     "instruction": "instruksi",
                     "price": 500000
@@ -1248,13 +1247,13 @@
             },
             "medicineList": [
                 {
-                    "code": "kortikosteroid-000001",
+                    "code": "KORTIKOSTEROID-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
                 },
                 {
-                    "code": "Prokain-000001",
+                    "code": "PROKAIN-000001",
                     "quantity": 6,
                     "instruction": "instruksi",
                     "price": 600000
@@ -1274,19 +1273,19 @@
             },
             "medicineList": [
                 {
-                    "code": "Valproat-000001",
+                    "code": "VALPROAT-000001",
                     "quantity": 5,
                     "instruction": "instruksi baru",
                     "price": 500000
                 },
                 {
-                    "code": "Amoxicillin-000002",
+                    "code": "AMOXICILLIN-000002",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
                 },
                 {
-                    "code": "Propyphenazone-000001",
+                    "code": "PROPYPHENAZONE-000001",
                     "quantity": 7,
                     "instruction": "insturksi",
                     "price": 700000
@@ -1306,13 +1305,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Amoxicillin-000001",
+                    "code": "AMOXICILLIN-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
                 },
                 {
-                    "code": "Prokain-000001",
+                    "code": "PROKAIN-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
@@ -1332,7 +1331,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Domperidone-000001",
+                    "code": "DOMPERIDONE-000001",
                     "quantity": 5,
                     "instruction": "instruksi",
                     "price": 500000
@@ -1352,19 +1351,19 @@
             },
             "medicineList": [
                 {
-                    "code": "Antihistamin-000001",
+                    "code": "ANTIHISTAMIN-000001",
                     "quantity": 15,
                     "instruction": "instruksi",
                     "price": 1500000
                 },
                 {
-                    "code": "Cefalosporin-000001",
+                    "code": "CEFALOSPORIN-000001",
                     "quantity": 8,
                     "instruction": "instruksi",
                     "price": 800000
                 },
                 {
-                    "code": "Amoxicillin-000001",
+                    "code": "AMOXICILLIN-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
@@ -1384,7 +1383,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Propyphenazone-000001",
+                    "code": "PROPYPHENAZONE-000001",
                     "quantity": 7,
                     "instruction": "insturksi",
                     "price": 700000
@@ -1404,13 +1403,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Amoxicillin-000002",
+                    "code": "AMOXICILLIN-000002",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
                 },
                 {
-                    "code": "Propyphenazone-000001",
+                    "code": "PROPYPHENAZONE-000001",
                     "quantity": 7,
                     "instruction": "insturksi",
                     "price": 700000
@@ -1430,13 +1429,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Amoxicillin-000002",
+                    "code": "AMOXICILLIN-000002",
                     "quantity": 18,
                     "instruction": "instruksi",
                     "price": 1800000
                 },
                 {
-                    "code": "phenylpropanolamine-000001",
+                    "code": "PHENYLPROPANOLAMINE-000001",
                     "quantity": 10,
                     "instruction": "instruksi",
                     "price": 1000000
@@ -1456,7 +1455,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Loperamide-000001",
+                    "code": "LOPERAMIDE-000001",
                     "quantity": 3,
                     "instruction": "instruksi",
                     "price": 300000
@@ -1476,7 +1475,7 @@
             },
             "medicineList": [
                 {
-                    "code": "Loperamide-000001",
+                    "code": "LOPERAMIDE-000001",
                     "quantity": 5,
                     "instruction": "instruksi",
                     "price": 300000
@@ -1496,13 +1495,13 @@
             },
             "medicineList": [
                 {
-                    "code": "Parasetamol-000002",
+                    "code": "PARASETAMOL-000002",
                     "quantity": 12,
                     "instruction": "instruksi",
                     "price": 1200000
                 },
                 {
-                    "code": "Ibuprofen-000001",
+                    "code": "IBUPROFEN-000001",
                     "quantity": 6,
                     "instruction": "insturksi",
                     "price": 600000

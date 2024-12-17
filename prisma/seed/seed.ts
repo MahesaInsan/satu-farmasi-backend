@@ -401,11 +401,9 @@ const seedTransaction = async (token: string, cookie: string) => {
     if (!initialPharmacist) throw new Error("Pharmacist not found!");
 
     // Load all prescriptions
-    const prescriptions: PaginationRequest | undefined =
-        await getAllPrescriptions(cookie);
+    const prescriptions: PaginationRequest | undefined = await getAllPrescriptions(token, cookie);
     if (!prescriptions?.results) throw new Error("Prescriptions not found!");
-    const prescriptionSumaryList: PrescriptionSumaryVO[] =
-        prescriptions.results as PrescriptionSumaryVO[];
+    const prescriptionSumaryList: PrescriptionSumaryVO[] = prescriptions.results as PrescriptionSumaryVO[];
     console.log("Prescriptions: ", prescriptionSumaryList);
 
     // Proceed to payment (Waiting for payment status)

@@ -42,6 +42,8 @@ export default class PhysicalReportRepository extends BaseRepository{
 
     public async editPhysicalReport(physicalReport: PhysicalReport) {
         try {
+            console.log("physicalReport: ", physicalReport)
+            console.log("witness: ", physicalReport.data)
             return await this.Prisma.physicalReport.update({
                 data: {
                     data: JSON.parse(JSON.stringify(physicalReport.data))

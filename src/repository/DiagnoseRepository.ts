@@ -53,7 +53,10 @@ export default class DiagnoseRepository extends BaseRepository{
                         {
                             prescription: {
                                 patient: {
-                                    name: patientName,
+                                    name: {
+                                        contains: patientName,
+                                        mode: 'insensitive'
+                                    }
                                 }
                             }
                         }
