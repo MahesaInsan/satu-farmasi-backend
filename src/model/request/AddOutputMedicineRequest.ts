@@ -5,12 +5,13 @@ export default class AddOutputMedicineRequest {
     private _medicineId: number;
     private _currStock: number;
     private _quantity: number;
+    private _created_at: Date;
     private _reasonOfDispose: ReasonOfDispose;
     private _reportId: number | null;
     private _physicalReportId: number;
     private _physicalReport: AddPhysicalReportRequest;
 
-    constructor(medicineId: number, quantity: number, reasonOfDispose: ReasonOfDispose, reportId: number, _currStock: number, physicalReportId: number, physicalReport: AddPhysicalReportRequest) {
+    constructor(medicineId: number, quantity: number, reasonOfDispose: ReasonOfDispose, reportId: number, _currStock: number, physicalReportId: number, physicalReport: AddPhysicalReportRequest, created_at: Date) {
         this._medicineId = medicineId;
         this._quantity = quantity;
         this._reasonOfDispose = reasonOfDispose;
@@ -18,6 +19,7 @@ export default class AddOutputMedicineRequest {
         this._currStock = _currStock;
         this._physicalReportId = physicalReportId;
         this._physicalReport = physicalReport;
+        this._created_at = created_at;
     }
 
     get medicineId(): number {
@@ -74,5 +76,13 @@ export default class AddOutputMedicineRequest {
 
     set physicalReport(value: AddPhysicalReportRequest) {
         this._physicalReport = value;
+    }
+
+    get created_at(): Date {
+        return this._created_at;
+    }
+
+    set created_at(value: Date) {
+        this._created_at = value;
     }
 }

@@ -66,7 +66,7 @@ export default class TransactionService{
                 await this.medicineReportService.getTodayUnFinalizedMedicineReport();
 
             if (!todayReport) {
-                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
+                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true, request.created_at || new Date());
                 todayReport = await this.medicineReportService.
                     addMedicineReport(this.medicineReportHelper.createMedicineReport(reportRequest))
             }

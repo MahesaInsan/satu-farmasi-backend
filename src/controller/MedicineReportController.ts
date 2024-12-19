@@ -32,8 +32,10 @@ export default class MedicineReportController extends BaseController {
 
     async finalizeReport(req: Request, res: Response) {
         try {
+            const { updated_at } = req.body;
+            console.log("updated_at: ", updated_at)
             const finalized: boolean = await this.reportService.finalizeReport(
-                parseInt(req.params.id),
+                parseInt(req.params.id), updated_at
             );
             res.status(200).send(
                 new BaseResponse().ok(

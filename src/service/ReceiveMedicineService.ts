@@ -11,6 +11,7 @@ import MedicineReportHelper from "./helper/MedicineReportHelper";
 import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
 import TodayMedicineReportVO from "../model/VOs/TodayMedicineReportVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
+import { request } from "http";
 
 export default class ReceiveMedicineService {
     private readonly receiveMedicineRepository: ReceiveMedicineRepository;
@@ -108,7 +109,7 @@ export default class ReceiveMedicineService {
             // insert for report id
             let todayReport: TodayMedicineReportVO | null = await this.reportService.getTodayUnFinalizedMedicineReport();
             if (!todayReport) {
-                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
+                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true, data.created_at || new Date());
                 todayReport = await this.reportService.addMedicineReport(this.reportHelper.createMedicineReport(reportRequest))
             }
             data.reportId = todayReport.id;

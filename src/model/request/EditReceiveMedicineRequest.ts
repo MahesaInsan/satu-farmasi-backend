@@ -5,6 +5,7 @@ export default class EditReceiveMedicineRequest {
     private _documentNumber: string;
     private _batchCode: string;
     private _medicineId: number;
+    private _created_at: Date;
     private _quantity: number;
     private _vendorId: number;
     private _buyingPrice: Prisma.Decimal;
@@ -29,6 +30,7 @@ export default class EditReceiveMedicineRequest {
         is_active: boolean,
         reportId: number,
         expiredDate: Date,
+        created_at: Date,
     ) {
         this._id = id;
         this._documentNumber = documentNumber;
@@ -43,6 +45,7 @@ export default class EditReceiveMedicineRequest {
         this._is_active = is_active;
         this._reportId = reportId;
         this._expiredDate = expiredDate;
+        this._created_at = created_at;
     }
 
     // Getter and Setter for _id
@@ -93,6 +96,14 @@ export default class EditReceiveMedicineRequest {
     // Getter and Setter for _vendorId
     public get vendorId(): number {
         return this._vendorId;
+    }
+
+   public get created_at(): Date { 
+        return this._created_at;
+    }
+
+    public set created_at(value: Date) {
+        this._created_at = value;
     }
 
     public set vendorId(value: number) {

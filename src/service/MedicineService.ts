@@ -276,6 +276,7 @@ export default class MedicineService {
 					return this.constructMedicineHasClassification(classification.classificationId, medicineId);
 				})
 			console.log("newMedicineClassification: ", newMedicineHasClassification);
+            this.isDuplicateClassification(classificationList);
 			return await this.medicineHasClassificationRepository.createMedicineHasClassification(newMedicineHasClassification);
 		} catch (error) {
 			throw error as string;
@@ -340,7 +341,7 @@ export default class MedicineService {
                 classificationSet.add(classification.classificationId)
             })
             if (classificationSet.size != classificationList.length)
-                throw new CustomError().formatError("Duplicate medicine classification are not allowed", "custom");
+                throw new CustomError().formatError("Klasifikasi obat tidak boleh duplikat", "custom");
         } catch (error) {
             throw error as string;
         }

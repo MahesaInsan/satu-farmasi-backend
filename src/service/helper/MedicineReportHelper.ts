@@ -8,7 +8,8 @@ export default class MedicineReportHelper {
         return Builder<MedicineReport>()
             .isFinalized(request.isFinalized)
             .is_active(true)
-            .created_at(new Date())
+            .created_at(request.created_at || new Date())
+            .updated_at(request.created_at || new Date()) // Just for seeding purpose
             .build();
     }
 
