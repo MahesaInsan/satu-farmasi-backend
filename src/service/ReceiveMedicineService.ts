@@ -1,4 +1,4 @@
-import { Medicine, ReceiveMedicine } from "@prisma/client";
+import { Medicine, Prisma, ReceiveMedicine } from "@prisma/client";
 import MedicineService from "./MedicineService";
 import ReceiveMedicineRepository from "../repository/ReceiveMedicineRepository";
 import AddReceiveMedicineRequest from "../model/request/AddReceiveMedicineRequest";
@@ -11,6 +11,7 @@ import MedicineReportHelper from "./helper/MedicineReportHelper";
 import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest";
 import TodayMedicineReportVO from "../model/VOs/TodayMedicineReportVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
+import TotalOutcomeReceiveVO from "../model/VOs/TotalOutcomeReceiveVO";
 
 export default class ReceiveMedicineService {
     private readonly receiveMedicineRepository: ReceiveMedicineRepository;
@@ -49,9 +50,9 @@ export default class ReceiveMedicineService {
         }
     }
 
-    public async getReceiveMedicineByMedicineId(medicineID: number): Promise<ReceiveMedicineVO | null> {
+    public async getReceiveMedicineByMedicineIdIn(medicineID: number[]): Promise<ReceiveMedicineVO[]> {
         try {
-            return await this.receiveMedicineRepository.getReceiveMedicineByMedicineId(medicineID);
+            return await this.receiveMedicineRepository.getReceiveMedicineByMedicineIdIn(medicineID);
         } catch (error) {
             throw error as string;
         }
@@ -60,6 +61,14 @@ export default class ReceiveMedicineService {
     public async getReceiveMedicineById(receiveMedicineId: number): Promise<ReceiveMedicineVO | null> {
         try {
             return await this.receiveMedicineRepository.getReceiveMedicineById(receiveMedicineId);
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async getTotalCostReceiveMedicineByDate(startDate: Date, lastDate: Date): Promise<TotalOutcomeReceiveVO[]> {
+        try {
+            return await this.receiveMedicineRepository.getTotalCostReceiveMedicineByDate(new Date(startDate), new Date(lastDate));
         } catch (error) {
             throw error as string;
         }

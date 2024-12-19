@@ -1,4 +1,4 @@
-import {Medicine, OutputMedicine, ReasonOfDispose} from "@prisma/client";
+import {Medicine, OutputMedicine, Prisma, ReasonOfDispose} from "@prisma/client";
 import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
 import OutputMedicineRepository from "../repository/OutputMedicineRepository";
 import OutputMedicineHelper from "./helper/OutputMedicineHelper";
@@ -18,6 +18,7 @@ import BulkAddOutputMedicineRequest from "../model/request/BulkAddOutputMedicine
 import OutputMedicineDataRequest from "../model/request/OutputMedicineDataRequest";
 import {Builder} from "builder-pattern";
 import AddPhysicalReportRequest from "../model/request/AddPhysicalReportRequest";
+import TotalOutcomeOutputVO from "../model/VOs/TotalOutcomeOutputVO";
 
 export default class OutputMedicineService {
     private readonly medicineService: MedicineService;
@@ -178,6 +179,14 @@ export default class OutputMedicineService {
             return await this.outputMedicineRepository.deleteOutputMedicine(outputMedicine.id);
         } catch (error) {
 			throw error as string;
+        }
+    }
+
+    public async getTotalCostOutputMedicineByDate(startDate: Date, lastDate: Date): Promise<TotalOutcomeOutputVO[]> {
+        try {
+            return await this.outputMedicineRepository.getTotalCostOutputMedicineByDate(new Date(startDate), new Date(lastDate));
+        } catch (error) {
+            throw error as string;
         }
     }
 

@@ -1,7 +1,7 @@
-import {Transaction, PrismaClient, $Enums, PaymentMethod, Status} from "@prisma/client";
+import {Transaction, PrismaClient, $Enums, PaymentMethod, Status, Prisma} from "@prisma/client";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import TransactionDetailVO from "../model/VOs/TransactionDetailVO";
-import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
+import TotalIncomeTransactionVO from "../model/VOs/TotalIncomeTransactionVO";
 import TransactionAnnualRecapVO from "../model/VOs/TransactionAnnualRecapVO";
 import BaseRepository from "./helper/BaseRepository";
 
@@ -245,26 +245,20 @@ export default class TransactionRepository extends BaseRepository{
         }
     }
 
-    public async getTransactionByDate(startDate: Date, lastDate: Date): Promise<TransactionByDateVO[]> {
+    public async getTotalIncomeByDate(startDate: Date, lastDate: Date): Promise<TotalIncomeTransactionVO[]> {
         try {
-            return this.Prisma.$queryRaw
+            return await this.Prisma.$queryRaw
                 `SELECT 
-                    a."id",
-                    a."prescriptionId",
-                    d."id" as "medicineId",
-                    d."name" as "medicineName",
-                    c."quantity",
-                    d."price" as "sellingPrice",
-                    a."totalPrice"
+                    SUM(a."totalPrice") as "totalPrice"
                 FROM "public"."Transaction" a
-                LEFT JOIN "public"."Prescription" b ON a."prescriptionId" = b."id" 
-                LEFT JOIN "public"."PrescriptionHasMedicine" c ON b."id" = c."prescriptionId"
-                LEFT JOIN "public"."Medicine" d ON c."medicineId" = d."id"
-                WHERE a."created_at" >= ${startDate} AND a."created_at" <= ${lastDate};`
+                WHERE a."created_at" >= ${startDate} AND a."created_at" <= ${lastDate}
+                FETCH FIRST 1 ROWS ONLY;`
         } catch (error) {
             throw error as string
         }
     }
+
+    
 
     public async getAnnualTransactionRecap(year: number): Promise<TransactionAnnualRecapVO[]> {
         try {
