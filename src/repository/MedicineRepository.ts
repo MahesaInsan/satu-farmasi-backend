@@ -505,11 +505,21 @@ export default class MedicineRepository extends BaseRepository{
         try {
             const total: string[] = await this.Prisma.$queryRaw(
 				Prisma.sql`
+				WITH AggregatedData AS (
+					SELECT
+						"code",
+						SUM("currStock") AS "currStock",
+						MIN("minStock") AS "minStock"
+					FROM "public"."Medicine"
+					GROUP BY "code"
+				)
 				SELECT 
-					MIN(a."code") AS "code"
-				FROM "public"."Medicine" a
-				WHERE a."currStock" <= a."minStock"
-				GROUP BY a."code";
+					MIN("code") AS "code",
+					SUM("currStock") AS "currStock",
+					MIN("minStock") AS "minStock"
+				FROM AggregatedData
+				WHERE "currStock" <= "minStock"
+				GROUP BY "code";
 				`
 			)
 
