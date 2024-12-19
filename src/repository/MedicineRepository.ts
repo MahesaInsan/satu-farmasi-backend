@@ -23,6 +23,12 @@ export default class MedicineRepository extends BaseRepository{
 			if (isPrescription) {
 				isLteFutureDate = Prisma.sql`AND m."expiredDate" > ${futureDate}`
 			}
+			const whereClause = Prisma.sql`
+				WHERE 
+				${isActiveCondition}${isActiveCondition.sql ? Prisma.sql` AND ` : Prisma.sql``}
+				${isLteFutureDate}
+			`;
+
 			console.log(isActive, isPrescription)
 			return await this.Prisma.$queryRaw<MedicineDropdownVO[]>(
 				Prisma.sql`
@@ -79,9 +85,7 @@ export default class MedicineRepository extends BaseRepository{
                             INNER JOIN "GenericName" g ON m."genericNameId" = g.id
                             INNER JOIN "MedicineHasClassification" mhc ON m.id = mhc."medicineId"
                             INNER JOIN "Classification" c ON mhc."classificationId" = c.id
-                            WHERE 
-                                ${isActiveCondition}
- 								${isLteFutureDate}
+                            ${whereClause}
                             GROUP BY m.code, m.id, mhc."classificationId"
                         ) subquery
                         GROUP BY

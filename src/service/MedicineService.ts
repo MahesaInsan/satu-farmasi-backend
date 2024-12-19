@@ -582,7 +582,7 @@ export default class MedicineService {
 
 		await Promise.all(
 			medicineList.map(async medicine => {
-				if (medicineSoldQuantityByMedicineCode.has(medicine.code)) {
+				if (lowStockMedicineCodeList.includes(medicine.code)) {
 					const recommendedStock = this.countMedicineConsumption(
 						medicineSoldQuantityByMedicineCode.get(medicine.code)!,
 						medicine.currStock
