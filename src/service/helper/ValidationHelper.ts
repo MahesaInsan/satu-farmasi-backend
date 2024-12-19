@@ -67,8 +67,7 @@ export default class ValidationHelper {
             }
 
             const medicineValidation: MedicineData = medicineListValidation[indexByMedicineCode.get(medicineRequest.code)!]
-            /// const medicineStockLeft = medicineValidation.currStock - medicineValidation.reservedStock
-            const medicineStockLeft = medicineValidation.currStock
+            const medicineStockLeft = medicineValidation.currStock - medicineValidation.reservedStock
 
             if (medicineRequestList.includes(medicineRequest.code)) {
 			    throw new CustomError().formatError("Obat tidak boleh duplikat",`prescription.medicineList.${index}.code`);
