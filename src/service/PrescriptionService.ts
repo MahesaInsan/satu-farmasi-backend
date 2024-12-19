@@ -203,7 +203,7 @@ export default class PrescriptionService{
             newPrescribedMedicine.forEach(newPrescription => medicineCodes.add(newPrescription.code))
 
             const medicineByMedicineCode = await this.medicineService
-                .getAndMapMedicineListByMedicineCode(Array.from(medicineCodes.values()))
+                .getAndMapMedicineListByMedicineCode(Array.from(medicineCodes.values()), true)
 
             if (!medicineByMedicineCode) {
                 new Error ("Medicines not found")
@@ -264,7 +264,7 @@ export default class PrescriptionService{
 
         if (tuple[1].length > 0) {
             medicineData = await this.medicineService.getAndMapMedicineListByMedicineCode(
-                tuple[1].map(prescriptionHasMedicine => prescriptionHasMedicine.medicineCode));
+                tuple[1].map(prescriptionHasMedicine => prescriptionHasMedicine.medicineCode), true);
         } else throw new Error("Prescription doesn't have any medicine")
 
         if (tuple[0]) {
@@ -339,7 +339,7 @@ export default class PrescriptionService{
     private async reservedMedicineAndConstructDraftPrescriptionHasMedicine(medicineList: AddPrescribedMedicineRequest[], prescriptionId: number) {
         try {
             const medicineListByCode: Map<string, MedicineData[]> = await this.medicineService
-                .getAndMapMedicineListByMedicineCode(medicineList.map(medicine => medicine.code))
+                .getAndMapMedicineListByMedicineCode(medicineList.map(medicine => medicine.code), true)
             const prescriptionHasMedicine: PrescriptionHasMedicine[] = medicineList.map(medicine =>
                 this.constructPrescriptionHasMedicineDraft(medicine, prescriptionId)
             ).flat()
@@ -378,7 +378,7 @@ export default class PrescriptionService{
 
     private async updateMedicineStockAndCreatePrescriptionHasMedicine(medicineList: AddPrescribedMedicineRequest[], prescriptionId: number) {
         const medicineListByCode: Map<string, MedicineData[]> = await this.medicineService
-            .getAndMapMedicineListByMedicineCode(medicineList.map(medicine => medicine.code))
+            .getAndMapMedicineListByMedicineCode(medicineList.map(medicine => medicine.code), true)
 
         const prescriptionHasMedicineList: PrescriptionHasMedicine[][] = await Promise.all(
             medicineList.map(async (prescribedMedicine) => {

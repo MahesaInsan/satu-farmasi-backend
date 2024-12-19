@@ -16,17 +16,17 @@ export default class MedicineRepository extends BaseRepository{
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 			let isActiveCondition = Prisma.sql``
-			let isLteFutureDate = Prisma.sql``
+			let isGteFutureDate = Prisma.sql``
 			if (isActive) {
 				isActiveCondition = Prisma.sql`m.is_active = ${isActive} AND m."currStock" > 0`
 			}
 			if (isPrescription) {
-				isLteFutureDate = Prisma.sql`AND m."expiredDate" > ${futureDate}`
+				isGteFutureDate = Prisma.sql`AND m."expiredDate" > ${futureDate}`
 			}
 			const whereClause = Prisma.sql`
 				WHERE 
 				${isActiveCondition}${isActiveCondition.sql ? Prisma.sql` AND ` : Prisma.sql``}
-				${isLteFutureDate}
+				${isGteFutureDate}
 			`;
 
 			console.log(isActive, isPrescription)
@@ -194,13 +194,24 @@ export default class MedicineRepository extends BaseRepository{
 		}
 	}
 
-	public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[]): Promise<MedicineData[]> {
+	public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[], expiredDate?: boolean): Promise<MedicineData[]> {
+		let expiredDateCondition: Record<string, unknown> | undefined;
+
+		if (expiredDate) {
+			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days in the future
+			expiredDateCondition = {
+				expiredDate: {
+					gte: futureDate,
+				},
+			};
+		}
 		return this.Prisma.medicine.findMany({
 			where: {
 				code: {
 					in: medicineCodes
 				},
 				is_active: true,
+				...expiredDateCondition,
 				currStock: {
 					gt: 0
 				},

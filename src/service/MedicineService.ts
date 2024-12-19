@@ -73,9 +73,9 @@ export default class MedicineService {
 		}
 	}
 
-	public async getAndMapMedicineListByMedicineCode(medicineCodes: string[]) {
+	public async getAndMapMedicineListByMedicineCode(medicineCodes: string[], checkExpiredDate?: boolean) {
 		try {
-			return await this.medicineRepository.getMedicineByCodeInAndIsActiveTrue(medicineCodes)
+			return await this.medicineRepository.getMedicineByCodeInAndIsActiveTrue(medicineCodes, checkExpiredDate)
 				.then(medicines => medicines.reduce<Map<string, MedicineData[]>>((map, medicine) => {
 					if (map.has(medicine.code)) {
 						map.get(medicine.code)?.push(medicine)
