@@ -39,17 +39,15 @@ export default class MedicineService {
 		this.prescriptionHasMedicineRepository = new PrescriptionHasMedicineRepository();
 	}
 
-	public async getAllMedicineList(isActive?: boolean): Promise<Map<string, MedicineDropdownVO>> {
+	public async getAllMedicineList(isActive?: boolean, isPrescription?: boolean): Promise<Map<string, MedicineDropdownVO>> {
 		try {
-			const medicineList: MedicineDropdownVO[] = await this.medicineRepository.fetchMedicineList(isActive)
-            console.log("dropdown: ", medicineList)
+			const medicineList: MedicineDropdownVO[] = await this.medicineRepository.fetchMedicineList(isActive, isPrescription)
 			let medicineByMedicineCode: Map<string, MedicineDropdownVO> = new Map<string, MedicineDropdownVO>();
 			if (medicineList !== null) {
 				medicineByMedicineCode = await this.mapMedicineDropdownList(medicineList)
 			} else {
 				new Error("No Medicine Found")
 			}
-            console.log("medicineByMedicineCode: ", medicineByMedicineCode)
 			return medicineByMedicineCode;
 		} catch (error) {
 			throw error as string
@@ -102,7 +100,7 @@ export default class MedicineService {
 
 	public async getTotalActiveMedicineByCode(): Promise<number> {
 		try {
-			const medicineList: MedicineDropdownVO[] = await this.medicineRepository.fetchMedicineList()
+			const medicineList: MedicineDropdownVO[] = await this.medicineRepository.fetchMedicineList(true)
 			return medicineList.length;
 		} catch (error) {
 			throw error as string;
@@ -355,18 +353,6 @@ export default class MedicineService {
         }
     }
 
-	// public async addStock(id: number, currStock: number): Promise<boolean> {
-	// 	try {
-	// 		const medicine: Medicine | null = await this.getMedicineById(id);
-	// 		if (!medicine) throw new Error("Medicine not found");
-	// 		medicine.currStock += currStock;
-	// 		if (medicine.currStock > medicine.maxStock) throw new Error("Max stock reached");
-	// 		return await this.medicineRepository.editMedicine(medicine) != null;
-	// 	} catch (error) {
-	// 		throw error as string;
-	// 	}
-	// }
-
 	public async checkStock(id: number): Promise<MedicineCheckStockVO> {
 		try {
 			const medicine: Medicine | null = await this.getMedicineById(id);
@@ -381,17 +367,6 @@ export default class MedicineService {
 			throw error as string;
 		}
 	}
-
-	// public async deleteMedicine(id: number): Promise<MedicineDisplayVO> {
-	// 	try {
-	// 		const medicine: Medicine | null = await this.getMedicineById(id);
-	// 		if (!medicine) throw new Error("Medicine not found");
-	// 		medicine.is_active = false;
-	// 		return await this.medicineRepository.editMedicine(medicine);
-	// 	} catch (error) {
-	// 		throw error as string;
-	// 	}
-	// }
 
 	public async checkExpiration(date: Date): Promise<Medicine[]> {
 		try {
