@@ -56,7 +56,9 @@ export default class ValidationHelper {
 
         let medicineRequestList: string[] = []
 
+        console.log("indexbymedicinecode: ", indexByMedicineCode)
         request.medicineList.forEach((medicineRequest, index) => {
+            console.log("medicineRequest: ", medicineRequest.code)
             if (!indexByMedicineCode.has(medicineRequest.code)) {
                 throw new Error("Medicine is not found")
             }

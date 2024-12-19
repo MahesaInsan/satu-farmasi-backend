@@ -296,17 +296,16 @@ export default class MedicineService {
 			const oldMedicine: Medicine | null = await this.getMedicineById(request.id);
 			if (!oldMedicine) throw new Error("Medicine not found");
 
-			request.code = oldMedicine && oldMedicine.genericNameId === request.genericNameId
+			request.code = oldMedicine && (oldMedicine.genericNameId === request.genericNameId)
 				? request.code
 				: await this.generateMedicineCode(request.genericNameId);
 
 			this.isDuplicateClassification(request.classificationList);
 
-			const medicine: Medicine = this.constructEditMedicine(request);
-			const updatedMedicines = await Promise.all([
-				this.medicineRepository.updateActiveMedicine(medicine),
-				this.medicineRepository.findAllMedicineIdByMedicineCode(medicine.code)
-			]).then(value => value[1])
+			const medicine: Medicine = this.sanitizeUpdateData(this.constructEditMedicine(request),
+				['id', 'batchCode', 'is_active', 'created_at']);
+			const updatedMedicines = await this.medicineRepository.findAllMedicineIdByMedicineCode(oldMedicine.code)
+			await this.medicineRepository.updateActiveMedicine(oldMedicine.code, medicine)
 
 			await Promise.all(
 				updatedMedicines?.map(async (medicine) => {
@@ -319,7 +318,7 @@ export default class MedicineService {
 				}) ?? []
 			);
 
-			this.medicineRepository.updateInactiveMedicine(medicine)
+			this.medicineRepository.updateInactiveMedicine(oldMedicine.code, medicine)
 				.then(() => { return true })
 				.catch(() => { console.warn("No inactive medicines were updated") })
 			return true
@@ -686,4 +685,11 @@ export default class MedicineService {
 			.reasonOfDispose(ReasonOfDispose.EXPIRED)
 			.build()
 	}
+
+	private sanitizeUpdateData(data: Medicine, excludedFields: (keyof Medicine)[]): Medicine {
+		return Object.fromEntries(
+			Object.entries(data)
+				.filter(([key, value]) => value !== undefined && !excludedFields.includes(key as keyof Medicine))
+		) as Medicine
+	};
 }

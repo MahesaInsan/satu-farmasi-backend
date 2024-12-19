@@ -48,7 +48,7 @@ export default class OutputMedicineController extends BaseController {
 	public async createOutputMedicine(req: Request, res: Response) {
 		try {
 			await this.outputMedicineService.addOutputMedicine(req.body);
-			return res.status(200).send(new BaseResponse().ok(null, "Succeed Created Output Medicine"));
+			return res.status(200).send(new BaseResponse().ok(null, "Obat Keluar Berhasil Dibuat"));
 		} catch (error) {
 			console.log("[src][controller][MedicineController][createMedicine] ", error);
 			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -73,7 +73,7 @@ export default class OutputMedicineController extends BaseController {
 		try {
 			await this.outputMedicineService.editOutputMedicine(req.body);
             console.log("req.body: ", req.body);
-			return res.status(200).send(new BaseResponse().ok(null, "Succeed Edited Output Medicine"));
+			return res.status(200).send(new BaseResponse().ok(null, "Obat Keluar Berhasil Diperbarui"));
 		} catch (error) {
 			console.log("[src][controller][MedicineController][createMedicine] ", error);
 			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -84,7 +84,7 @@ export default class OutputMedicineController extends BaseController {
 	public async deleteOutputMedicine(req: Request, res: Response) {
 		try {
 			await this.outputMedicineService.deleteOutputMedicine(req.body);
-			return res.status(200).send(new BaseResponse().ok(null, "Succeed Deleted Output Medicine"));
+			return res.status(200).send(new BaseResponse().ok(null, "Obat Keluar Berhasil Dihapus"));
 		} catch (error) {
 			console.log("[src][controller][MedicineController][deleteOutputMedicine] ", error);
 			const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

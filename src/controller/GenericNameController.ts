@@ -73,11 +73,11 @@ export default class GenericNameController  extends BaseController {
 
     async editGenericName(req: Request, res: Response){
         try {
-            this.validateData(req);
             const id: number = Number(req.params.id);
             const data = req.body;
             data.id = id;
             const request: EditGenericNameRequest = data;
+            console.log("#editGenericName with request", request);
             await this.genericNameService.editGenericName(request);
             return res.status(200).send(new BaseResponse().ok(null, "Nama Generik Berhasil Diubah"));
         } catch (error) {
@@ -93,7 +93,7 @@ export default class GenericNameController  extends BaseController {
             const successMsg: string = 
                 req.body.isActive
                 ? "Nama Generik Berhasil Diaktifkan"
-                : "Nama Generik  Berhasil Dinonaktifkan";
+                : "Nama Generik Berhasil Dinonaktifkan";
             return res.status(200).send(new BaseResponse().ok(null, successMsg));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

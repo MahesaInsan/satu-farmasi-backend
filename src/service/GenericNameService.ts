@@ -6,20 +6,19 @@ import { Builder } from "builder-pattern";
 import EditGenericNameHelper from "./helper/EditGenericNameHelper";
 import EditGenericNameRequest from "../model/request/editGenericNameRequest";
 import GenericDropdownVO from "../model/VOs/GenericDropdownVO";
-import MedicineService from "./MedicineService";
 import MedicineRepository from "../repository/MedicineRepository";
 
 export default class GenericNameService {
     private readonly genericNameRepository: GenericNameRepository;
     private readonly medicineRepository: MedicineRepository;
     private readonly createMedicineHelper: CreateMedicineHelper<AddGenericNameRequest, GenericName>;
-    private readonly editGenericNameHelper: EditGenericNameHelper<EditGenericNameRequest, GenericName>;
+    private readonly editGenericNameHelper: EditGenericNameHelper;
 
     constructor() {
         this.genericNameRepository = new GenericNameRepository();
         this.medicineRepository = new MedicineRepository();
         this.createMedicineHelper = new CreateMedicineHelper<AddGenericNameRequest, GenericName>();
-        this.editGenericNameHelper = new EditGenericNameHelper<EditGenericNameRequest, GenericName>();
+        this.editGenericNameHelper = new EditGenericNameHelper();
     }
 
     public async getTotalGenericName(): Promise<number>{
@@ -91,12 +90,16 @@ export default class GenericNameService {
         try { 
             const genericName: GenericName = this.editGenericNameHelper.editGenericName(request);
             await this.validateDuplicate(genericName.value, genericName.id)
-            const success =
-                await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).build())
-            this.updateMedicineCode(genericName.id, genericName.value.toUpperCase(), request.value.toUpperCase())
-            return success
+            const oldGenericName = await this.genericNameRepository.getGenericNameById(genericName.id)
+
+            if (oldGenericName) {
+                const success =
+                    await this.genericNameRepository.editGenericName(Builder(genericName).id(request.id).label(request.label).value(request.value).build())
+                this.updateMedicineCode(genericName.id, oldGenericName.value.toUpperCase(), request.value.toUpperCase(), )
+                return success
+            } else throw new Error("Generic name not found")
         } catch (err) {
-            throw new Error(err as string);
+            throw err as string
         }
     }
 
@@ -123,11 +126,12 @@ export default class GenericNameService {
     }
 
     private async updateMedicineCode (oldGenericId: number, oldGenericName: string, newGenericName: string){
-        const medicineList: Medicine[] = await this.medicineRepository.getAllMedicineByGenericName(oldGenericId)
         if (oldGenericName === newGenericName) {
             return
         }
+        const medicineList: Medicine[] = await this.medicineRepository.getAllMedicineByGenericName(oldGenericId)
         medicineList.forEach(medicine => {
+            medicine.code = medicine.code.toUpperCase()
             medicine.code = medicine.code.replace(oldGenericName, newGenericName)
         })
         await this.medicineRepository.updateAllMedicine(medicineList);

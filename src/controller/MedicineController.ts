@@ -114,6 +114,7 @@ export default class MedicineController extends BaseController {
     public async editMedicine(req: Request, res: Response) {
         try {
             const request: EditMedicineRequest = req.body;
+            console.log("#editMedicine with request", req.body)
             const success = await this.medicineService.editMedicine(request);
             return res.status(200).send(new BaseResponse().ok(success, "Succeed Edited Medicine"));
         } catch (error) {
