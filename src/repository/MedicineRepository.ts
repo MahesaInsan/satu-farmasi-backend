@@ -16,14 +16,20 @@ export default class MedicineRepository extends BaseRepository{
 	public async fetchMedicineList(isActive?: boolean, isPrescription?: boolean): Promise<MedicineDropdownVO[]> {
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-			let isActiveCondition = Prisma.sql``
-			let isLteFutureDate = Prisma.sql``
+			let conditions: Prisma.Sql[] = [];
+
 			if (isActive) {
-				isActiveCondition = Prisma.sql`m.is_active = ${isActive} AND m."currStock" > 0`
+				conditions.push(Prisma.sql`m.is_active = ${isActive}`);
+				conditions.push(Prisma.sql`m."currStock" > 0`);
 			}
 			if (isPrescription) {
-				isLteFutureDate = Prisma.sql`AND m."expiredDate" > ${futureDate}`
+				conditions.push(Prisma.sql`m."expiredDate" > ${futureDate}`);
 			}
+
+			const whereClause = conditions.length > 0
+				? Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `.toString())}`
+				: Prisma.sql``;
+
 			console.log(isActive, isPrescription)
 			return await this.Prisma.$queryRaw<MedicineDropdownVO[]>(
 				Prisma.sql`
@@ -80,9 +86,7 @@ export default class MedicineRepository extends BaseRepository{
                             INNER JOIN "GenericName" g ON m."genericNameId" = g.id
                             INNER JOIN "MedicineHasClassification" mhc ON m.id = mhc."medicineId"
                             INNER JOIN "Classification" c ON mhc."classificationId" = c.id
-                            WHERE 
-                                ${isActiveCondition}
- 								${isLteFutureDate}
+                            ${whereClause}
                             GROUP BY m.code, m.id, mhc."classificationId"
                         ) subquery
                         GROUP BY
@@ -95,7 +99,7 @@ export default class MedicineRepository extends BaseRepository{
                         MIN("merk") as "merk",
                         MIN("description") as "description",
                         "currStock",
-                        "reservedStock",
+                        MIN("reservedStock") AS "reservedStock",
                         MIN("price") as "price",
                         MIN("minStock") as "minStock",
                         MIN("maxStock") as "maxStock",
@@ -191,13 +195,24 @@ export default class MedicineRepository extends BaseRepository{
 		}
 	}
 
-	public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[]): Promise<MedicineData[]> {
+	public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[], expiredDate?: boolean): Promise<MedicineData[]> {
+		let expiredDateCondition: Record<string, unknown> | undefined;
+
+		if (expiredDate) {
+			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days in the future
+			expiredDateCondition = {
+				expiredDate: {
+					gte: futureDate,
+				},
+			};
+		}
 		return this.Prisma.medicine.findMany({
 			where: {
 				code: {
 					in: medicineCodes
 				},
 				is_active: true,
+				...expiredDateCondition,
 				currStock: {
 					gt: 0
 				},
