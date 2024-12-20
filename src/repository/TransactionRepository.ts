@@ -262,17 +262,29 @@ export default class TransactionRepository extends BaseRepository{
 
     public async getAnnualTransactionRecap(year: number): Promise<TransactionAnnualRecapVO[]> {
         try {
-            return this.Prisma.$queryRaw
-                `SELECT 
-                    EXTRACT(MONTH FROM a."created_at") AS "month",
-                    CAST(SUM(b."quantity") AS INTEGER) as "sales",
-                    SUM(b."totalPrice") as "revenue"
-                FROM "public"."Transaction" a
-                JOIN "public"."PrescriptionHasMedicine" b ON a."prescriptionId" = b."prescriptionId"
-                WHERE EXTRACT(YEAR FROM a."created_at") = ${year} AND b."draft" = false
-                GROUP BY EXTRACT(MONTH FROM a."created_at")
-                ORDER BY "month";
+            return this.Prisma.$queryRaw<TransactionAnnualRecapVO[]> (
+                Prisma.sql`
+                WITH ExistingData AS (
+                    SELECT 
+                        EXTRACT(MONTH FROM a."created_at") AS "month",
+                        CAST(SUM(b."quantity") AS INTEGER) AS "sales",
+                        CAST(SUM(b."totalPrice") AS DECIMAL) AS "revenue"
+                    FROM "public"."Transaction" a
+                    JOIN "public"."PrescriptionHasMedicine" b ON a."prescriptionId" = b."prescriptionId"
+                    WHERE EXTRACT(YEAR FROM a."created_at") = ${year} AND b."draft" = false
+                    GROUP BY EXTRACT(MONTH FROM a."created_at")
+                    ORDER BY "month"
+                )
+                SELECT 
+                    months.month AS "month",
+                    CAST(COALESCE(SUM("sales"), 0) AS INTEGER) AS "sales",
+                    COALESCE(SUM("revenue"), 0) AS "revenue"
+                FROM generate_series(1, 12) AS months(month)
+                LEFT JOIN ExistingData ON months.month = ExistingData.month
+                GROUP BY months.month;
                 `
+            )
+                
         } catch (error) {
             throw error as string;
         }
