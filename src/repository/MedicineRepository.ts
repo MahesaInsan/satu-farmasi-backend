@@ -2,6 +2,7 @@ import { Medicine, Prisma, PrismaClient } from "@prisma/client"
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import MedicineData from "../model/VOs/MedicineDropdownVO"
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
+import TotalNeedToRestockVO from "../model/VOs/TotalNeedToRestockVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
 import BaseRepository from "./helper/BaseRepository";
 
@@ -362,7 +363,7 @@ export default class MedicineRepository extends BaseRepository{
 		}
 	}
 
-	public async getMedicineIdIn(medicineId: number[]) {
+	public async getMedicineByIdIn(medicineId: number[]) {
 		try {
 			return this.Prisma.medicine.findMany({
 				where: {
@@ -522,13 +523,27 @@ export default class MedicineRepository extends BaseRepository{
 
     public async getTotalNeedToRestock(): Promise<number> {
         try {
-            return this.Prisma.medicine.count({
-                where: {
-                    currStock: {
-                        lte: this.Prisma.medicine.fields.minStock
-                    }
-                }
-            })
+            const total: string[] = await this.Prisma.$queryRaw(
+				Prisma.sql`
+				WITH AggregatedData AS (
+					SELECT
+						"code",
+						SUM("currStock") AS "currStock",
+						MIN("minStock") AS "minStock"
+					FROM "public"."Medicine"
+					GROUP BY "code"
+				)
+				SELECT 
+					MIN("code") AS "code",
+					SUM("currStock") AS "currStock",
+					MIN("minStock") AS "minStock"
+				FROM AggregatedData
+				WHERE "currStock" <= "minStock"
+				GROUP BY "code";
+				`
+			)
+
+			return total.length
         } catch (error) {
             console.error('Error get need to restock medicineList: ', error);
             throw new Error('Failed to get need to restock medicineList');

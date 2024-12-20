@@ -24,6 +24,7 @@ import AddClassificationRequest from "../model/request/AddClassificationRequest"
 import { CustomError } from "../validator/helper/ErrorHelper";
 import PrescriptionHasMedicineRepository from "../repository/PrescriptionHasMedicineRepository";
 import ExpiredMedicineResponse from "../model/response/ExpiredMedicineResponse";
+import TotalNeedToRestockVO from "../model/VOs/TotalNeedToRestockVO";
 
 export default class MedicineService {
 	private readonly medicineRepository: MedicineRepository;
@@ -68,6 +69,14 @@ export default class MedicineService {
 	public async getSingleMedicineById(id: number): Promise<Medicine | null> {
 		try {
 			return await this.medicineRepository.getMedicineById(id);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
+	public async getMedicineByIdIn(id: number[]): Promise<Medicine[]> {
+		try {
+			return await this.medicineRepository.getMedicineByIdIn(id);
 		} catch (error) {
 			throw error as string;
 		}

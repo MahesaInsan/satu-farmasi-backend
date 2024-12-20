@@ -5,7 +5,7 @@ import MedicineService from "../MedicineService";
 import EditPrescriptionRequest from "../../model/request/EditPrescriptionRequest";
 import MedicineData from "../../model/VOs/MedicineDropdownVO";
 import PrescriptionHasMedicineRepository from "../../repository/PrescriptionHasMedicineRepository";
-import {PrescriptionHasMedicine} from "@prisma/client";
+import {PrescriptionHasMedicine, Prisma} from "@prisma/client";
 import { CustomError } from "../../validator/helper/ErrorHelper";
 
 export default class ValidationHelper {
@@ -83,5 +83,10 @@ export default class ValidationHelper {
                 }
             }
         })
+    }
+
+    public async validateTransactionCurrencyResponse(value: Prisma.Decimal, errorMessage: string) {
+        if (value === null) throw new CustomError().formatError(errorMessage, "currency");
+        return value;
     }
 }

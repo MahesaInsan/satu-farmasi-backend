@@ -1,4 +1,4 @@
 export default interface MostSalesMedicineVO {
-    medicineName: Promise<any> | string | null,
+    medicineName: string | undefined,
     quantity: number | null
 }
