@@ -15,19 +15,19 @@ export default class MedicineRepository extends BaseRepository{
 	public async fetchMedicineList(isActive?: boolean, isPrescription?: boolean): Promise<MedicineDropdownVO[]> {
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-			let isActiveCondition = Prisma.sql``
-			let isGteFutureDate = Prisma.sql``
+			let conditions: Prisma.Sql[] = [];
+
 			if (isActive) {
-				isActiveCondition = Prisma.sql`m.is_active = ${isActive} AND m."currStock" > 0`
+				conditions.push(Prisma.sql`m.is_active = ${isActive}`);
+				conditions.push(Prisma.sql`m."currStock" > 0`);
 			}
 			if (isPrescription) {
-				isGteFutureDate = Prisma.sql`AND m."expiredDate" > ${futureDate}`
+				conditions.push(Prisma.sql`m."expiredDate" > ${futureDate}`);
 			}
-			const whereClause = Prisma.sql`
-				WHERE 
-				${isActiveCondition}${isActiveCondition.sql ? Prisma.sql` AND ` : Prisma.sql``}
-				${isGteFutureDate}
-			`;
+
+			const whereClause = conditions.length > 0
+				? Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `.toString())}`
+				: Prisma.sql``;
 
 			console.log(isActive, isPrescription)
 			return await this.Prisma.$queryRaw<MedicineDropdownVO[]>(
