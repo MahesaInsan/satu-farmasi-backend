@@ -98,7 +98,7 @@ export default class MedicineRepository extends BaseRepository{
                         MIN("merk") as "merk",
                         MIN("description") as "description",
                         "currStock",
-                        "reservedStock",
+                        MIN("reservedStock") AS "reservedStock",
                         MIN("price") as "price",
                         MIN("minStock") as "minStock",
                         MIN("maxStock") as "maxStock",
