@@ -273,7 +273,7 @@ export default class TransactionRepository extends BaseRepository{
                     JOIN "public"."PrescriptionHasMedicine" b ON a."prescriptionId" = b."prescriptionId"
                     WHERE EXTRACT(YEAR FROM a."created_at") = ${year} AND b."draft" = false
                     GROUP BY EXTRACT(MONTH FROM a."created_at")
-                    ORDER BY "month"
+                    ORDER BY "month" ASC
                 )
                 SELECT 
                     months.month AS "month",
@@ -281,7 +281,8 @@ export default class TransactionRepository extends BaseRepository{
                     COALESCE(SUM("revenue"), 0) AS "revenue"
                 FROM generate_series(1, 12) AS months(month)
                 LEFT JOIN ExistingData ON months.month = ExistingData.month
-                GROUP BY months.month;
+                GROUP BY months.month
+                ORDER BY "month" ASC;
                 `
             )
                 
