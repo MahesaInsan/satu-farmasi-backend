@@ -27,10 +27,11 @@ export default class MedicineRepository extends BaseRepository{
 			}
 
 			const whereClause = conditions.length > 0
-				? Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `.toString())}`
-				: Prisma.sql``;
+				? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`
+				: Prisma.empty
 
-			console.log(isActive, isPrescription)
+			console.log('Where Clause:', whereClause);
+
 			return await this.Prisma.$queryRaw<MedicineDropdownVO[]>(
 				Prisma.sql`
                     WITH flattened_classifications AS (
