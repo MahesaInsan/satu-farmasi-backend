@@ -18,7 +18,7 @@ export default class MedicineReportController extends BaseController {
             res.status(200).send(
                 new BaseResponse().ok(
                     report,
-                    "Successfully Get Today Unfinalized Medicine Report",
+                    "Berhasil Memuat Laporan Obat Belum Final untuk Hari Ini",
                 ),
             );
         } catch (error) {
@@ -38,7 +38,7 @@ export default class MedicineReportController extends BaseController {
             res.status(200).send(
                 new BaseResponse().ok(
                     finalized,
-                    "Successfully Finalize Report",
+                    "Finalisasi laporan berhasil dilakukan",
                 ),
             );
         } catch (error) {
@@ -58,7 +58,7 @@ export default class MedicineReportController extends BaseController {
             res.status(200).send(
                 new BaseResponse().ok(
                     await this.reportService.checkExpiredMedicine(reportDate),
-                    "Successfully Get Expired Medicine",
+                    "Berhasil memuat list obat kedaluwarsa",
                 ),
             );
         } catch (error) {
@@ -90,7 +90,7 @@ export default class MedicineReportController extends BaseController {
                         this.responseHelper.constructPaginationResponse(
                             pagination,
                         ),
-                        "Successfully Get All Medicine Reports",
+                        "Berhasil memuat laporan obat",
                     ),
                 );
         } catch (error) {
@@ -112,7 +112,7 @@ export default class MedicineReportController extends BaseController {
             res.status(200).send(
                 new BaseResponse().ok(
                     report,
-                    "Successfully Get Medicine Report By Id",
+                    "Berhasil memuat laporan obat berdasarkan id",
                 ),
             );
         } catch (error) {
