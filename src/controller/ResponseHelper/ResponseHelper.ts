@@ -124,7 +124,7 @@ export default class ResponseHelper {
     public constructGetStaffResponse(staff: User | User[] | null): SuccessRequest {
         return Builder<SuccessRequest>()
             .code(200)
-            .status("Success get staff data")
+            .status("Berhasil memuat data staf")
             .data(staff)
             .build();
     }
@@ -132,7 +132,7 @@ export default class ResponseHelper {
     public constructEditStaffResponse(staff: User | null): SuccessRequest {
         return Builder<SuccessRequest>()
             .code(200)
-            .status("Success edit staff data")
+            .status("Data staf berhasil diperbarui")
             .data(staff)
             .build();
     }

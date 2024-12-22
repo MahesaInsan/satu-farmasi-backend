@@ -17,7 +17,7 @@ export default class PharmacistController extends BaseController{
             this.validateData(req);
             const request: AddPharmacistRequest = req.body;
             const createdPharmacist: boolean = await this.pharmacistService.addPharmacist(request)
-             res.status(200).send(new BaseResponse().ok(createdPharmacist, "Pharmacist added successfully"));
+             res.status(200).send(new BaseResponse().ok(createdPharmacist, "Data apoteker berhasil ditambahkan"));
         } catch (error) {
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
