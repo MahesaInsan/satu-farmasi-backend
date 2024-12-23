@@ -18,6 +18,9 @@ import { Pharmacy, Prisma, User } from "@prisma/client";
 import AddPhysicalReportRequest from "../../src/model/request/AddPhysicalReportRequest";
 import PaginationRequest from "../../src/model/request/PaginationRequest";
 import LoginResponse from "../../src/model/response/LoginResponse";
+import { JsonObject } from "@prisma/client/runtime/library";
+import MedicineReportVo from "../../src/model/VOs/TodayMedicineReportVO";
+import { body } from "express-validator";
 
 const userService: UserService = new UserService();
 const getDefaultPassword = async () =>
@@ -55,8 +58,6 @@ const main = async () => {
     console.log("Start seeding database ...");
     const MAX_DATA: number = 50;
 
-
-
     // Seed User
     await seedAdmin(seed);
     await seedingDoctor(seed, 3);
@@ -85,34 +86,33 @@ const main = async () => {
     process.exit();
 };
 
-
-    const authUser = async (): Promise<{
-        cookie: string,
-        token: string,
-    }> => {
-        try {
-            const ENDPOINT: string = "/api/v1/users";
-            const URL: string = `${DOMAIN}${ENDPOINT}`;
-            const BODY = {
-                email: INIT_USER.email,
-                password: INIT_USER.password,
-                isRemember: INIT_USER.isRemember,
-            }
-            let response: Response = await fetch(URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(BODY),
-            });
-            const cookie: string | null = response.headers.get("Set-Cookie");
-            const responseJson: BaseResponse<LoginResponse> = await response.json();
-            if (!cookie || !responseJson.data) throw new Error("Failed to authenticate user!");
-            const { firstName, lastName, email, role, token } = responseJson.data;
-            return { cookie, token };
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    };
+const authUser = async (): Promise<{
+    cookie: string;
+    token: string;
+}> => {
+    try {
+        const ENDPOINT: string = "/api/v1/users";
+        const URL: string = `${DOMAIN}${ENDPOINT}`;
+        const BODY = {
+            email: INIT_USER.email,
+            password: INIT_USER.password,
+            isRemember: INIT_USER.isRemember,
+        };
+        let response: Response = await fetch(URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(BODY),
+        });
+        const cookie: string | null = response.headers.get("Set-Cookie");
+        const responseJson: BaseResponse<LoginResponse> = await response.json();
+        if (!cookie || !responseJson.data) throw new Error("Failed to authenticate user!");
+        const { firstName, lastName, email, role, token } = responseJson.data;
+        return { cookie, token };
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
 
 const seedAdmin = async (seed: SeedClient, amount: number = 1) => {
     console.log("Seeding admin ...");
@@ -283,12 +283,69 @@ const seedPrescription = async (token: string, cookie: string) => {
     console.info("Prescription seeded successfully!");
 };
 
+const getAllReports = async (
+    token: string,
+    cookie: string,
+): Promise<PaginationRequest | undefined> => {
+    try {
+        const ENDPOINT: string = "/api/v1/reports";
+        // WARNING: Only 100 reports will be received
+        const QUERY = `?name=&status=&limit=100&page=1`
+        const URL: string = `${DOMAIN}${ENDPOINT}${QUERY}`;
+        let response: Response = await fetch(URL, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+                Cookie: cookie,
+            },
+        });
+        const responseJson: BaseResponse<PaginationRequest> = await response.json();
+        return responseJson.data;
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to get all prescriptions!");
+    }
+}
+
+const finalizeReport = async (
+    token: string,
+    cookie: string,
+    reportId: number,
+    updated_at: Date,
+): Promise<PaginationRequest | undefined> => {
+    try {
+        const ENDPOINT: string = "/api/v1/reports";
+        const PARAMS: string = `/${reportId}`;
+        const URL: string = `${DOMAIN}${ENDPOINT}${PARAMS}`;
+        const BODY = {
+            updated_at: updated_at,
+        }
+        let response: Response = await fetch(URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+                Cookie: cookie,
+            },
+            body: JSON.stringify(BODY),
+        });
+        const responseJson: BaseResponse<PaginationRequest> = await response.json();
+        return responseJson.data;
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to get all prescriptions!");
+    }
+}
+
 const seedTransaction = async (token: string, cookie: string) => {
     console.info("Seeding transactions ...");
     const PRESCRIPTION_SIZE: number = PrescriptionList.length;
 
-
-    const getAllPrescriptions = async (token: string, cookie: string): Promise< PaginationRequest | undefined > => {
+    const getAllPrescriptions = async (
+        token: string,
+        cookie: string,
+    ): Promise<PaginationRequest | undefined> => {
         try {
             const ENDPOINT: string = "/api/v1/prescriptions";
             const QUERY: string = `?name=&status=&limit=${PRESCRIPTION_SIZE}&page=1`;
@@ -310,7 +367,10 @@ const seedTransaction = async (token: string, cookie: string) => {
         }
     };
 
-    const getPharmacyInfo = async ( token: string, cookie: string,): Promise<Pharmacy | undefined> => {
+    const getPharmacyInfo = async (
+        token: string,
+        cookie: string,
+    ): Promise<Pharmacy | undefined> => {
         try {
             const ENDPOINT: string = "/api/v1/pharmacy";
             const URL: string = `${DOMAIN}${ENDPOINT}`;
@@ -371,11 +431,16 @@ const seedTransaction = async (token: string, cookie: string) => {
         request: ConfirmPayRequest,
         cookie: string,
     ) => {
+        console.log("request to be sent: ", request);
         try {
             const ENDPOINT: string = "/api/v1/transactions";
             const PARAMS: string = "/_pay";
             const URL: string = `${DOMAIN}${ENDPOINT}${PARAMS}`;
-            const BODY = { request };
+            //const BODY =  request ;
+                const BODY = {
+                ...request,
+                physicalReport: request.physicalReport.toJSON(),
+            };
 
             let response: Response = await fetch(URL, {
                 method: "POST",
@@ -395,16 +460,13 @@ const seedTransaction = async (token: string, cookie: string) => {
         }
     };
 
-    const initialPharmacist: User | null = await userService.getUserByEmail(
-        "pharmacist1@gmail.com",
-    );
+    const initialPharmacist: User | null = await userService.getUserByEmail( "pharmacist1@gmail.com");
     if (!initialPharmacist) throw new Error("Pharmacist not found!");
 
     // Load all prescriptions
     const prescriptions: PaginationRequest | undefined = await getAllPrescriptions(token, cookie);
     if (!prescriptions?.results) throw new Error("Prescriptions not found!");
     const prescriptionSumaryList: PrescriptionSumaryVO[] = prescriptions.results as PrescriptionSumaryVO[];
-    console.log("Prescriptions: ", prescriptionSumaryList);
 
     // Proceed to payment (Waiting for payment status)
     for (const prescription of prescriptionSumaryList) {
@@ -419,27 +481,56 @@ const seedTransaction = async (token: string, cookie: string) => {
         );
     }
 
-    // Confirm payment (On Progress status)
-    const pharmacyInfo: Pharmacy | undefined = await getPharmacyInfo(token, cookie);
-    if (!pharmacyInfo) throw new Error("Pharmacy not found!");
+   // Confirm payment (On Progress status)
+    //const pharmacyInfo: Pharmacy | undefined = await getPharmacyInfo(token, cookie);
+    //if (!pharmacyInfo) throw new Error("Pharmacy not found!");
+    //
+    //let index: number = 0;
+    //for (const prescription of prescriptionSumaryList) {
+    //    const { id, patient, created_at, updated_at } = prescription;
+    //
+    //    const data: JsonObject = {
+    //        pharmacy: {
+    //            ...pharmacyInfo,
+    //            created_at: new Date(pharmacyInfo.created_at).toString(),
+    //            updated_at: new Date(pharmacyInfo.updated_at).toISOString(),
+    //        },
+    //        pharmacist: {
+    //            ...initialPharmacist,
+    //            dob: new Date(initialPharmacist.dob).toISOString(),
+    //            created_at: new Date(initialPharmacist.created_at).toString(),
+    //            updated_at: new Date(initialPharmacist.updated_at).toISOString(),
+    //        },
+    //        patient: patient,
+    //        medicine: PrescriptionList[index].data.medicineList,
+    //        totalPrice: "100000",
+    //    };
+    //
+    //    const newPhysicalReportData: AddPhysicalReportRequest = new AddPhysicalReportRequest(0, data, created_at);
+    //    const confirmationRequest: ConfirmPayRequest = {
+    //        id: id,
+    //        paymentMethod: "QRIS",
+    //        physicalReport: newPhysicalReportData,
+    //    };
+    //    await payTransaction(token, confirmationRequest, cookie);
+    //    index++;
+    //}
+    //
 
-    let index: number = 0;
-    for (const prescription of prescriptionSumaryList) {
-        const { id, patient, created_at } = prescription;
-        // TODO: Fix json value problem
-
-        //const newPhysicalReportData: AddPhysicalReportRequest = {
-        //    id: 0,
-        //    data: `{
-        //        pharmacy: ${pharmacyInfo},
-        //        pharmacist: ${initialPharmacist},
-        //        patient: ${patient},
-        //        medicine: ${PrescriptionList[index].data.medicineList},
-        //        totalPrice: "100000"
-        //    }`
-        //}
-        index++;
+    // Finalize report
+    console.info("Seeding reports ...");
+    const reports: PaginationRequest | undefined = await getAllReports(token, cookie);
+    if (!reports) return
+    const reportData = reports.results as MedicineReportVo[];
+    reportData.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    for (const report of reportData) {
+        console.log("Unfinalize report: ", report);
+        const { id, created_at } = report
+        console.log("reportid: ", id)
+        const result = await finalizeReport(token, cookie, id, created_at)
+        console.log("result: ", result);
     }
+    console.info("Reports seeded successfully!");
 
     console.info("Transactions seeded successfully!");
 };
@@ -465,7 +556,7 @@ const seedMedicine = async (seed: SeedClient) => {
                     packagingId: packagingId,
                     price: 100000,
                     expiredDate: "2025-01-01T00:00:00Z",
-                    currStock: Math.floor(Math.random() * STOCK.MAX) + 125,
+                    currStock: Math.floor(Math.random() * STOCK.MAX),
                     reservedStock: 0,
                     minStock: STOCK.MIN,
                     maxStock: STOCK.MAX,

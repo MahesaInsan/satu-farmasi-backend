@@ -102,7 +102,7 @@ export default class OutputMedicineService {
                 await this.reportService.getTodayUnFinalizedMedicineReport();
 
             if (!todayReport) {
-                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true);
+                const reportRequest: AddMedicineReportRequest = new AddMedicineReportRequest(false, true, request.created_at || new Date());
                 todayReport = await this.reportService.
                     addMedicineReport(this.reportHelper.createMedicineReport(reportRequest))
             }

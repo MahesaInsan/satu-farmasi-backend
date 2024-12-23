@@ -36,7 +36,7 @@ export default class MedicineReportRepository extends BaseRepository {
         }
     }
 
-    public async getUnFinalizedReportd(): Promise<MedicineReportVO | null> {
+    public async getUnFinalizedReport(): Promise<MedicineReportVO | null> {
         try {
             return await this.Prisma.medicineReport.findFirst({
                 where: { isFinalized: false },
@@ -48,11 +48,11 @@ export default class MedicineReportRepository extends BaseRepository {
         }
     }
 
-    public async finalizeReport(reportId: number): Promise<boolean> {
+    public async finalizeReport(reportId: number, updated_at: Date): Promise<boolean> {
         try {
             const report = await this.Prisma.medicineReport.update({
                 where: { id: reportId },
-                data: { isFinalized: true },
+                data: { isFinalized: true, updated_at: updated_at },
             });
             return report !== null;
         } catch (error) {

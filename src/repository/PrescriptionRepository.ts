@@ -140,6 +140,7 @@ export default class PrescriptionRepository extends BaseRepository{
                 select: {
                     id: true,
                     created_at: true,
+                    updated_at: true,
                     patient: {
                         select: {
                             id: true,
@@ -185,6 +186,7 @@ export default class PrescriptionRepository extends BaseRepository{
                 select: {
                     id: true,
                     created_at: true,
+                    updated_at: true,
                     patient: {
                         select: {
                             id: true,

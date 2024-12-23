@@ -34,4 +34,12 @@ export default class AddPhysicalReportRequest {
     public set createdAt(value: Date) {
         this._created_at = value;
     }
+
+       public toJSON() {
+        return {
+            id: this._id,
+            data: this._data,
+            createdAt: new Date(this._created_at).toISOString(), // Ensure it's in a JSON-compatible format
+        };
+    }
 }

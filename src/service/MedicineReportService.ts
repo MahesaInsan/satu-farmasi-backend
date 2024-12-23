@@ -24,10 +24,10 @@ export default class MedicineReportService {
         }
     }
 
-    public async finalizeReport(reportId: number): Promise<boolean> {
+    public async finalizeReport(reportId: number, updated_at: Date): Promise<boolean> {
         try {
             const unFinalizedReport: MedicineReportVO | null =
-                await this.getUnFinalizedReportd();
+                await this.getUnFinalizedReport();
             if (unFinalizedReport) {
                 const currentReportId: MedicineReportVO | null =
                     await this.getMedicineReportById(reportId);
@@ -58,15 +58,15 @@ export default class MedicineReportService {
                     );
                 }
             }
-            return await this.reportRepository.finalizeReport(reportId);
+            return await this.reportRepository.finalizeReport(reportId, updated_at);
         } catch (error) {
             throw error as string;
         }
     }
 
-    public async getUnFinalizedReportd(): Promise<MedicineReportVO | null> {
+    public async getUnFinalizedReport(): Promise<MedicineReportVO | null> {
         try {
-            return await this.reportRepository.getUnFinalizedReportd();
+            return await this.reportRepository.getUnFinalizedReport();
         } catch (error) {
             throw error as string;
         }

@@ -283,6 +283,7 @@ export default class MedicineService {
 					return this.constructMedicineHasClassification(classification.classificationId, medicineId);
 				})
 			console.log("newMedicineClassification: ", newMedicineHasClassification);
+            this.isDuplicateClassification(classificationList);
 			return await this.medicineHasClassificationRepository.createMedicineHasClassification(newMedicineHasClassification);
 		} catch (error) {
 			throw error as string;
@@ -347,7 +348,7 @@ export default class MedicineService {
                 classificationSet.add(classification.classificationId)
             })
             if (classificationSet.size != classificationList.length)
-                throw new CustomError().formatError("Duplicate medicine classification are not allowed", "custom");
+                throw new CustomError().formatError("Klasifikasi obat tidak boleh duplikat", "custom");
         } catch (error) {
             throw error as string;
         }
@@ -583,6 +584,7 @@ export default class MedicineService {
 
 		await Promise.all(
 			medicineSoldCount.map(async medicine => {
+                console.log("medicineSoldQuantityByMedicineCode", medicine)
 				medicineSoldQuantityByMedicineCode.set(medicine.medicineCode, medicine._sum.quantity!);
 			})
 		);
@@ -654,6 +656,12 @@ export default class MedicineService {
 			.medicineId(medicine.id)
 			.medicineName(medicine.name)
 			.batchCode(medicine.batchCode)
+            .merk(medicine.merk)
+            .description(medicine.description)
+            .sideEffect(medicine.sideEffect)
+            .price(medicine.price)
+            .sideEffect(medicine.sideEffect)
+            .unitOfMeasure(medicine.unitOfMeasure)
 			.currStock(medicine.currStock)
 			.quantity(medicine.currStock)
 			.expiredDate(medicine.expiredDate)
