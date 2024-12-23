@@ -600,6 +600,7 @@ export default class MedicineService {
 
 		await Promise.all(
 			medicineSoldCount.map(async medicine => {
+                console.log("medicineSoldQuantityByMedicineCode", medicine)
 				medicineSoldQuantityByMedicineCode.set(medicine.medicineCode, medicine._sum.quantity!);
 			})
 		);
@@ -608,7 +609,7 @@ export default class MedicineService {
 
 		await Promise.all(
 			medicineList.map(async medicine => {
-				if (medicineSoldQuantityByMedicineCode.has(medicine.code)) {
+				if (lowStockMedicineCodeList.includes(medicine.code)) {
 					const recommendedStock = this.countMedicineConsumption(
 						medicineSoldQuantityByMedicineCode.get(medicine.code)!,
 						medicine.currStock
@@ -671,6 +672,12 @@ export default class MedicineService {
 			.medicineId(medicine.id)
 			.medicineName(medicine.name)
 			.batchCode(medicine.batchCode)
+            .merk(medicine.merk)
+            .description(medicine.description)
+            .sideEffect(medicine.sideEffect)
+            .price(medicine.price)
+            .sideEffect(medicine.sideEffect)
+            .unitOfMeasure(medicine.unitOfMeasure)
 			.currStock(medicine.currStock)
 			.quantity(medicine.currStock)
 			.expiredDate(medicine.expiredDate)
