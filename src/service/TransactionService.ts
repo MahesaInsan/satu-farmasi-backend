@@ -22,6 +22,11 @@ import AddMedicineReportRequest from "../model/request/AddMedicineReportRequest"
 import MedicineReportHelper from "./helper/MedicineReportHelper";
 import PhysicalReportService from "./PhysicalReportService";
 import PhysicalReportVO from "../model/VOs/PhysicalReportVO";
+import TotalIncomeTransactionVO from "../model/VOs/TotalIncomeTransactionVO";
+import TotalOutcomeReceiveVO from "../model/VOs/TotalOutcomeReceiveVO";
+import OutputMedicineService from "./OutputMedicineService";
+import ValidationHelper from "./helper/ValidationHelper";
+import TotalOutcomeOutputVO from "../model/VOs/TotalOutcomeOutputVO";
 
 export default class TransactionService{
     private readonly patientService: PatientService;
@@ -32,6 +37,8 @@ export default class TransactionService{
     private readonly medicineReportHelper: MedicineReportHelper;
     private readonly transactionRepository: TransactionRepository;
     private readonly physicalReportService: PhysicalReportService;
+    private readonly outputMedicineService: OutputMedicineService;
+    private readonly validationHelper: ValidationHelper;
 
     private transactionSSE: SSEConnection[] = [];
 
@@ -44,6 +51,8 @@ export default class TransactionService{
         this.transactionRepository = new TransactionRepository();
         this.medicineReportHelper = new MedicineReportHelper();
         this.physicalReportService = new PhysicalReportService();
+        this.outputMedicineService = new OutputMedicineService(); 
+        this.validationHelper = new ValidationHelper();
     }
 
     public async createNewTransaction(request: AddTransactionRequest) {
@@ -126,9 +135,9 @@ export default class TransactionService{
         }
     }
 
-    public async getTransactionByDate(startDate: Date, lastDate: Date): Promise<TransactionByDateVO[]> {
+    public async getTotalIncomeByDate(startDate: Date, lastDate: Date): Promise<TotalIncomeTransactionVO[]> {
         try {
-            return await this.transactionRepository.getTransactionByDate(new Date(startDate), new Date(lastDate))
+            return await this.transactionRepository.getTotalIncomeByDate(new Date(startDate), new Date(lastDate))
         } catch (error) {
             throw error as string
         }
@@ -152,31 +161,20 @@ export default class TransactionService{
         }
     }
 
+    // TODO: 
+    // 1. tambah untuk output medicine juga
+    // 2. ganti logic, transaction id simpen ke set & panggil repo nya pake select IN
     public async getTransactionProfitByDate(startDate: Date, lastDate: Date): Promise<Prisma.Decimal> {
         try {
-            const transactions: TransactionByDateVO[] = await this.getTransactionByDate(startDate, lastDate);
-            const profits: Prisma.Decimal[] = await Promise.all(
-                transactions.map(async transaction => {
-                    const receiveMedicine: ReceiveMedicineVO | null = await this.receiveMedicineService.getReceiveMedicineByMedicineId(transaction.id);
-                    
-                    // get buying price
-                    const buyingQty: Prisma.Decimal = new Prisma.Decimal(receiveMedicine?.quantity ?? 1);
-                    const buyingPrice: Prisma.Decimal = receiveMedicine
-                    ? receiveMedicine.buyingPrice.div(buyingQty)
-                    : new Prisma.Decimal(0)
-                    
-                    // get profit
-                    return new Prisma.Decimal(transaction.totalPrice)
-                    .sub(new Prisma.Decimal(transaction.quantity).mul(buyingPrice))
-                })
-            )
-            
-            // add profit to total
-            const total: Prisma.Decimal = profits.reduce((accumulator, currentValue) => {
-                return new Prisma.Decimal(accumulator).add(currentValue)
-            }, new Prisma.Decimal(0));
+            const income: TotalIncomeTransactionVO[] = await this.getTotalIncomeByDate(startDate, lastDate);
+            const outcomeByReceive: TotalOutcomeReceiveVO[] = await this.receiveMedicineService.getTotalCostReceiveMedicineByDate(startDate, lastDate);
+            const outcomeByOutput: TotalOutcomeOutputVO[] = await this.outputMedicineService.getTotalCostOutputMedicineByDate(startDate, lastDate);
 
-            return total
+            const totalIncome: Prisma.Decimal = new Prisma.Decimal(income?.[0]?.totalPrice ?? 0);
+            const totalOutcomeReceive: Prisma.Decimal = new Prisma.Decimal(outcomeByReceive?.[0]?.buyingPrice ?? 0);
+            const totalOutcomeOutput: Prisma.Decimal = new Prisma.Decimal(outcomeByOutput?.[0]?.totalPrice ?? 0);
+            
+            return totalIncome.sub(totalOutcomeReceive.add(totalOutcomeOutput));
         } catch (error) {
             throw error as string;
         }

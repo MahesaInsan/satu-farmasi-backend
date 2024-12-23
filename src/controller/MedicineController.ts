@@ -21,9 +21,10 @@ export default class MedicineController extends BaseController {
 
     async getMedicineList(req: Request, res: Response){
         try{
-            console.log("#getMedicineDropdownOption with req ", req.query.isActive as string)
+            console.log("#getMedicineDropdownOption with req ", req.query.isActive as string ,req.query.isPrescription)
             const isActive = (req.query.isActive as string)?.toLowerCase() === "true" ? true : undefined
-            const medicineDropdownOption: Map<string, MedicineDropdownVO> = await this.medicineService.getAllMedicineList(isActive)
+            const isPrescription = (req.query.isPrescription as string)?.toLowerCase() === "true" ? true : undefined
+            const medicineDropdownOption: Map<string, MedicineDropdownVO> = await this.medicineService.getAllMedicineList(isActive, isPrescription)
             res.status(200).send(new BaseResponse().ok(Object.fromEntries(medicineDropdownOption)));
         } catch (error) {
             console.error("Error when #getMedicineDropdownOption with error:", error)
@@ -116,25 +117,13 @@ export default class MedicineController extends BaseController {
             const request: EditMedicineRequest = req.body;
             console.log("#editMedicine with request", req.body)
             const success = await this.medicineService.editMedicine(request);
-            return res.status(200).send(new BaseResponse().ok(success, "Succeed Edited Medicine"));
+            return res.status(200).send(new BaseResponse().ok(success, "Data obat berhasil diperbarui"));
         } catch (error) {
             console.log("[src][controller][MedicineController][editMedicine] ", error);
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
-
-    // public async addStock(req: Request, res: Response) {
-    //     try {
-    //         const request: EditMedicineRequest = req.body;
-    //         await this.medicineService.addStock(request.id, request.currStock);
-    //         return res.status(200).send(new BaseResponse().ok(null, "Succeed Addedd Stock"));
-    //     } catch (error) {
-    //         console.log("[src][controller][MedicineController][addStock] ", error);
-    //         const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
-    //         return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
-    //     }
-    // }
 
     public async checkStock(req: Request, res: Response) {
         try {
@@ -149,18 +138,6 @@ export default class MedicineController extends BaseController {
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
-
-    // public async deleteMedicine(req: Request, res: Response) {
-    //     try {
-    //         const request: EditMedicineRequest = req.body;
-    //         const medicine: MedicineDisplayVO = await this.medicineService.deleteMedicine(request.id);
-    //         return res.status(200).send(new BaseResponse().ok(medicine, "Succeed Deleted Medicine"));
-    //     } catch (error) {
-    //         console.log("[src][controller][MedicineController][deleteMedicine] ", error);
-    //         const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
-    //         return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
-    //     }
-    // }
 
     public async checkExpiration(req: Request, res: Response) {
         try {

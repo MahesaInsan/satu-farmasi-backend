@@ -1,4 +1,4 @@
-import {Medicine, OutputMedicine, ReasonOfDispose} from "@prisma/client";
+import {Medicine, OutputMedicine, Prisma, ReasonOfDispose} from "@prisma/client";
 import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
 import OutputMedicineRepository from "../repository/OutputMedicineRepository";
 import OutputMedicineHelper from "./helper/OutputMedicineHelper";
@@ -18,6 +18,7 @@ import BulkAddOutputMedicineRequest from "../model/request/BulkAddOutputMedicine
 import OutputMedicineDataRequest from "../model/request/OutputMedicineDataRequest";
 import {Builder} from "builder-pattern";
 import AddPhysicalReportRequest from "../model/request/AddPhysicalReportRequest";
+import TotalOutcomeOutputVO from "../model/VOs/TotalOutcomeOutputVO";
 
 export default class OutputMedicineService {
     private readonly medicineService: MedicineService;
@@ -92,30 +93,6 @@ export default class OutputMedicineService {
 
     public async addOutputMedicine(request: AddOutputMedicineRequest): Promise<Boolean> {
         try {
-            console.log("medicineId: ", request.medicineId)
-            // const medicine = await this.medicineService.getMedicineById(request.medicineId);
-            // let medicineToReserve: Map<number, number> = new Map();
-            // let medicineToBeAssign = 0
-            // if (medicine) {
-            //     medicineToBeAssign = medicine.reservedStock - (medicine.currStock - request.quantity)
-            //     console.log(`${medicineToBeAssign} = ${medicine.reservedStock} - (${medicine.currStock} - ${request.quantity})`);
-            //     if (medicineToBeAssign > 0) {
-            //         const medicineList = await this.medicineService.getAndMapMedicineListByMedicineCode([medicine.code])
-            //         medicineToReserve = await this.updateReservedMedicine(request.medicineId, medicineToBeAssign, request.quantity,
-            //             medicine.code, medicineList, false)
-            //     }
-            // } else throw new Error("Medicine not found");
-            //
-            // await this.medicineService.decreaseStockAndReservedStock(request.medicineId, request.quantity,
-            //     medicineToBeAssign > 0 ? medicineToBeAssign : 0);
-            // console.log(Array.from(medicineToReserve.keys()).length > 0)
-            // if (Array.from(medicineToReserve.keys()).length > 0) {
-            //     await Promise.all(
-            //         Array.from(medicineToReserve.entries())?.map(([key, value]) =>
-            //             this.medicineService.increaseReservedMedicine(key, value)
-            //         )
-            //     );
-            // }
             await this.updateMedicineCurrStockAndReserved(0, request.quantity, request.medicineId)
             const outputMedicine: OutputMedicine = this.outputMedicineHelper.createOutputMedicine(request);
             const matchedReason = this.outputMedicineRepository.validReasonOfDispose(request.reasonOfDispose);
@@ -143,7 +120,6 @@ export default class OutputMedicineService {
 
     public async editOutputMedicine(request: EditOutputMedicineRequest): Promise<Boolean> {
         try {
-            // await this.medicineService.updateMedicineStock(request.oldQuantity, request.quantity, request.medicineId);
             await this.updateMedicineCurrStockAndReserved(request.oldQuantity, request.quantity, request.medicineId)
             const matchedReason: string | undefined = this.outputMedicineRepository.validReasonOfDispose(request.reasonOfDispose);
             await this.physicalReportService.editPhysicalReport(request.physicalReport);
@@ -157,27 +133,19 @@ export default class OutputMedicineService {
 
     public async deleteOutputMedicine(request: DeleteOutputMedicineRequest): Promise<Boolean> {
         try {
-            // const medicine = await this.medicineService.getMedicineById(request.medicineId);
-            // let medicineToReserve: Map<number, number> = new Map();
-            // if (medicine) {
-            //     const medicineList = await this.medicineService.getAndMapMedicineListByMedicineCode([medicine.code])
-            //     console.log(medicineList)
-            //     const quantityNotAssign = await this.reassignReservedMedicine(request.quantity, medicine.code, medicineList)
-            //     medicineToReserve = await this.updateReservedMedicine(request.medicineId, request.quantity - quantityNotAssign, request.quantity,
-            //         medicine.code, medicineList, true)
-            // } else throw new Error("Medicine not found");
-            //
-            // await this.medicineService.increaseMedicineStock(request.medicineId, request.quantity);
-            // await Promise.all(
-            //     Array.from(medicineToReserve.entries()).map(([key, value]) =>
-            //         this.medicineService.increaseReservedMedicine(key, value)
-            //     )
-            // );
             await this.updateMedicineCurrStockAndReserved(request.quantity, 0, request.medicineId)
             const outputMedicine: OutputMedicine = this.outputMedicineHelper.deleteOutputMedicine(request);
             return await this.outputMedicineRepository.deleteOutputMedicine(outputMedicine.id);
         } catch (error) {
 			throw error as string;
+        }
+    }
+
+    public async getTotalCostOutputMedicineByDate(startDate: Date, lastDate: Date): Promise<TotalOutcomeOutputVO[]> {
+        try {
+            return await this.outputMedicineRepository.getTotalCostOutputMedicineByDate(new Date(startDate), new Date(lastDate));
+        } catch (error) {
+            throw error as string;
         }
     }
 

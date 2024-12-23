@@ -41,7 +41,6 @@ export default class PrescriptionHasMedicineRepository extends BaseRepository{
                         quantity: "desc",
                     }
                 },
-                take: 3,
                 where: {
                     AND: [
                         {

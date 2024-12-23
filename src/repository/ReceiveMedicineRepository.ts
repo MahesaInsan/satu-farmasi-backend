@@ -1,6 +1,7 @@
-import { PrismaClient, ReceiveMedicine } from "@prisma/client";
+import { Prisma, PrismaClient, ReceiveMedicine } from "@prisma/client";
 import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
 import BaseRepository from "./helper/BaseRepository";
+import TotalOutcomeReceiveVO from "../model/VOs/TotalOutcomeReceiveVO";
 
 export default class ReceiveMedicineRepository extends BaseRepository{
 
@@ -231,11 +232,13 @@ export default class ReceiveMedicineRepository extends BaseRepository{
         }
     }
 
-    public async getReceiveMedicineByMedicineId(medicineId: number): Promise<ReceiveMedicineVO | null> {
+    public async getReceiveMedicineByMedicineIdIn(medicineId: number[]): Promise<ReceiveMedicineVO[]> {
         try {
-            return await this.Prisma.receiveMedicine.findFirst({
+            return await this.Prisma.receiveMedicine.findMany({
                 where: {
-                    medicineId: medicineId
+                    medicineId: {
+                        in: medicineId
+                    }
                 },
                 select: {
                     id: true,
@@ -384,6 +387,19 @@ export default class ReceiveMedicineRepository extends BaseRepository{
                     reportId: true
                 }
             })
+        } catch (error) {
+            throw error as string;
+        }
+    }
+
+    public async getTotalCostReceiveMedicineByDate(startDate: Date, lastDate: Date): Promise<TotalOutcomeReceiveVO[]> {
+        try {
+            return this.Prisma.$queryRaw
+                `SELECT
+                    SUM(a."buyingPrice") as "buyingPrice"
+                FROM "public"."ReceiveMedicine" a
+                WHERE a."created_at" >= ${startDate} AND a."created_at" <= ${lastDate}
+                FETCH FIRST 1 ROWS ONLY;`
         } catch (error) {
             throw error as string;
         }

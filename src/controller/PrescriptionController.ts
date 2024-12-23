@@ -61,7 +61,7 @@ export default class PrescriptionController extends BaseController{
         try {
             console.log("#addNewPrescription with request:", req.body.data)
             const request: AddPrescriptionRequest = req.body.data;
-            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.addNewPrescription(request), "Successfully added new prescription"))
+            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.addNewPrescription(request), "Preskripsi baru berhasil ditambahkan"))
         } catch (error) {
             console.error("error when #addPrescription with error: ", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -73,7 +73,7 @@ export default class PrescriptionController extends BaseController{
         try {
             const request: EditPrescriptionRequest = req.body.data;
             console.log("#editPrescription with request:", request);
-            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.editPrescription(request), "Successfully edited prescription"))
+            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.editPrescription(request), "Preskripsi berhasil diperbarui"))
         } catch (error) {
             console.error("error when #editPrescription with error: ", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
@@ -85,7 +85,7 @@ export default class PrescriptionController extends BaseController{
         try {
             const request = parseInt(req.params.id)
             console.log("#cancelPrescription with request:", request);
-            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.cancelPrescription(request), "Successfully canceled prescription"))
+            res.status(200).send(new BaseResponse().ok(await this.prescriptionService.cancelPrescription(request), "Preskripsi berhasil dibatalkan"))
         } catch (error) {
             console.error("error when #cancelPrescription with error: ", error)
             const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);

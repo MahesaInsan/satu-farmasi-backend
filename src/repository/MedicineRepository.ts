@@ -2,6 +2,7 @@ import { Medicine, Prisma, PrismaClient } from "@prisma/client"
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
 import MedicineData from "../model/VOs/MedicineDropdownVO"
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
+import TotalNeedToRestockVO from "../model/VOs/TotalNeedToRestockVO";
 import { CustomError } from "../validator/helper/ErrorHelper";
 import BaseRepository from "./helper/BaseRepository";
 
@@ -12,14 +13,25 @@ export default class MedicineRepository extends BaseRepository{
 	}
 
     // TODO: if isActive is undefined, the where caluse gives empty results
-	public async fetchMedicineList(isActive?: boolean): Promise<MedicineDropdownVO[]> {
+	public async fetchMedicineList(isActive?: boolean, isPrescription?: boolean): Promise<MedicineDropdownVO[]> {
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-			let isActiveCondition = Prisma.sql``
+			let conditions: Prisma.Sql[] = [];
+
 			if (isActive) {
-				isActiveCondition = Prisma.sql`m.is_active = ${isActive} AND`
+				conditions.push(Prisma.sql`m.is_active = ${isActive}`);
+				conditions.push(Prisma.sql`m."currStock" > 0`);
 			}
-            // findAllMedicineIdByMedicineCode
+			if (isPrescription) {
+				conditions.push(Prisma.sql`m."expiredDate" > ${futureDate}`);
+			}
+
+			const whereClause = conditions.length > 0
+				? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`
+				: Prisma.empty
+
+			console.log('Where Clause:', whereClause);
+
 			return await this.Prisma.$queryRaw<MedicineDropdownVO[]>(
 				Prisma.sql`
                     WITH flattened_classifications AS (
@@ -29,7 +41,8 @@ export default class MedicineRepository extends BaseRepository{
                             MIN("name") as "name",
                             MIN("merk") as "merk",
                             MIN("description") as "description",
-                            SUM("currStock") as "currStock",
+							CAST(SUM("currStock") AS INTEGER) AS "currStock",
+							CAST(SUM("reservedStock") AS INTEGER) AS "reservedStock",
                             MIN("price") as "price",
                             MIN("minStock") as "minStock",
                             MIN("maxStock") as "maxStock",
@@ -46,7 +59,8 @@ export default class MedicineRepository extends BaseRepository{
                                 MIN(m.name) as "name",
                                 MIN(m.merk) as "merk",
                                 MIN(m.description) as "description",
-                                SUM(m."currStock" - m."reservedStock") AS "currStock",
+								CAST(SUM("currStock") AS INTEGER) AS "currStock",
+								CAST(SUM("reservedStock") AS INTEGER) AS "reservedStock",
                                 MIN(m.price) AS "price",
                                 MIN(m."minStock") AS "minStock",
                                 MIN(m."maxStock") AS "maxStock",
@@ -73,10 +87,7 @@ export default class MedicineRepository extends BaseRepository{
                             INNER JOIN "GenericName" g ON m."genericNameId" = g.id
                             INNER JOIN "MedicineHasClassification" mhc ON m.id = mhc."medicineId"
                             INNER JOIN "Classification" c ON mhc."classificationId" = c.id
-                            WHERE 
-                                ${isActiveCondition}
-                                m."currStock" > 0
-                                AND m."expiredDate" > ${futureDate}
+                            ${whereClause}
                             GROUP BY m.code, m.id, mhc."classificationId"
                         ) subquery
                         GROUP BY
@@ -89,6 +100,7 @@ export default class MedicineRepository extends BaseRepository{
                         MIN("merk") as "merk",
                         MIN("description") as "description",
                         "currStock",
+                        MIN("reservedStock") AS "reservedStock",
                         MIN("price") as "price",
                         MIN("minStock") as "minStock",
                         MIN("maxStock") as "maxStock",
@@ -184,13 +196,24 @@ export default class MedicineRepository extends BaseRepository{
 		}
 	}
 
-	public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[]): Promise<MedicineData[]> {
+	public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[], expiredDate?: boolean): Promise<MedicineData[]> {
+		let expiredDateCondition: Record<string, unknown> | undefined;
+
+		if (expiredDate) {
+			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days in the future
+			expiredDateCondition = {
+				expiredDate: {
+					gte: futureDate,
+				},
+			};
+		}
 		return this.Prisma.medicine.findMany({
 			where: {
 				code: {
 					in: medicineCodes
 				},
 				is_active: true,
+				...expiredDateCondition,
 				currStock: {
 					gt: 0
 				},
@@ -243,7 +266,6 @@ export default class MedicineRepository extends BaseRepository{
 		});
 	}
 
-	//PATH NYA DIM
 	public async decreaseStock(medicineId: number, quantity: number, path: string) {
 		try {
 			await this.validateMedicineId(medicineId, quantity)
@@ -342,7 +364,7 @@ export default class MedicineRepository extends BaseRepository{
 		}
 	}
 
-	public async getMedicineIdIn(medicineId: number[]) {
+	public async getMedicineByIdIn(medicineId: number[]) {
 		try {
 			return this.Prisma.medicine.findMany({
 				where: {
@@ -502,13 +524,27 @@ export default class MedicineRepository extends BaseRepository{
 
     public async getTotalNeedToRestock(): Promise<number> {
         try {
-            return this.Prisma.medicine.count({
-                where: {
-                    currStock: {
-                        lte: this.Prisma.medicine.fields.minStock
-                    }
-                }
-            })
+            const total: string[] = await this.Prisma.$queryRaw(
+				Prisma.sql`
+				WITH AggregatedData AS (
+					SELECT
+						"code",
+						SUM("currStock") AS "currStock",
+						MIN("minStock") AS "minStock"
+					FROM "public"."Medicine"
+					GROUP BY "code"
+				)
+				SELECT 
+					MIN("code") AS "code",
+					SUM("currStock") AS "currStock",
+					MIN("minStock") AS "minStock"
+				FROM AggregatedData
+				WHERE "currStock" <= "minStock"
+				GROUP BY "code";
+				`
+			)
+
+			return total.length
         } catch (error) {
             console.error('Error get need to restock medicineList: ', error);
             throw new Error('Failed to get need to restock medicineList');
@@ -585,20 +621,20 @@ export default class MedicineRepository extends BaseRepository{
 					SELECT
 					  	"code",
 				  		MIN(id) AS id,
-					  	MAX("name") AS "name", 
-					  	MAX("merk") AS "merk",
-					  	MAX("description") AS "description",
-					  	MAX("unitOfMeasure") AS "unitOfMeasure",
-					  	MAX("price") AS "price",
-					  	MAX("expiredDate") AS "expiredDate",
+					  	MIN("name") AS "name", 
+					  	MIN("merk") AS "merk",
+					  	MIN("description") AS "description",
+					  	MIN("unitOfMeasure") AS "unitOfMeasure",
+					  	MIN("price") AS "price",
+					  	MIN("expiredDate") AS "expiredDate",
 					  	CAST(SUM("currStock") AS INTEGER) AS "currStock",
-					  	MAX("reservedStock") AS "reservedStock",
-					  	MAX("minStock") AS "minStock",
-					  	MAX("maxStock") AS "maxStock",
+					  	CAST(SUM("reservedStock") AS INTEGER) AS "reservedStock",
+					  	MIN("minStock") AS "minStock",
+					  	MIN("maxStock") AS "maxStock",
 					  	CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
-					  	MAX("sideEffect") AS "sideEffect",
-					  	MAX("created_at") AS "created_at",
-					  	MAX("updated_at") AS "updated_at",
+					  	MIN("sideEffect") AS "sideEffect",
+					  	MIN("created_at") AS "created_at",
+					  	MIN("updated_at") AS "updated_at",
 						jsonb_array_elements(classifications) AS classification,
 						packaging,
 						"genericName"
@@ -606,20 +642,20 @@ export default class MedicineRepository extends BaseRepository{
 						SELECT 
 							  "code",
 							  MIN(m.id) AS id,
-							  MAX(m."name") AS "name", 
-							  MAX(m."merk") AS "merk",
-							  MAX(m."description") AS "description",
-							  MAX(m."unitOfMeasure") AS "unitOfMeasure",
-							  MAX(m."price") AS "price",
-							  MAX(m."expiredDate") AS "expiredDate",
+							  MIN(m."name") AS "name", 
+							  MIN(m."merk") AS "merk",
+							  MIN(m."description") AS "description",
+							  MIN(m."unitOfMeasure") AS "unitOfMeasure",
+							  MIN(m."price") AS "price",
+							  MIN(m."expiredDate") AS "expiredDate",
 							  CAST(SUM("currStock") AS INTEGER) AS "currStock",
-							  MAX(m."reservedStock") AS "reservedStock",
-							  MAX(m."minStock") AS "minStock",
-							  MAX(m."maxStock") AS "maxStock",
+							  CAST(SUM("reservedStock") AS INTEGER) AS "reservedStock",
+							  MIN(m."minStock") AS "minStock",
+							  MIN(m."maxStock") AS "maxStock",
 							  CASE WHEN COUNT(CASE WHEN m."is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
-							  MAX(m."sideEffect") AS "sideEffect",
-							  MAX(m."created_at") AS "created_at",
-							  MAX(m."updated_at") AS "updated_at",
+							  MIN(m."sideEffect") AS "sideEffect",
+							  MIN(m."created_at") AS "created_at",
+							  MIN(m."updated_at") AS "updated_at",
 							  jsonb_agg(
 								DISTINCT jsonb_build_object(
 								  'id', c.id,
@@ -628,12 +664,12 @@ export default class MedicineRepository extends BaseRepository{
 								)
 							  ) AS classifications,
 								jsonb_build_object(
-								'id', MAX(p.id),
-								'label', MAX(p.label)
+								'id', MIN(p.id),
+								'label', MIN(p.label)
 							  ) AS packaging,
 								jsonb_build_object(
-								'id', MAX(g.id),
-								'label', MAX(g.label)
+								'id', MIN(g.id),
+								'label', MIN(g.label)
 							  ) AS "genericName"
 						FROM "Medicine" m
 						INNER JOIN "Packaging" p ON m."packagingId" = p.id
@@ -653,20 +689,20 @@ export default class MedicineRepository extends BaseRepository{
 				SELECT
 				 	"code",
 				  	MIN(id) AS id,
-				  	MAX("name") AS "name", 
-				  	MAX("merk") AS "merk",
-				  	MAX("description") AS "description",
-				  	MAX("unitOfMeasure") AS "unitOfMeasure",
-				  	MAX("price") AS "price",
-				  	MAX("expiredDate") AS "expiredDate",
+				  	MIN("name") AS "name", 
+				  	MIN("merk") AS "merk",
+				  	MIN("description") AS "description",
+				  	MIN("unitOfMeasure") AS "unitOfMeasure",
+				  	MIN("price") AS "price",
+				  	MIN("expiredDate") AS "expiredDate",
 					"currStock",
-			  		MAX("reservedStock") AS "reservedStock",
-				  	MAX("minStock") AS "minStock",
-				  	MAX("maxStock") AS "maxStock",
+			  		MIN("reservedStock") AS "reservedStock",
+				  	MIN("minStock") AS "minStock",
+				  	MIN("maxStock") AS "maxStock",
 				  	CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
-				  	MAX("sideEffect") AS "sideEffect",
-				  	MAX("created_at") AS "created_at",
-				  	MAX("updated_at") AS "updated_at",
+				  	MIN("sideEffect") AS "sideEffect",
+				  	MIN("created_at") AS "created_at",
+				  	MIN("updated_at") AS "updated_at",
 					jsonb_agg(DISTINCT classification) AS classifications,
 					packaging,
 					"genericName"

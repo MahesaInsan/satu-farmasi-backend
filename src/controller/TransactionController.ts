@@ -77,7 +77,7 @@ export default class TransactionController extends BaseController{
             const result: Prisma.Decimal = await this.transactionService.getTransactionProfitByDate(request.startDate, request.lastDate)
             res.status(200).send(new BaseResponse().ok(result))
         } catch (error) {
-            console.error("error when #getTransasctionByDate with error: ", error)
+            console.error("error when #getTransactionProfitByDate with error: ", error)
             const errorMessage = error instanceof Error ? error.message : String(error);
             return res.status(200).send(new BaseResponse().badRequest(errorMessage));
         }

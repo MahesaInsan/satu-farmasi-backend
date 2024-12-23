@@ -18,6 +18,7 @@ import PrescriptionDetailVO from "../model/VOs/PrescriptionDetailVO";
 import DraftMedicineListVO from "../model/VOs/DraftMedicineListVO";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
 import PaginationRequest from "../model/request/PaginationRequest";
+import MostSalesMedicineVO from "../model/VOs/MostSalesMedicineVO";
 
 export default class PrescriptionService{
     private readonly prescriptionRepository: PrescriptionRepository
@@ -114,26 +115,43 @@ export default class PrescriptionService{
         }
     }
 
-    public async getMostSalesMedicineByPrescription(startDate: Date, lastDate: Date) {
+    public async getMostSalesMedicineByPrescription(startDate: Date, lastDate: Date): Promise<MostSalesMedicineVO[]> {
         try {
             const newStartDate: Date = new Date(startDate);
             const newLastDate: Date = new Date(lastDate);
             const result = await this.prescriptionHasMedicineRepository.getMostSalesMedicineByPrescription(newStartDate, newLastDate)
-            const data = await Promise.all(
-                result.map(async item => {
-                    const medicine = await this.medicineService.getMedicineById(item.medicineId!);
+
+            // get medicine by id in
+            const medicineIds = Array.from(new Set(result.map(item => item.medicineId))).filter((id): id is number => id !== null);
+            const medicines = await this.medicineService.getMedicineByIdIn(medicineIds);
+
+            const data: MostSalesMedicineVO[] = await Promise.all(
+                result.map(async res => {
                     return {
-                        medicineName: medicine?.name || null,
-                        quantity: item._sum.quantity
+                        medicineName: medicines.find(item => item.id == res.medicineId)?.name,
+                        quantity: res._sum.quantity
                     }
                 })
             )
-            return data
-            // return result
+
+            return this.mapMostSalesMedicine(data);
         } catch (error) {
             console.error(error);
             throw error as string;
         }
+    }
+
+    private mapMostSalesMedicine(data: MostSalesMedicineVO[]) {
+        const topThreeSalesMedicines: MostSalesMedicineVO[] = data.slice(0,3);
+        const othersQuantity: number = data.slice(3).reduce(
+            (quantity, medicineMapped) => {
+                return quantity + (medicineMapped.quantity || 0)
+            }, 0
+        );
+        return [
+            ...topThreeSalesMedicines,
+            { medicineName: "Others", quantity: othersQuantity }
+        ] as MostSalesMedicineVO[];
     }
 
     public async createNewPrescription (request: AddPrescriptionRequest): Promise<number> {
@@ -203,7 +221,7 @@ export default class PrescriptionService{
             newPrescribedMedicine.forEach(newPrescription => medicineCodes.add(newPrescription.code))
 
             const medicineByMedicineCode = await this.medicineService
-                .getAndMapMedicineListByMedicineCode(Array.from(medicineCodes.values()))
+                .getAndMapMedicineListByMedicineCode(Array.from(medicineCodes.values()), true)
 
             if (!medicineByMedicineCode) {
                 new Error ("Medicines not found")
@@ -264,7 +282,7 @@ export default class PrescriptionService{
 
         if (tuple[1].length > 0) {
             medicineData = await this.medicineService.getAndMapMedicineListByMedicineCode(
-                tuple[1].map(prescriptionHasMedicine => prescriptionHasMedicine.medicineCode));
+                tuple[1].map(prescriptionHasMedicine => prescriptionHasMedicine.medicineCode), true);
         } else throw new Error("Prescription doesn't have any medicine")
 
         if (tuple[0]) {
@@ -339,7 +357,7 @@ export default class PrescriptionService{
     private async reservedMedicineAndConstructDraftPrescriptionHasMedicine(medicineList: AddPrescribedMedicineRequest[], prescriptionId: number) {
         try {
             const medicineListByCode: Map<string, MedicineData[]> = await this.medicineService
-                .getAndMapMedicineListByMedicineCode(medicineList.map(medicine => medicine.code))
+                .getAndMapMedicineListByMedicineCode(medicineList.map(medicine => medicine.code), true)
             const prescriptionHasMedicine: PrescriptionHasMedicine[] = medicineList.map(medicine =>
                 this.constructPrescriptionHasMedicineDraft(medicine, prescriptionId)
             ).flat()
@@ -378,7 +396,7 @@ export default class PrescriptionService{
 
     private async updateMedicineStockAndCreatePrescriptionHasMedicine(medicineList: AddPrescribedMedicineRequest[], prescriptionId: number) {
         const medicineListByCode: Map<string, MedicineData[]> = await this.medicineService
-            .getAndMapMedicineListByMedicineCode(medicineList.map(medicine => medicine.code))
+            .getAndMapMedicineListByMedicineCode(medicineList.map(medicine => medicine.code), true)
 
         const prescriptionHasMedicineList: PrescriptionHasMedicine[][] = await Promise.all(
             medicineList.map(async (prescribedMedicine) => {
@@ -488,6 +506,5 @@ export default class PrescriptionService{
         }
         return finalizedPrescriptionHasMedicineList
     }
-
 
 }

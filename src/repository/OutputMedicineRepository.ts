@@ -1,6 +1,7 @@
-import { OutputMedicine, ReasonOfDispose } from "@prisma/client";
+import { OutputMedicine, Prisma, ReasonOfDispose } from "@prisma/client";
 import BaseRepository from "./helper/BaseRepository";
 import OutputMedicineVO from "../model/VOs/OutputMedicineVO"
+import TotalOutcomeOutputVO from "../model/VOs/TotalOutcomeOutputVO"
 
 export default class OutputMedicineRepository extends BaseRepository {
 
@@ -172,6 +173,20 @@ export default class OutputMedicineRepository extends BaseRepository {
         } catch (error) {
             console.error("Error getting output medicines by search:", error);
             throw new Error("Failed to get output medicines by search");
+        }
+    }
+
+    public async getTotalCostOutputMedicineByDate(startDate: Date, lastDate: Date): Promise<TotalOutcomeOutputVO[]> {
+        try {
+            return this.Prisma.$queryRaw
+                `SELECT
+                        SUM((b."price" * a."quantity")) AS "totalPrice"
+                FROM "public"."OutputMedicine" a
+                LEFT JOIN "public"."Medicine" b ON a."medicineId" = b."id"
+                WHERE a."created_at" >= ${startDate} AND a."created_at" <= ${lastDate};`
+        } catch (error) {
+            console.error("Error getting total cost output medicine by date: ", error);
+            throw new Error("Failed to get total cost output medicine by date");
         }
     }
 
