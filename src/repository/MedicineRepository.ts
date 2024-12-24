@@ -196,75 +196,68 @@ export default class MedicineRepository extends BaseRepository{
 		}
 	}
 
-	public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[], expiredDate?: boolean): Promise<MedicineData[]> {
-		let expiredDateCondition: Record<string, unknown> | undefined;
-
-		if (expiredDate) {
-			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days in the future
-			expiredDateCondition = {
-				expiredDate: {
-					gte: futureDate,
-				},
-			};
-		}
-		return this.Prisma.medicine.findMany({
-			where: {
-				code: {
-					in: medicineCodes
-				},
-				is_active: true,
-				...expiredDateCondition,
-				currStock: {
-					gt: 0
-				},
-				expiredDate: {
-					gt: new Date(Date.now() + 7)
-				}
-			},
-			select: {
-				id: true,
-				code: true,
-				name: true,
-				batchCode: true,
-				merk: true,
-				currStock: true,
-				minStock: true,
-				reservedStock: true,
-				price: true,
-				maxStock: true,
-				description: true,
-				expiredDate: true,
-				unitOfMeasure: true,
-				sideEffect: true,
-				classifications: {
-					select: {
-						classification: {
-							select: {
-								id: true,
-								label: true,
-								value: true
-							}
-						}
-					}
-				},
-				packaging: {
-					select: {
-						id: true,
-						label: true
-					}
-				},
-				genericName: {
-					select: {
-						id: true,
-						label: true
-					}
-				}
-			},
-			orderBy: {
-				expiredDate: 'asc'
-			}
-		});
-	}
+    public async getMedicineByCodeInAndIsActiveTrue(medicineCodes: string[], expiredDate?: boolean): Promise<MedicineData[]> {
+        const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        
+        return this.Prisma.medicine.findMany({
+            where: {
+                code: {
+                    in: medicineCodes
+                },
+                is_active: true,
+                ...(expiredDate ? {
+                    expiredDate: {
+                        gt: futureDate
+                    }
+                } : {}),
+                currStock: {
+                    gt: 0
+                },
+            },
+            select: {
+                id: true,
+                code: true,
+                name: true,
+                batchCode: true,
+                merk: true,
+                currStock: true,
+                minStock: true,
+                reservedStock: true,
+                price: true,
+                maxStock: true,
+                description: true,
+                expiredDate: true,
+                unitOfMeasure: true,
+                sideEffect: true,
+                classifications: {
+                    select: {
+                        classification: {
+                            select: {
+                                id: true,
+                                label: true,
+                                value: true
+                            }
+                        }
+                    }
+                },
+                packaging: {
+                    select: {
+                        id: true,
+                        label: true
+                    }
+                },
+                genericName: {
+                    select: {
+                        id: true,
+                        label: true
+                    }
+                }
+            },
+            orderBy: {
+                expiredDate: 'asc'
+            }
+        });
+    }
 
 	public async decreaseStock(medicineId: number, quantity: number, path: string) {
 		try {
