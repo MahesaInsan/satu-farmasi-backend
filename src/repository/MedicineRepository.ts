@@ -12,7 +12,6 @@ export default class MedicineRepository extends BaseRepository{
 		super();
 	}
 
-    // TODO: if isActive is undefined, the where caluse gives empty results
 	public async fetchMedicineList(isActive?: boolean, isPrescription?: boolean): Promise<MedicineDropdownVO[]> {
 		try {
 			const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -692,7 +691,7 @@ export default class MedicineRepository extends BaseRepository{
 			  		MIN("reservedStock") AS "reservedStock",
 				  	MIN("minStock") AS "minStock",
 				  	MIN("maxStock") AS "maxStock",
-				  	CASE WHEN COUNT(CASE WHEN "is_active" = false THEN 1 END) > 0 THEN false ELSE true END AS "is_active",
+				  	CASE WHEN COUNT(CASE WHEN "is_active" = true THEN 1 END) > 0 THEN true ELSE false END AS "is_active",
 				  	MIN("sideEffect") AS "sideEffect",
 				  	MIN("created_at") AS "created_at",
 				  	MIN("updated_at") AS "updated_at",
