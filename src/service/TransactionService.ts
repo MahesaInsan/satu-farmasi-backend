@@ -160,13 +160,13 @@ export default class TransactionService{
         try {
             const income: TotalIncomeTransactionVO[] = await this.getTotalIncomeByDate(startDate, lastDate);
             const outcomeByReceive: TotalOutcomeReceiveVO[] = await this.receiveMedicineService.getTotalCostReceiveMedicineByDate(startDate, lastDate);
-            const outcomeByOutput: TotalOutcomeOutputVO[] = await this.outputMedicineService.getTotalCostOutputMedicineByDate(startDate, lastDate);
+            // const outcomeByOutput: TotalOutcomeOutputVO[] = await this.outputMedicineService.getTotalCostOutputMedicineByDate(startDate, lastDate);
 
             const totalIncome: Prisma.Decimal = new Prisma.Decimal(income?.[0]?.totalPrice ?? 0);
             const totalOutcomeReceive: Prisma.Decimal = new Prisma.Decimal(outcomeByReceive?.[0]?.buyingPrice ?? 0);
-            const totalOutcomeOutput: Prisma.Decimal = new Prisma.Decimal(outcomeByOutput?.[0]?.totalPrice ?? 0);
+            // const totalOutcomeOutput: Prisma.Decimal = new Prisma.Decimal(outcomeByOutput?.[0]?.totalPrice ?? 0);
             
-            return totalIncome.sub(totalOutcomeReceive.add(totalOutcomeOutput));
+            return totalIncome.sub(totalOutcomeReceive);
         } catch (error) {
             throw error as string;
         }
