@@ -16,16 +16,6 @@ export default class PackagingService {
         this.medicineRepository = new MedicineRepository();
     }
 
-    public async createPackaging(request: AddPackagingRequest): Promise<boolean> {
-        try {
-            await this.isPackagingExist(request.label);
-            const packaging: Packaging = this.constructPackaging(request);
-            return await this.packagingRepository.createPackaging(packaging);
-        } catch (error) {
-            throw error as string;
-        }
-    }
-
     public async getTotalPackagings(): Promise<number> {
         try {
             return await this.packagingRepository.getTotalPackagings();
@@ -65,15 +55,6 @@ export default class PackagingService {
         }
     }
 
-    public async getPackagingById(id: number): Promise<Packaging | null> {
-        try {
-            const packaging: Packaging | null = await this.packagingRepository.getPackagingById(id);
-            return packaging;
-        } catch (error) {
-            throw error as string;
-        }
-    }
-
     public async getPackagingByLabel(limit: number, startIndex: number, label: string): Promise<Packaging[]> {
         try {
             return await this.packagingRepository.getPackagingByLabel(limit, startIndex, label);
@@ -82,14 +63,18 @@ export default class PackagingService {
         }
     }
 
-    public async isPackagingExist(label: string): Promise<void> {
-        const isExist = await this.packagingRepository.isPackagingExist(label);
-        if (isExist) throw new Error("Packaging is already exist");
+    public async createPackaging(request: AddPackagingRequest): Promise<boolean> {
+        try {
+            await this.isPackagingExist(request.label);
+            const packaging: Packaging = this.constructPackaging(request);
+            return await this.packagingRepository.createPackaging(packaging);
+        } catch (error) {
+            throw error as string;
+        }
     }
 
     public async editPackaging(request: EditPackagingRequest): Promise<boolean> {
         try {
-            // await this.isPackagingExist(request.label);
             const packaging: Packaging = this.constructEditPackaging(request);
             return await this.packagingRepository.editPackaging(packaging);
         } catch (error) {
@@ -100,12 +85,15 @@ export default class PackagingService {
     public async deletePackaging(request: EditPackagingRequest): Promise<boolean> {
         try {
             const packaging: Packaging = this.constructEditPackaging(request);
-            console.log("request: ", request);
-            console.log("packaging: ", packaging);
             return await this.packagingRepository.editPackaging(packaging);
         } catch (error) {
             throw error as string;
         }
+    }
+
+    private async isPackagingExist(label: string): Promise<void> {
+        const isExist = await this.packagingRepository.isPackagingExist(label);
+        if (isExist) throw new Error("Packaging is already exist");
     }
 
     private constructPackaging(request: AddPackagingRequest): Packaging {

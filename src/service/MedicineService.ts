@@ -1,13 +1,11 @@
 import MedicineRepository from "../repository/MedicineRepository";
 import MedicineDropdownVO from "../model/VOs/MedicineDropdownVO"
-import TotalMedicineGroupByCodeVO from "../model/VOs/TotalMedicineGroupByCodeVO";
 import {
 	GenericName,
 	Medicine,
 	MedicineHasClassification,
 	Prisma,
 	PrescriptionHasMedicine,
-	UnitOfMeasure,
 	ReasonOfDispose
 } from "@prisma/client";
 import AddMedicineRequest from "../model/request/AddMedicineRequest";
@@ -18,13 +16,10 @@ import MedicineCheckStockVO from "../model/VOs/MedicineCheckStockVO";
 import AddMedicineClassificationRequest from "../model/request/AddMedicineClassificationRequest";
 import MedicineHasClassificationRepository from "../repository/MedicineHasClassificationRepository";
 import MedicineDisplayVO from "../model/VOs/MedicineDisplayVO";
-import AddPrescribedMedicineRequest from "../model/request/AddPrescribedMedicineRequest";
 import MedicineData from "../model/VOs/MedicineDropdownVO";
-import AddClassificationRequest from "../model/request/AddClassificationRequest";
 import { CustomError } from "../validator/helper/ErrorHelper";
 import PrescriptionHasMedicineRepository from "../repository/PrescriptionHasMedicineRepository";
 import ExpiredMedicineResponse from "../model/response/ExpiredMedicineResponse";
-import TotalNeedToRestockVO from "../model/VOs/TotalNeedToRestockVO";
 
 export default class MedicineService {
 	private readonly medicineRepository: MedicineRepository;
@@ -107,14 +102,6 @@ export default class MedicineService {
 		}
 	}
 
-	public async getTotalMedicines(): Promise<number> {
-		try {
-			return await this.medicineRepository.getTotalMedicines();
-		} catch (error) {
-			throw error as string;
-		}
-	}
-
 	public async getTotalSearchMedicines(parameter: string | undefined): Promise<number> {
 		try {
 			return await this.medicineRepository.getTotalSearchMedicines(parameter);
@@ -150,14 +137,6 @@ export default class MedicineService {
 	public async getTotalNeedToRestock(): Promise<number> {
 		try {
 			return await this.medicineRepository.getTotalNeedToRestock();
-		} catch (error) {
-			throw error as string;
-		}
-	}
-
-	public async getAllMedicines(startIndex: number, limit: number): Promise<MedicineDisplayVO[]> {
-		try {
-			return await this.medicineRepository.getMedicines(startIndex, limit);
 		} catch (error) {
 			throw error as string;
 		}
@@ -202,14 +181,6 @@ export default class MedicineService {
 		}
 	}
 
-	public async searchMedicines(startIndex: number, limit: number, parameter: string): Promise<MedicineDisplayVO[]> {
-		try {
-			return await this.medicineRepository.searchMedicines(startIndex, limit, parameter);
-		} catch (error) {
-			throw error as string;
-		}
-	}
-
 	public async increaseReservedMedicine(medicineId: number, quantity: number) {
 		try {
 			console.log("increase:", medicineId, quantity)
@@ -237,14 +208,6 @@ export default class MedicineService {
 			});
 		} catch (error) {
 			throw error as string
-		}
-	}
-
-	public async activeMedicineById(medicineId: number) {
-		try {
-			await this.medicineRepository.activateMedicineById(medicineId);
-		} catch (error) {
-			throw error as string;
 		}
 	}
 
@@ -433,6 +396,79 @@ export default class MedicineService {
 		}
 	}
 
+	public async updateMedicineReservedStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineList: MedicineData[]) {
+		try {
+			let quantityLeftToUpdate = Math.abs(oldPrescriptionQuantity - newPrescriptionQuantity)
+			if (newPrescriptionQuantity < oldPrescriptionQuantity) {
+				console.log(`decrease reserve stock for ${medicineList.map(medicine => medicine.code)}, 
+					with old quantity: ${oldPrescriptionQuantity} and new quantity: ${newPrescriptionQuantity}`)
+				medicineList = medicineList.filter(medicineData => medicineData.reservedStock > 0).reverse()
+				medicineList.every(medicine => {
+					console.log("quantityLeft:", quantityLeftToUpdate)
+					const quantityUpdated = Math.min(quantityLeftToUpdate, medicine.reservedStock)
+					this.decreaseReservedMedicine(medicine.id, quantityUpdated)
+					quantityLeftToUpdate -= quantityUpdated
+					return quantityLeftToUpdate > 0
+				})
+			} else if (newPrescriptionQuantity > oldPrescriptionQuantity) {
+				console.log(`increase reserve stock for ${medicineList.map(medicine => medicine.code)}, 
+					with old quantity: ${oldPrescriptionQuantity} and new quantity: ${newPrescriptionQuantity}`)
+				console.log("quantityLeft:", quantityLeftToUpdate)
+				medicineList.every(medicine => {
+					const quantityUpdated = Math.min(quantityLeftToUpdate, medicine.currStock - medicine.reservedStock)
+					if (medicine.currStock - medicine.reservedStock > 0) {
+						this.increaseReservedMedicine(medicine.id, quantityUpdated)
+						quantityLeftToUpdate -= quantityUpdated
+					}
+					return quantityLeftToUpdate > 0
+				})
+			}
+		} catch (error) {
+			throw error as object;
+		}
+	}
+
+	public async increaseMedicineStock(medicineId: number, quantity: number) {
+		try {
+			await this.medicineRepository.increaseStock(medicineId, quantity)
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
+	public async getMedicineValidationList(medicineCodeList: string[]) {
+		try {
+			return this.medicineRepository.getMedicineByCodeIn(medicineCodeList);
+		} catch (error) {
+			throw error as string;
+		}
+	}
+
+	public async checkIfExpiredMedicineStillExist(expiredDate: Date): Promise<Medicine[]> {
+		try {
+			const startOfDay = new Date(expiredDate)
+			startOfDay.setHours(0, 0, 0, 0)
+			const endOfDay = new Date(expiredDate)
+			endOfDay.setHours(23, 59, 59, 999)
+
+			return await this.medicineRepository.checkIfMedicineExpiredTodayStillActive(startOfDay, endOfDay)
+		} catch (error) {
+			throw error as string
+		}
+	}
+
+	public async getExpiredMedicineBeforeToday(expiredDate: Date): Promise<ExpiredMedicineResponse[]> {
+		try {
+			const medicineList: Medicine[] = await this.checkIfExpiredMedicineStillExist(expiredDate)
+			if (medicineList.length === 0) {
+				return []
+			}
+			return medicineList.map(medicine => this.constructExpiredMedicineResponse(medicine))
+		} catch (error) {
+			throw error as string
+		}
+	}
+
 	private constructMedicine(request: AddMedicineRequest): Medicine {
 		return Builder<Medicine>()
 			.is_active(false)
@@ -483,74 +519,11 @@ export default class MedicineService {
 			.build();
 	}
 
-	public async decreaseMedicineStock(medicineId: number, quantity: number, path: string = "quantity") {
-		try {
-			await this.medicineRepository.decreaseStock(medicineId, quantity, path)
-		} catch (error) {
-			throw error as string;
-		}
-	}
-
-	public async increaseMedicineStock(medicineId: number, quantity: number) {
-		try {
-			await this.medicineRepository.increaseStock(medicineId, quantity)
-		} catch (error) {
-			throw error as string;
-		}
-	}
-
-	public async getMedicineValidationList(medicineCodeList: string[]) {
-		try {
-			return this.medicineRepository.getMedicineByCodeIn(medicineCodeList);
-		} catch (error) {
-			throw error as string;
-		}
-	}
-
 	private async mapMedicineDropdownList(medicineList: MedicineDropdownVO[]) {
 		return medicineList.reduce((medicineByMedicineCode, medicine) => {
 			medicineByMedicineCode.set(medicine.code, medicine)
 			return medicineByMedicineCode
 		}, new Map<string, MedicineDropdownVO>)
-	}
-
-	public async updateMedicineStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineId: number) {
-		try {
-			if (newPrescriptionQuantity > oldPrescriptionQuantity) {
-				console.log("decrease stock")
-				await this.decreaseMedicineStock(medicineId, newPrescriptionQuantity - oldPrescriptionQuantity)
-			} else if (oldPrescriptionQuantity > newPrescriptionQuantity) {
-				console.log("increase stock")
-				await this.increaseMedicineStock(medicineId, oldPrescriptionQuantity - newPrescriptionQuantity)
-			}
-		} catch (error) {
-			throw error as object;
-		}
-	}
-
-	public async checkIfExpiredMedicineStillExist(expiredDate: Date): Promise<Medicine[]> {
-		try {
-			const startOfDay = new Date(expiredDate)
-			startOfDay.setHours(0, 0, 0, 0)
-			const endOfDay = new Date(expiredDate)
-			endOfDay.setHours(23, 59, 59, 999)
-
-			return await this.medicineRepository.checkIfMedicineExpiredTodayStillActive(startOfDay, endOfDay)
-		} catch (error) {
-			throw error as string
-		}
-	}
-
-	public async getExpiredMedicineBeforeToday(expiredDate: Date): Promise<ExpiredMedicineResponse[]> {
-		try {
-			const medicineList: Medicine[] = await this.checkIfExpiredMedicineStillExist(expiredDate)
-			if (medicineList.length === 0) {
-				return []
-			}
-			return medicineList.map(medicine => this.constructExpiredMedicineResponse(medicine))
-		} catch (error) {
-			throw error as string
-		}
 	}
 
 	private async checkIfParamValid(searchQuery: string | undefined, sortBy: string | undefined, sortMode: string | undefined) {
@@ -619,38 +592,6 @@ export default class MedicineService {
 		if (recommendationStock > 0) {
 			return recommendationStock
 		} else return 0
-	}
-
-	public async updateMedicineReservedStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineList: MedicineData[]) {
-		try {
-			let quantityLeftToUpdate = Math.abs(oldPrescriptionQuantity - newPrescriptionQuantity)
-			if (newPrescriptionQuantity < oldPrescriptionQuantity) {
-				console.log(`decrease reserve stock for ${medicineList.map(medicine => medicine.code)}, 
-					with old quantity: ${oldPrescriptionQuantity} and new quantity: ${newPrescriptionQuantity}`)
-				medicineList = medicineList.filter(medicineData => medicineData.reservedStock > 0).reverse()
-				medicineList.every(medicine => {
-					console.log("quantityLeft:", quantityLeftToUpdate)
-					const quantityUpdated = Math.min(quantityLeftToUpdate, medicine.reservedStock)
-					this.decreaseReservedMedicine(medicine.id, quantityUpdated)
-					quantityLeftToUpdate -= quantityUpdated
-					return quantityLeftToUpdate > 0
-				})
-			} else if (newPrescriptionQuantity > oldPrescriptionQuantity) {
-				console.log(`increase reserve stock for ${medicineList.map(medicine => medicine.code)}, 
-					with old quantity: ${oldPrescriptionQuantity} and new quantity: ${newPrescriptionQuantity}`)
-				console.log("quantityLeft:", quantityLeftToUpdate)
-				medicineList.every(medicine => {
-					const quantityUpdated = Math.min(quantityLeftToUpdate, medicine.currStock - medicine.reservedStock)
-					if (medicine.currStock - medicine.reservedStock > 0) {
-						this.increaseReservedMedicine(medicine.id, quantityUpdated)
-						quantityLeftToUpdate -= quantityUpdated
-					}
-					return quantityLeftToUpdate > 0
-				})
-			}
-		} catch (error) {
-			throw error as object;
-		}
 	}
 
 	private constructExpiredMedicineResponse(medicine: Medicine) {

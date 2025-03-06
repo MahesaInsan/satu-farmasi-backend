@@ -20,7 +20,6 @@ class MedicineRouter extends BaseRouter {
         this.router.get( "/dropdownOptionsById", this.medicineController.getMedicineListById.bind( this.medicineController));
         this.router.get( "/summaryById", this.medicineController.getMedicineByIdSummary.bind( this.medicineController));
         this.router.get( "/summaryByCode", this.medicineController.getMedicineByCodeSummary.bind( this.medicineController));
-        this.router.get( "/", this.medicineController.getMedicines.bind(this.medicineController));
         this.router.get( "/total", this.medicineController.getTotalMedicine.bind(this.medicineController));
         this.router.get( "/total/need-to-restock", this.medicineController.getTotalNeedToRestock.bind(this.medicineController));
         this.router.get( "/:id", this.medicineController.getSingleMedicineById.bind(this.medicineController));

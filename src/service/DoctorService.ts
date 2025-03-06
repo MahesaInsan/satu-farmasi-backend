@@ -21,10 +21,6 @@ export default class DoctorService {
 		this.editUserHelper = new EditUserHelper<EditDoctorRequest, User>();
 	}
 
-	public async emailIsExist(email: string): Promise<Boolean> {
-		return await this.doctorRepository.emailIsExist(email)
-	}
-
 	public async addDoctor(request: AddDoctorRequest): Promise<User> {
 		try {
 			await this.userService.emailIsExist(request.email);
@@ -46,15 +42,6 @@ export default class DoctorService {
 			return await this.doctorRepository.editDoctor(Builder(doctor).role(Role.DOCTOR).specialist(request.specialist).build())
 		} catch (error) {
 			throw error as string;
-		}
-	}
-
-	public async getDoctorByEmail(email: string): Promise<User | null> {
-		try {
-			return await this.doctorRepository.getDoctorByEmail(email)
-		} catch (error) {
-			console.error('Error getting doctor by email:', error);
-			throw new Error('Failed to get doctor');
 		}
 	}
 

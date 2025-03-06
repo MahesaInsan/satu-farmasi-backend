@@ -55,28 +55,6 @@ export default class MedicineController extends BaseController {
             return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
         }
     }
-    
-    public async getMedicines(req: Request, res: Response) {
-        try {
-            const parameter: string = req.query.parameter as string;
-            const totalMedicine: number = parameter
-                ? await this.medicineService.getTotalSearchMedicines(parameter)
-                : await this.medicineService.getTotalMedicines();
-
-            const pagination: PaginationRequest = this.getPagination(totalMedicine, req);
-            const medicines: MedicineDisplayVO[] = parameter
-                ? await this.medicineService.searchMedicines(pagination.startIndex, pagination.limit, parameter)
-                : await this.medicineService.getAllMedicines(pagination.startIndex, pagination.limit);
-
-            pagination.results = medicines;
-            pagination.total = totalMedicine;
-            return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination), "Succeed fetch medicines"));
-        } catch (error) {
-            console.log("[src][controller][MedicineController][getMedicines] ", error);
-            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
-            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
-        }
-    }
 
     public async getTotalMedicine(req: Request, res: Response) {
         try {

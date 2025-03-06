@@ -65,14 +65,6 @@ export default class AdminService {
 		}
 	}
 
-	public async getAllAdmin(limit: number, startIndex: number, param?: string): Promise<AdminVO[]> {
-		try {
-			return await this.adminRepository.getAllAdmins(limit, startIndex, param);
-		} catch (error) {
-			throw error as string;
-		}
-	}
-
 	public async getTotalStaff(filter: string, param?: string,): Promise<number> {
 		try {
 			if (filter.toLowerCase() === "admin") return await this.getTotalAdmin(param);

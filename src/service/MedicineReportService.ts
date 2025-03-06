@@ -8,12 +8,10 @@ import MedicineService from "./MedicineService";
 export default class MedicineReportService {
     private readonly reportRepository: MedicineReportRepository;
     private readonly medicineService: MedicineService;
-    //private readonly vendorHelper: VendorHelper;
 
     constructor() {
         this.reportRepository = new MedicineReportRepository();
         this.medicineService = new MedicineService();
-        //this.vendorHelper = new VendorHelper();
     }
 
     public async getTodayUnFinalizedMedicineReport(): Promise<TodayMedicineReportVOs | null> {
@@ -80,10 +78,7 @@ export default class MedicineReportService {
         }
     }
 
-    public async getAllMedicineReports(
-        limit: number,
-        startIndex: number,
-    ): Promise<MedicineReportVO[]> {
+    public async getAllMedicineReports(limit: number, startIndex: number): Promise<MedicineReportVO[]> {
         try {
             return await this.reportRepository.getAllMedicineReports(
                 limit,
@@ -102,9 +97,7 @@ export default class MedicineReportService {
         }
     }
 
-    public async getMedicineReportById(
-        reportId: number,
-    ): Promise<MedicineReportVO | null> {
+    public async getMedicineReportById(reportId: number): Promise<MedicineReportVO | null> {
         try {
             return await this.reportRepository.getMedicineReportById(reportId);
         } catch (error) {
@@ -112,9 +105,7 @@ export default class MedicineReportService {
         }
     }
 
-    public async addMedicineReport(
-        data: MedicineReport,
-    ): Promise<MedicineReport> {
+    public async addMedicineReport(data: MedicineReport): Promise<MedicineReport> {
         try {
             return await this.reportRepository.addMedicineReport(data);
         } catch (error) {

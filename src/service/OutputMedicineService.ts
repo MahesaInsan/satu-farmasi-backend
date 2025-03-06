@@ -45,7 +45,6 @@ export default class OutputMedicineService {
         }
     }
 
-
     public async getOutputMedicineById(id: number): Promise<OutputMedicineVO | null> {
         try {
             return await this.outputMedicineRepository.getOutputMedicineById(id);

@@ -12,9 +12,7 @@ import PaginationRequest from "../model/request/PaginationRequest";
 import TransactionSummaryVO from "../model/VOs/TransactionSummaryVO";
 import ChangeTransactionStatusVO from "../model/VOs/ChangeTransactionStatusVO";
 import ConfirmPayRequest from "../model/request/ConfirmPayRequest";
-import TransactionByDateVO from "../model/VOs/TransactionByDateVO";
 import ReceiveMedicineService from "./ReceiveMedicineService";
-import ReceiveMedicineVO from "../model/VOs/ReceiveMedicineVO";
 import TransactionAnnualRecapVO from "../model/VOs/TransactionAnnualRecapVO";
 import MedicineReportService from "./MedicineReportService";
 import TodayMedicineReportVOs from "../model/VOs/TodayMedicineReportVO";
@@ -25,7 +23,6 @@ import PhysicalReportVO from "../model/VOs/PhysicalReportVO";
 import TotalIncomeTransactionVO from "../model/VOs/TotalIncomeTransactionVO";
 import TotalOutcomeReceiveVO from "../model/VOs/TotalOutcomeReceiveVO";
 import OutputMedicineService from "./OutputMedicineService";
-import ValidationHelper from "./helper/ValidationHelper";
 import TotalOutcomeOutputVO from "../model/VOs/TotalOutcomeOutputVO";
 
 export default class TransactionService{
@@ -38,7 +35,6 @@ export default class TransactionService{
     private readonly transactionRepository: TransactionRepository;
     private readonly physicalReportService: PhysicalReportService;
     private readonly outputMedicineService: OutputMedicineService;
-    private readonly validationHelper: ValidationHelper;
 
     private transactionSSE: SSEConnection[] = [];
 
@@ -51,8 +47,7 @@ export default class TransactionService{
         this.transactionRepository = new TransactionRepository();
         this.medicineReportHelper = new MedicineReportHelper();
         this.physicalReportService = new PhysicalReportService();
-        this.outputMedicineService = new OutputMedicineService(); 
-        this.validationHelper = new ValidationHelper();
+        this.outputMedicineService = new OutputMedicineService();
     }
 
     public async createNewTransaction(request: AddTransactionRequest) {
@@ -161,9 +156,6 @@ export default class TransactionService{
         }
     }
 
-    // TODO: 
-    // 1. tambah untuk output medicine juga
-    // 2. ganti logic, transaction id simpen ke set & panggil repo nya pake select IN
     public async getTransactionProfitByDate(startDate: Date, lastDate: Date): Promise<Prisma.Decimal> {
         try {
             const income: TotalIncomeTransactionVO[] = await this.getTotalIncomeByDate(startDate, lastDate);
@@ -265,11 +257,8 @@ export default class TransactionService{
 
     private async calculateTotalPrice(prescription: PrescriptionDetailVO): Promise<Prisma.Decimal>{
         try {
-            console.log("prescription.medicineList", prescription.medicineList)
-            const test =  prescription.medicineList
-                .reduce((total: Prisma.Decimal, medicine) => Prisma.Decimal.add(total, medicine.totalPrice), new Prisma.Decimal(0))
-            console.log("test", test)
-            return test;
+            return prescription.medicineList
+                .reduce((total: Prisma.Decimal, medicine) => Prisma.Decimal.add(total, medicine.totalPrice), new Prisma.Decimal(0));
         } catch (error) {
             throw error as string;
         }

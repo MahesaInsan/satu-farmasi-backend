@@ -30,21 +30,6 @@ export default class AdminController extends BaseController{
         }
     }
 
-    async getAllAdmin(req: Request, res: Response){
-        try{
-            const param: string = req.query.label as string;
-            const totalData = await this.adminService.getTotalAdmin();
-            const pagination = this.getPagination(totalData, req);
-            const admins: AdminVO[] = await this.adminService.getAllAdmin(pagination.limit, pagination.startIndex, param);
-            pagination.results = admins;
-            pagination.total = totalData;
-            return res.status(200).send(new BaseResponse().ok(this.responseHelper.constructPaginationResponse(pagination)));
-        } catch (error) {
-            const { defaultErrorMsg, errors } = new BaseResponse().constructErrorHandler(error as object);
-            return res.status(400).send(new BaseResponse().badRequest(defaultErrorMsg, errors));
-        }
-    }
-
     async getAllStaff(req: Request, res: Response){
         try{
             const param: string = req.query.param as string;

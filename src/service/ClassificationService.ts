@@ -41,14 +41,6 @@ export default class ClassificationService {
     }
   }
 
-  public async getClassificationById(id: number): Promise<Classification | null> {
-    try {
-      return await this.classificationRepository.getClassificationById(id);
-    } catch (error) {
-      throw new Error(error as string);
-    }
-  }
-
     public async addClassification(request: AddClassificationRequest): Promise<Classification>{
         try {
             await this.validateIfDuplicate(request.value)

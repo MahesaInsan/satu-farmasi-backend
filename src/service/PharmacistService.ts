@@ -21,10 +21,6 @@ export default class PharmacistService {
 		this.editUserHelper = new EditUserHelper<EditPharmacistRequest, User>();
 	}
 
-	public async emailIsExist(email: string): Promise<Boolean> {
-		return await this.pharmacistRepository.emailIsExist(email)
-	}
-
 	public async addPharmacist(request: AddPharmacistRequest): Promise<boolean> {
 		try {
 			await this.userService.emailIsExist(request.email);
@@ -44,14 +40,6 @@ export default class PharmacistService {
 			const pharmacist: User = this.editUserHelper.editBaseUser(request);
             console.log("req: ", request)
 			return await this.pharmacistRepository.editPharmacist(Builder(pharmacist).role(Role.PHARMACIST).sipaNum(request.sipaNum).build());
-		} catch (error) {
-			throw error as object;
-		}
-	}
-
-	public async getPharmacistByEmail(email: string): Promise<User | null> {
-		try {
-			return await this.pharmacistRepository.getPharmacistByEmail(email)
 		} catch (error) {
 			throw error as object;
 		}
