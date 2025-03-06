@@ -615,8 +615,10 @@ export default class MedicineService {
 		const bufferStock = Math.round(averageSold * 0.2)
 		const leadTimeStock = Math.round(averageSold / 4)
 
-		console.log(averageSold, "+", bufferStock, "+", leadTimeStock, "-", currentStock)
-		return (averageSold + bufferStock + leadTimeStock) - currentStock
+		const recommendationStock = (averageSold + bufferStock + leadTimeStock) - currentStock
+		if (recommendationStock > 0) {
+			return recommendationStock
+		} else return 0
 	}
 
 	public async updateMedicineReservedStock(oldPrescriptionQuantity: number, newPrescriptionQuantity: number, medicineList: MedicineData[]) {
